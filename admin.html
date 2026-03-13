@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeStore · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;--bdr:#2e2e38;--txt:#f0f0f8;--dim:#9999b0;--muted:#6b6b80;--violet:#B354F1;--orchid:#6A14DB;--teal:#28B79D;--red:#ff5f5f;--mono:'JetBrains Mono',monospace}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+/* LOGIN */
+#loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:32px;padding:40px 20px}
+.login-card{background:var(--d1);border:1px solid var(--bdr);border-radius:16px;padding:48px 40px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:20px}
+.login-label{font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+.login-title{font-size:22px;font-weight:900;color:var(--txt);letter-spacing:-0.3px}
+.login-input{width:100%;background:var(--d3);border:1px solid var(--bdr);border-radius:8px;padding:12px 16px;color:var(--txt);font-family:var(--mono);font-size:14px;outline:none;transition:border-color .2s}
+.login-input:focus{border-color:var(--violet)}
+.login-btn{width:100%;background:linear-gradient(135deg,var(--orchid),var(--violet));border:none;border-radius:8px;padding:13px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:opacity .2s}
+.login-btn:hover{opacity:.88}
+.login-err{font-size:12px;color:var(--red);font-weight:700;display:none;text-align:center}
+
+/* DASHBOARD */
+#dashboard{display:none}
+.admin-nav{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;background:var(--d1);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:100}
+.admin-nav-left{display:flex;align-items:center;gap:16px}
+.admin-badge{font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--violet);background:rgba(179,84,241,.12);border:1px solid rgba(179,84,241,.3);border-radius:4px;padding:3px 8px}
+.admin-nav-right{display:flex;align-items:center;gap:16px}
+.last-updated{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.icon-btn{font-size:11px;font-weight:700;background:none;border:1px solid var(--bdr);border-radius:6px;padding:5px 12px;cursor:pointer;transition:color .2s,border-color .2s}
+.icon-btn.violet{color:var(--violet);background:rgba(179,84,241,.1);border-color:rgba(179,84,241,.25)}
+.icon-btn.violet:hover{background:rgba(179,84,241,.2)}
+.icon-btn.muted{color:var(--muted)}
+.icon-btn.muted:hover{color:var(--txt);border-color:var(--dim)}
+
+.admin-main{max-width:1200px;margin:0 auto;padding:32px 32px 80px;display:flex;flex-direction:column;gap:32px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--dim)}
+.section-count{font-size:11px;font-weight:700;color:var(--muted);font-family:var(--mono)}
+
+/* STAT CARDS */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.stat-card{background:var(--d1);border:1px solid var(--bdr);border-radius:12px;padding:20px 22px}
+.stat-card.accent{border-color:rgba(179,84,241,.4);background:rgba(106,20,219,.08)}
+.stat-label{font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-value{font-size:32px;font-weight:900;color:var(--txt);letter-spacing:-1px;line-height:1}
+.stat-card.accent .stat-value{color:var(--violet)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* ANALYTICS GRID */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.analytics-grid{grid-template-columns:1fr}}
+.analytics-block-title{font-size:11px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+
+/* SCROLL DEPTH */
+.depth-bars{background:var(--d1);border:1px solid var(--bdr);border-radius:12px;padding:24px}
+.depth-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.depth-row:last-child{margin-bottom:0}
+.depth-lbl{font-size:11px;font-weight:700;color:var(--dim);font-family:var(--mono);width:36px;flex-shrink:0;text-align:right}
+.depth-track{flex:1;height:8px;background:var(--d3);border-radius:4px;overflow:hidden}
+.depth-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--orchid),var(--violet));width:0%;transition:width .7s cubic-bezier(.16,1,.3,1)}
+.depth-pct{font-size:11px;font-weight:700;color:var(--dim);font-family:var(--mono);width:36px;flex-shrink:0}
+
+/* CLICK TABLE */
+.click-table{background:var(--d1);border:1px solid var(--bdr);border-radius:12px;overflow:hidden}
+.click-row{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--bdr)}
+.click-row:last-child{border-bottom:none}
+.click-row.hdr{background:var(--d2)}
+.click-name{flex:1;font-size:12px;color:var(--dim)}
+.click-name.h{font-weight:700;color:var(--muted);font-size:10px;letter-spacing:0.06em;text-transform:uppercase}
+.click-count{font-size:13px;font-weight:800;color:var(--txt);font-family:var(--mono);width:48px;text-align:right}
+.click-count.h{font-size:10px;color:var(--muted);font-weight:700}
+.click-bar-col{width:120px}
+.click-track{height:4px;background:var(--d3);border-radius:2px;overflow:hidden}
+.click-fill{height:100%;background:var(--teal);border-radius:2px;width:0%;transition:width .7s cubic-bezier(.16,1,.3,1)}
+
+/* LEADS TABLE */
+.leads-wrap{background:var(--d1);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+thead tr{background:var(--d2)}
+th{font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);padding:12px 16px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap}
+td{font-size:12px;color:var(--dim);padding:13px 16px;border-bottom:1px solid rgba(46,46,56,.5);vertical-align:top}
+td.nm{font-weight:700;color:var(--txt);white-space:nowrap}
+td.br{color:var(--violet);font-weight:600;white-space:nowrap}
+td.em{font-family:var(--mono);font-size:11px;white-space:nowrap}
+td.ts{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap}
+td.rl{white-space:nowrap}
+td.mg{line-height:1.5;max-width:260px}
+tbody tr:hover{background:var(--d2)}
+tbody tr:last-child td{border-bottom:none}
+
+/* STATES */
+.state-msg{padding:48px;text-align:center;color:var(--muted);font-size:13px;font-family:var(--mono)}
+.dot{display:inline-block;width:6px;height:6px;background:var(--violet);border-radius:50%;animation:pulse 1.2s ease-in-out infinite;margin:0 2px}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{opacity:.2}40%{opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <svg width="140" height="26" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#fff" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/>
+    <path fill="#fff" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/>
+    <path fill="#fff" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/>
+    <path fill="#fff" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/>
+    <path fill="#fff" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/>
+    <path fill="#fff" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z"/>
+    <path fill="#fff" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z"/>
+    <path fill="#fff" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/>
+  </svg>
+  <div class="login-card">
+    <div class="login-label">Admin Access</div>
+    <div class="login-title">Dashboard</div>
+    <input class="login-input" id="pwInput" type="password" placeholder="Password" autocomplete="current-password"/>
+    <button class="login-btn" id="loginBtn">Sign in →</button>
+    <div class="login-err" id="loginErr">Incorrect password</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <nav class="admin-nav">
+    <div class="admin-nav-left">
+      <svg width="90" height="17" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#fff" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/>
+        <path fill="#fff" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/>
+        <path fill="#fff" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/>
+        <path fill="#fff" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/>
+        <path fill="#fff" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/>
+        <path fill="#fff" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z"/>
+        <path fill="#fff" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z"/>
+        <path fill="#fff" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/>
+      </svg>
+      <span class="admin-badge">Admin</span>
+    </div>
+    <div class="admin-nav-right">
+      <span class="last-updated" id="lastUpdated">—</span>
+      <button class="icon-btn violet" id="refreshBtn">↻ Refresh</button>
+      <button class="icon-btn muted" id="logoutBtn">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="admin-main">
+
+    <!-- Stat cards -->
+    <div>
+      <div class="section-header"><div class="section-title">Overview</div></div>
+      <div class="stat-row">
+        <div class="stat-card accent">
+          <div class="stat-label">ESPR Leads</div>
+          <div class="stat-value" id="statLeads">—</div>
+          <div class="stat-sub">form submissions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Page Views</div>
+          <div class="stat-value" id="statViews">—</div>
+          <div class="stat-sub">unique sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Reached Form</div>
+          <div class="stat-value" id="statForm">—</div>
+          <div class="stat-sub">saw the ESPR section</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Conversion</div>
+          <div class="stat-value" id="statConv">—</div>
+          <div class="stat-sub">leads ÷ views</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics -->
+    <div>
+      <div class="section-header"><div class="section-title">Engagement</div></div>
+      <div class="analytics-grid">
+
+        <div class="depth-bars">
+          <div class="analytics-block-title">Scroll depth — sessions reaching each point</div>
+          <div id="depthBars"><div class="state-msg"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>
+        </div>
+
+        <div class="click-table" id="clickTable">
+          <div class="click-row hdr">
+            <div class="click-name h">Element</div>
+            <div class="click-count h">Clicks</div>
+            <div class="click-bar-col"></div>
+          </div>
+          <div class="state-msg"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Leads -->
+    <div>
+      <div class="section-header">
+        <div class="section-title">ESPR Leads</div>
+        <div class="section-count" id="leadsCount">loading…</div>
+      </div>
+      <div class="leads-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Brand</th><th>Email</th><th>Role</th><th>Message</th><th>Submitted</th></tr></thead>
+          <tbody id="leadsBody"><tr><td colspan="7" class="state-msg"><span class="dot"></span><span class="dot"></span><span class="dot"></span></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const N8N = 'https://n8n.flowberry.org/webhook';
+const PASS = 'destore2026';
+
+// ── Login
+function tryLogin() {
+  if (document.getElementById('pwInput').value === PASS) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadAll();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+document.getElementById('loginBtn').addEventListener('click', tryLogin);
+document.getElementById('pwInput').addEventListener('keydown', function(e){ if(e.key==='Enter') tryLogin(); });
+document.getElementById('logoutBtn').addEventListener('click', function(){
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('pwInput').value = '';
+});
+document.getElementById('refreshBtn').addEventListener('click', loadAll);
+
+// ── Fetch
+async function apiFetch(path) {
+  try {
+    var r = await fetch(N8N + path);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+// ── Unique session count
+function uniqSessions(events, type) {
+  var s = new Set();
+  (events||[]).forEach(function(e){ if(!type||e.event_type===type) s.add(e.session_id); });
+  return s.size;
+}
+
+// ── Escape HTML
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Render stats
+function renderStats(leads, events) {
+  var views = uniqSessions(events, 'pageview');
+  var form  = uniqSessions(events.filter(function(e){ return e.event_type==='section_view' && e.label==='Section: ESPR Form'; }), null);
+  var conv  = views > 0 ? Math.round(leads.length / views * 100) + '%' : '—';
+  document.getElementById('statLeads').textContent = leads.length;
+  document.getElementById('statViews').textContent = views || '—';
+  document.getElementById('statForm').textContent  = form  || '—';
+  document.getElementById('statConv').textContent  = conv;
+}
+
+// ── Render scroll depth
+function renderDepth(events) {
+  var milestones = [25,50,75,90,100];
+  var totalViews = uniqSessions(events, 'pageview') || 1;
+  var sessionMax = {};
+  events.filter(function(e){ return e.event_type==='scroll_depth'; }).forEach(function(e){
+    var p = parseInt(e.label);
+    if (!sessionMax[e.session_id] || p > sessionMax[e.session_id]) sessionMax[e.session_id] = p;
+  });
+  var counts = {};
+  milestones.forEach(function(m){ counts[m]=0; });
+  Object.values(sessionMax).forEach(function(max){
+    milestones.forEach(function(m){ if(max>=m) counts[m]++; });
+  });
+  var html = '';
+  milestones.forEach(function(m){
+    var pct = Math.round(counts[m]/totalViews*100);
+    html += '<div class="depth-row"><div class="depth-lbl">'+m+'%</div>'
+          + '<div class="depth-track"><div class="depth-fill" data-pct="'+pct+'"></div></div>'
+          + '<div class="depth-pct">'+pct+'%</div></div>';
+  });
+  document.getElementById('depthBars').innerHTML = html || '<div class="state-msg">No data yet</div>';
+  requestAnimationFrame(function(){
+    document.querySelectorAll('.depth-fill').forEach(function(el){ el.style.width = el.dataset.pct + '%'; });
+  });
+}
+
+// ── Render clicks
+function renderClicks(events) {
+  var counts = {};
+  events.filter(function(e){ return e.event_type==='click'; }).forEach(function(e){
+    counts[e.label] = (counts[e.label]||0) + 1;
+  });
+  var sorted = Object.entries(counts).sort(function(a,b){ return b[1]-a[1]; });
+  var max = sorted.length ? sorted[0][1] : 1;
+  var ct = document.getElementById('clickTable');
+  var rows = '<div class="click-row hdr"><div class="click-name h">Element</div><div class="click-count h">Clicks</div><div class="click-bar-col"></div></div>';
+  if (!sorted.length) {
+    rows += '<div class="state-msg">No click data yet</div>';
+  } else {
+    sorted.forEach(function(entry){
+      var pct = Math.round(entry[1]/max*100);
+      rows += '<div class="click-row"><div class="click-name">'+esc(entry[0])+'</div>'
+            + '<div class="click-count">'+entry[1]+'</div>'
+            + '<div class="click-bar-col"><div class="click-track"><div class="click-fill" data-pct="'+pct+'"></div></div></div></div>';
+    });
+  }
+  ct.innerHTML = rows;
+  requestAnimationFrame(function(){
+    document.querySelectorAll('.click-fill').forEach(function(el){ el.style.width = el.dataset.pct + '%'; });
+  });
+}
+
+// ── Render leads
+function renderLeads(leads) {
+  document.getElementById('leadsCount').textContent = leads.length + ' total';
+  var tbody = document.getElementById('leadsBody');
+  if (!leads.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="state-msg">No leads yet — share the landing page!</td></tr>';
+    return;
+  }
+  leads.sort(function(a,b){ return new Date(b.submitted_at||b.ts||0)-new Date(a.submitted_at||a.ts||0); });
+  tbody.innerHTML = leads.map(function(l,i){
+    var ts = l.submitted_at||l.ts||'';
+    var date = ts ? new Date(ts).toLocaleString('en-AU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    return '<tr>'
+      +'<td class="ts">'+(leads.length-i)+'</td>'
+      +'<td class="nm">'+esc(l.name)+'</td>'
+      +'<td class="br">'+esc(l.brand)+'</td>'
+      +'<td class="em"><a href="mailto:'+esc(l.email)+'" style="color:var(--violet);text-decoration:none;">'+esc(l.email)+'</a></td>'
+      +'<td class="rl">'+esc(l.role)+'</td>'
+      +'<td class="mg">'+esc(l.message)+'</td>'
+      +'<td class="ts">'+date+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ── Load all
+async function loadAll() {
+  document.getElementById('lastUpdated').textContent = 'Loading…';
+  var results = await Promise.all([
+    apiFetch('/destore-admin-leads'),
+    apiFetch('/destore-admin-analytics'),
+  ]);
+  var leads  = Array.isArray(results[0]) ? results[0] : (results[0]?.data || []);
+  var events = Array.isArray(results[1]) ? results[1] : (results[1]?.data || []);
+  renderStats(leads, events);
+  renderLeads(leads);
+  renderDepth(events);
+  renderClicks(events);
+  document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-AU');
+}
+</script>
+</body>
+</html>
