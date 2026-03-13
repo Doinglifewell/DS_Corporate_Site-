@@ -1,0 +1,40 @@
+TO: innovation@gs1au.org
+CC: (add if you find a specific contact)
+SUBJECT: Innovation Partner Enquiry — GS1 Digital Link + Blockchain DPP + AR Ownership for Australian Brands
+
+---
+
+Hi GS1 Australia team,
+
+My name is Josiah Kotzur. I'm the founder of DeStore, a Digital Product Passport infrastructure platform built specifically for Australian brands navigating the EU's Ecodesign for Sustainable Products Regulation (ESPR) — which mandates machine-readable DPPs on all physical products entering the EU from July 2027.
+
+I'm reaching out because DeStore is built directly on GS1 Digital Link as its QR resolution standard, and I believe there may be strong alignment with GS1 Australia's innovation and partner programs.
+
+What DeStore does:
+
+- Issues EU-compliant Digital Product Passports per product sold (not per scan)
+- Uses GS1 Digital Link QR codes paired with Laava Smart Fingerprint™ for physical authentication
+- Anchors every DPP record to Base blockchain (Coinbase's L2) with an Ethereum mainnet anchor — making product records immutable and tamper-proof
+- Issues soulbound NFT ownership records to brand wallets, with transferable ownership claims to consumer wallets
+- Resolves every scan to the brand's own domain — not a third-party platform
+
+What we're building next — AR ownership experiences:
+
+We are developing an AR layer directly into our consumer wallet product (DeAR — Decentralised Asset Register). When a verified product owner scans their GS1 Digital Link QR, their ownership is confirmed on-chain, and they are served a native AR experience via Apple AR Quick Look — rendering their product in their physical space using ARKit. This is gated by cryptographic ownership verification, meaning only the current legitimate owner can access the AR content. Counterfeit products and non-owners receive nothing.
+
+This creates a new category: ownership-gated AR experiences anchored to GS1 Digital Link — where the QR code is both the compliance gateway and the AR trigger.
+
+Why I'm reaching out:
+
+I would love to explore whether DeStore qualifies for GS1 Australia's innovation partner program, and whether there is appetite to co-present or collaborate on demonstrating this use case — particularly for Australian SMEs in apparel, footwear, skincare, and homewares who are underserved by current DPP solutions and facing the same EU deadline as enterprise brands.
+
+I'm based in Byron Bay and happy to connect by call, video, or in person at a time that suits your team.
+
+Would you be open to an initial conversation?
+
+Warm regards,
+Josiah Kotzur
+Founder, DeStore Network
+Josiah@destore.network
+destore.network
+Byron Bay, Australia

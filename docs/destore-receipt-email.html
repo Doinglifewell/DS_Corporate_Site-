@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Your product is registered — DeStore</title>
+<style>
+  /* Reset */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0a0d; font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif; color:#fff; -webkit-font-smoothing:antialiased; }
+
+  /* ── BRAND SKIN VARIABLES ── */
+  /* Default = DeStore. Override these per client. */
+  :root {
+    --brand-primary:   #B354F1;   /* DeStore Hybrid Violet   — Nike: #111, Apple: #1d1d1f */
+    --brand-secondary: #6A14DB;   /* DeStore Orchid          — Nike: #be0000, Apple: #0071e3 */
+    --brand-accent:    #FF9F46;   /* DeStore Orange          */
+    --brand-name:      "DeStore";
+    --client-color:    #ffffff;   /* client logo / name tint */
+  }
+
+  .email-shell {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #0d0d10;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #2e2e38;
+  }
+
+  /* ── HERO BAND ── */
+  .hero {
+    background: linear-gradient(135deg, #0d0d10 0%, #1a1028 60%, #0f0a1e 100%);
+    padding: 32px 36px 28px;
+    border-bottom: 1px solid #2e2e38;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(179,84,241,0.18) 0%, transparent 70%);
+  }
+
+  /* Co-brand header */
+  .cobrands {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .destore-logo { display:flex; align-items:center; line-height:0; }
+
+  .client-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px;
+    padding: 6px 14px 6px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+  }
+  .client-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--brand-primary);
+  }
+
+  .hero-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brand-primary);
+    margin-bottom: 8px;
+  }
+  .hero-title {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .hero-sub {
+    font-size: 13px;
+    color: #6b6b80;
+    line-height: 1.5;
+  }
+
+  /* ── WALLET PASS CTA ── */
+  .wallet-section {
+    padding: 24px 36px;
+    background: linear-gradient(135deg, rgba(179,84,241,0.08) 0%, rgba(106,20,219,0.05) 100%);
+    border-bottom: 1px solid #2e2e38;
+  }
+  .wallet-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b6b80;
+    margin-bottom: 14px;
+  }
+  .wallet-btns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .wallet-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+  }
+  .wallet-btn.apple {
+    background: #fff;
+    color: #000;
+    flex: 1;
+  }
+  .wallet-btn.google {
+    background: #1a73e8;
+    color: #fff;
+    flex: 1;
+  }
+  .wallet-btn.dear {
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+    color: #fff;
+    flex: 2;
+  }
+  .wallet-icon { font-size: 16px; }
+  .wallet-text { display: flex; flex-direction: column; text-align: left; }
+  .wallet-text-small { font-size: 9px; font-weight: 600; opacity: 0.7; }
+  .wallet-text-big   { font-size: 13px; font-weight: 800; }
+
+  /* ── PRODUCT CARD ── */
+  .product-section {
+    padding: 24px 36px;
+    border-bottom: 1px solid #2e2e38;
+  }
+  .section-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b6b80;
+    margin-bottom: 14px;
+  }
+  .product-card {
+    background: #141418;
+    border: 1px solid #2e2e38;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .product-img {
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #1c1c22, #26262e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    flex-shrink: 0;
+    border: 1px solid #2e2e38;
+  }
+  .product-info { flex: 1; min-width: 0; }
+  .product-brand {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #6b6b80;
+    margin-bottom: 3px;
+  }
+  .product-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: #e8e8f4;
+    margin-bottom: 6px;
+    letter-spacing: -0.2px;
+  }
+  .product-meta {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+  .pill-green  { background: rgba(40,183,157,0.12); color: #28B79D; border: 1px solid rgba(40,183,157,0.25); }
+  .pill-violet { background: rgba(179,84,241,0.12); color: #B354F1; border: 1px solid rgba(179,84,241,0.25); }
+  .pill-orange { background: rgba(255,159,70,0.12); color: #FF9F46; border: 1px solid rgba(255,159,70,0.25); }
+  .product-price {
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-top: 8px;
+  }
+
+  /* ── DPP DATA ── */
+  .dpp-section {
+    padding: 24px 36px;
+    border-bottom: 1px solid #2e2e38;
+  }
+  .dpp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .dpp-field {
+    background: #141418;
+    border: 1px solid rgba(46,46,56,0.6);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .dpp-label { font-size: 9px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #6b6b80; margin-bottom: 3px; }
+  .dpp-value { font-size: 12px; font-weight: 600; color: #e8e8f4; }
+
+  .chain-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(40,183,157,0.06);
+    border: 1px solid rgba(40,183,157,0.2);
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .chain-pulse { width: 8px; height: 8px; border-radius: 50%; background: #28B79D; flex-shrink: 0; }
+  .chain-text  { font-size: 12px; color: #6b6b80; }
+  .chain-name  { color: #28B79D; font-weight: 700; }
+  .chain-right { margin-left: auto; font-size: 11px; color: #6b6b80; }
+
+  /* ── ACTION BUTTONS (same as DeAR wallet) ── */
+  .actions-section {
+    padding: 24px 36px;
+    border-bottom: 1px solid #2e2e38;
+  }
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 6px;
+    border-radius: 12px;
+    border: none;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+  .action-btn .act-icon { font-size: 18px; line-height: 1; }
+  .action-sell    { background: rgba(40,183,157,0.12);  color: #28B79D; border: 1px solid rgba(40,183,157,0.25); }
+  .action-gift    { background: rgba(179,84,241,0.12);  color: #B354F1; border: 1px solid rgba(179,84,241,0.25); }
+  .action-recycle { background: rgba(47,180,87,0.10);   color: #2FB457; border: 1px solid rgba(47,180,87,0.22); }
+  .action-return  { background: rgba(255,159,70,0.10);  color: #FF9F46; border: 1px solid rgba(255,159,70,0.22); }
+  .action-note {
+    font-size: 10px;
+    color: #6b6b80;
+    text-align: center;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* ── FOOTER ── */
+  .email-footer {
+    padding: 24px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-left  { font-size: 11px; color: #6b6b80; line-height: 1.6; }
+  .footer-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .footer-logo  { display:flex; align-items:center; line-height:0; }
+  .footer-tagline { font-size: 9px; color: #2e2e38; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* ── SKIN SWITCHER (demo only) ── */
+  .skin-bar {
+    max-width: 600px;
+    margin: 0 auto 16px;
+    display: flex;
+    gap: 8px;
+    padding: 0 4px;
+    flex-wrap: wrap;
+  }
+  .skin-btn {
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid #2e2e38;
+    background: #141418;
+    color: #6b6b80;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .skin-btn.active { background: #B354F1; color: #fff; border-color: #B354F1; }
+
+  @media (max-width: 520px) {
+    .hero, .wallet-section, .product-section, .dpp-section, .actions-section, .email-footer { padding-left: 20px; padding-right: 20px; }
+    .dpp-grid { grid-template-columns: 1fr 1fr; }
+    .wallet-btns { flex-direction: column; }
+    .wallet-btn.apple, .wallet-btn.google, .wallet-btn.dear { flex: auto; }
+    .hero-title { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div style="padding: 24px 16px; background: #0a0a0d; min-height: 100vh;">
+
+  <!-- Demo skin switcher — remove in production -->
+  <div class="skin-bar" id="skinBar">
+    <span style="font-size:11px;color:#6b6b80;padding:6px 4px;font-family:inherit;">Brand skin:</span>
+    <button class="skin-btn active" onclick="setSkin('destore')">◈ DeStore</button>
+    <button class="skin-btn" onclick="setSkin('nike')">Nike</button>
+    <button class="skin-btn" onclick="setSkin('apple')">Apple</button>
+    <button class="skin-btn" onclick="setSkin('patagonia')">Patagonia</button>
+  </div>
+
+  <div class="email-shell" id="emailShell">
+
+    <!-- ── HERO ── -->
+    <div class="hero">
+      <div class="cobrands">
+        <div class="destore-logo"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 405.4 76.5" xml:space="preserve" width="160" height="30">
+<g>
+	<g>
+		<path fill="#FFFFFF" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/>
+	</g>
+	<g>
+		<path fill="#FFFFFF" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6
+			c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/>
+		<path fill="#FFFFFF" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2
+			c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6
+			c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/>
+		<path fill="#FFFFFF" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22
+			c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5
+			c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/>
+		<path fill="#FFFFFF" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3
+			l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/>
+		<path fill="#FFFFFF" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9
+			C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5
+			C266.3,60.3,270.3,54.7,270.3,47.9z"/>
+		<path fill="#FFFFFF" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3
+			V22.3z"/>
+		<path fill="#FFFFFF" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2
+			c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1
+			c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/>
+	</g>
+</g>
+</svg></div>
+        <div class="client-badge" id="clientBadge">
+          <div class="client-dot" id="clientDot"></div>
+          <span id="clientName">Powered by DeStore</span>
+        </div>
+      </div>
+      <div class="hero-label">✓ Purchase confirmed</div>
+      <div class="hero-title" id="heroTitle">Your product is<br>now registered.</div>
+      <div class="hero-sub">Your Digital Product Passport has been created and anchored to Ethereum. Add it to your DeAR wallet to sell, gift, recycle, or return at any time.</div>
+    </div>
+
+    <!-- ── WALLET CTA ── -->
+    <div class="wallet-section">
+      <div class="wallet-label">Add to wallet</div>
+      <div class="wallet-btns">
+        <button class="wallet-btn apple">
+          <span class="wallet-icon">🍎</span>
+          <span class="wallet-text">
+            <span class="wallet-text-small">Add to</span>
+            <span class="wallet-text-big">Apple Wallet</span>
+          </span>
+        </button>
+        <button class="wallet-btn google">
+          <span class="wallet-icon">G</span>
+          <span class="wallet-text">
+            <span class="wallet-text-small">Add to</span>
+            <span class="wallet-text-big">Google Wallet</span>
+          </span>
+        </button>
+        <button class="wallet-btn dear" id="dearBtn">
+          <span class="wallet-icon">◈</span>
+          <span class="wallet-text">
+            <span class="wallet-text-small">Open in</span>
+            <span class="wallet-text-big">DeAR Wallet</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── PRODUCT ── -->
+    <div class="product-section">
+      <div class="section-label">Your item</div>
+      <div class="product-card">
+        <div class="product-img" id="productIcon">👟</div>
+        <div class="product-info">
+          <div class="product-brand" id="productBrand">Nike</div>
+          <div class="product-name" id="productName">Air Max 97 Silver Bullet</div>
+          <div class="product-meta">
+            <span class="pill pill-green">✓ Authenticated</span>
+            <span class="pill pill-violet">◈ On-chain</span>
+            <span class="pill pill-orange">DPP-00291</span>
+          </div>
+          <div class="product-price" id="productPrice">$320.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DPP DATA ── -->
+    <div class="dpp-section">
+      <div class="section-label">Product passport</div>
+      <div class="dpp-grid">
+        <div class="dpp-field">
+          <div class="dpp-label">Material</div>
+          <div class="dpp-value" id="dppMaterial">Mesh / Synthetic</div>
+        </div>
+        <div class="dpp-field">
+          <div class="dpp-label">Origin</div>
+          <div class="dpp-value" id="dppOrigin">Vietnam</div>
+        </div>
+        <div class="dpp-field">
+          <div class="dpp-label">Carbon</div>
+          <div class="dpp-value">14.2 kg CO₂</div>
+        </div>
+        <div class="dpp-field">
+          <div class="dpp-label">Purchased</div>
+          <div class="dpp-value">12 Mar 2026</div>
+        </div>
+        <div class="dpp-field">
+          <div class="dpp-label">Resale value</div>
+          <div class="dpp-value">~$192</div>
+        </div>
+        <div class="dpp-field">
+          <div class="dpp-label">Condition</div>
+          <div class="dpp-value">New</div>
+        </div>
+      </div>
+      <div class="chain-bar">
+        <div class="chain-pulse"></div>
+        <span class="chain-text">Anchored to <span class="chain-name">Ethereum</span> · Minted on <span class="chain-name">Base</span></span>
+        <span class="chain-right">1 event logged</span>
+      </div>
+    </div>
+
+    <!-- ── ACTIONS (same as DeAR wallet) ── -->
+    <div class="actions-section">
+      <div class="section-label">What would you like to do?</div>
+      <div class="action-grid">
+        <a href="#" class="action-btn action-sell">
+          <span class="act-icon">🏷</span>
+          Sell
+        </a>
+        <a href="#" class="action-btn action-gift">
+          <span class="act-icon">🎁</span>
+          Gift
+        </a>
+        <a href="#" class="action-btn action-recycle">
+          <span class="act-icon">♻️</span>
+          Recycle
+        </a>
+        <a href="#" class="action-btn action-return">
+          <span class="act-icon">↩️</span>
+          Return
+        </a>
+      </div>
+      <div class="action-note">Tapping any action opens your DeAR wallet. All events are recorded on-chain and earn $0.01 toward the B&amp;B Treasury.</div>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <div class="email-footer">
+      <div class="footer-left">
+        Circular economy infrastructure by DeStore Network.<br>
+        <span id="footerBrand">Sold by Nike</span> · Receipt #DPP-00291<br>
+        <a href="#" style="color:#B354F1;text-decoration:none;font-size:11px;">View on-chain record</a> &nbsp;·&nbsp;
+        <a href="#" style="color:#6b6b80;text-decoration:none;font-size:11px;">Unsubscribe</a>
+      </div>
+      <div class="footer-right">
+        <div class="footer-logo"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 405.4 76.5" xml:space="preserve" width="110" height="20">
+<g>
+	<g>
+		<path fill="#FFFFFF" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/>
+	</g>
+	<g>
+		<path fill="#FFFFFF" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6
+			c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/>
+		<path fill="#FFFFFF" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2
+			c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6
+			c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/>
+		<path fill="#FFFFFF" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22
+			c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5
+			c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/>
+		<path fill="#FFFFFF" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3
+			l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/>
+		<path fill="#FFFFFF" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9
+			C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5
+			C266.3,60.3,270.3,54.7,270.3,47.9z"/>
+		<path fill="#FFFFFF" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3
+			V22.3z"/>
+		<path fill="#FFFFFF" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2
+			c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1
+			c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/>
+	</g>
+</g>
+</svg></div>
+        <div class="footer-tagline">Circular Economy Infrastructure</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SKINS = {
+  destore: {
+    primary: "#B354F1", secondary: "#6A14DB", accent: "#FF9F46",
+    clientName: "Powered by DeStore",
+    heroTitle: "Your product is<br>now registered.",
+    productIcon: "📦", productBrand: "DeStore Demo", productName: "Sample Product", productPrice: "$99.00",
+    dppMaterial: "Cotton Blend", dppOrigin: "Australia",
+    footerBrand: "Sold via DeStore",
+    heroGradient: "linear-gradient(135deg,#0d0d10 0%,#1a1028 60%,#0f0a1e 100%)",
+    dearBtnGradient: "linear-gradient(135deg,#B354F1,#6A14DB)",
+  },
+  nike: {
+    primary: "#E8E8E8", secondary: "#aaaaaa", accent: "#cc0000",
+    clientName: "Nike",
+    heroTitle: "Just copped.<br>It's registered.",
+    productIcon: "👟", productBrand: "Nike", productName: "Air Max 97 Silver Bullet", productPrice: "$320.00",
+    dppMaterial: "Mesh / Synthetic", dppOrigin: "Vietnam",
+    footerBrand: "Sold by Nike",
+    heroGradient: "linear-gradient(135deg,#111111 0%,#1a1a1a 60%,#0d0d0d 100%)",
+    dearBtnGradient: "linear-gradient(135deg,#E8E8E8,#aaaaaa)",
+    dearBtnColor: "#000",
+  },
+  apple: {
+    primary: "#0071e3", secondary: "#005bb5", accent: "#34c759",
+    clientName: "Apple",
+    heroTitle: "Your Apple product<br>is authenticated.",
+    productIcon: "🍎", productBrand: "Apple", productName: "iPhone 16 Pro · Desert Titanium", productPrice: "$1,699.00",
+    dppMaterial: "Titanium / Glass", dppOrigin: "China",
+    footerBrand: "Sold by Apple",
+    heroGradient: "linear-gradient(135deg,#0a0a0d 0%,#0d1a2e 60%,#091020 100%)",
+    dearBtnGradient: "linear-gradient(135deg,#0071e3,#005bb5)",
+  },
+  patagonia: {
+    primary: "#4caf50", secondary: "#2e7d32", accent: "#ff8f00",
+    clientName: "Patagonia",
+    heroTitle: "Gear registered.<br>Earth thanks you.",
+    productIcon: "🧥", productBrand: "Patagonia", productName: "Better Sweater Fleece Jacket", productPrice: "$189.00",
+    dppMaterial: "100% Recycled Polyester", dppOrigin: "Cambodia",
+    footerBrand: "Sold by Patagonia",
+    heroGradient: "linear-gradient(135deg,#0a0d0a 0%,#0d1a10 60%,#091209 100%)",
+    dearBtnGradient: "linear-gradient(135deg,#4caf50,#2e7d32)",
+  },
+};
+
+function setSkin(name) {
+  const sk = SKINS[name];
+  document.querySelectorAll('.skin-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  document.querySelector('.hero').style.background = sk.heroGradient;
+  // DeStore logo is fixed brand asset — not client-skinned
+  document.getElementById('clientDot').style.background = sk.primary;
+  document.getElementById('clientName').textContent = sk.clientName;
+  document.getElementById('heroTitle').innerHTML = sk.heroTitle;
+  document.getElementById('productIcon').textContent = sk.productIcon;
+  document.getElementById('productBrand').textContent = sk.productBrand;
+  document.getElementById('productName').textContent = sk.productName;
+  document.getElementById('productPrice').textContent = sk.productPrice;
+  document.getElementById('dppMaterial').textContent = sk.dppMaterial;
+  document.getElementById('dppOrigin').textContent = sk.dppOrigin;
+  document.getElementById('footerBrand').textContent = sk.footerBrand;
+  // DeStore footer logo fixed
+
+  const dearBtn = document.getElementById('dearBtn');
+  dearBtn.style.background = sk.dearBtnGradient;
+  if (sk.dearBtnColor) dearBtn.style.color = sk.dearBtnColor;
+  else dearBtn.style.color = '#fff';
+}
+</script>
+</body>
+</html>

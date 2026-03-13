@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeAR — View in AR</title>
+<meta name="description" content="DeAR — Ownership-gated AR experience. Powered by DeStore.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- model-viewer for 3D fallback -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+<style>
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --royal:  #321B68;
+  --orchid: #6A14DB;
+  --violet: #B354F1;
+  --orange: #FF9F46;
+  --green:  #28B79D;
+  --bg:     #0a0a0d;
+  --d1:     #0d0d10;
+  --d2:     #141418;
+  --d3:     #1c1c22;
+  --bdr:    #2e2e38;
+  --muted:  #6b6b80;
+  --dim:    #9999b0;
+  --txt:    #ffffff;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── STATES ── */
+.state { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
+.state.active { display: flex; }
+
+/* ── LOADING ── */
+.spinner {
+  width: 48px; height: 48px;
+  border: 3px solid var(--bdr);
+  border-top-color: var(--violet);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  margin-bottom: 24px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--dim); font-weight: 600; letter-spacing: 0.04em; }
+
+/* ── OWNERSHIP VERIFIED ── */
+@property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes spin-border { to { --angle: 360deg; } }
+@keyframes float {
+  0%,100% { transform: translateY(0px) rotate(-1deg); }
+  50%      { transform: translateY(-12px) rotate(1deg); }
+}
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+
+.product-card-wrap {
+  position: relative;
+  margin-bottom: 32px;
+  animation: float 5s ease-in-out infinite;
+}
+.product-card-wrap::before {
+  content: '';
+  position: absolute; inset: -2px;
+  border-radius: 22px;
+  background: conic-gradient(from var(--angle), #6A14DB, #B354F1, #FF9F46, #28B79D, #6A14DB);
+  animation: spin-border 3s linear infinite;
+  z-index: 0;
+}
+.product-card {
+  position: relative; z-index: 1;
+  background: linear-gradient(160deg, #0e0c1a, #141020, #0d0d14);
+  border-radius: 20px;
+  padding: 28px 28px 24px;
+  width: 300px;
+  text-align: left;
+}
+.card-label {
+  font-size: 8px; font-weight: 900; letter-spacing: 0.18em;
+  text-transform: uppercase; color: rgba(255,255,255,0.5);
+  margin-bottom: 4px;
+}
+.card-title { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 20px; }
+.card-product-name { font-size: 18px; font-weight: 900; color: #e8e8f4; margin-bottom: 4px; }
+.card-brand { font-size: 13px; font-weight: 700; color: var(--violet); margin-bottom: 4px; }
+.card-sku { font-size: 10px; color: var(--muted); margin-bottom: 20px; }
+.card-verified {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 800; color: var(--green);
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.card-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px rgba(40,183,157,0.8);
+  animation: pulse 2s ease-in-out infinite;
+}
+.card-hash { font-size: 9px; font-family: monospace; color: var(--muted); margin-top: 4px; }
+
+/* ── AR BUTTON ── */
+.ar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 36px;
+  background: linear-gradient(135deg, var(--orchid), var(--violet));
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  border-radius: 16px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 0 40px rgba(179,84,241,0.3);
+  margin-bottom: 16px;
+  animation: fadeUp 0.6s 0.3s ease both;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+.ar-btn:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(179,84,241,0.5); }
+.ar-btn svg { flex-shrink: 0; }
+
+.ar-sub {
+  font-size: 12px;
+  color: var(--muted);
+  animation: fadeUp 0.6s 0.45s ease both;
+  opacity: 0;
+  line-height: 1.6;
+}
+
+/* ── 3D VIEWER FALLBACK ── */
+#viewer-container {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 24px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--bdr);
+  background: var(--d2);
+}
+model-viewer {
+  width: 100%;
+  height: 400px;
+  background: transparent;
+}
+.viewer-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,159,70,0.1);
+  border: 1px solid rgba(255,159,70,0.3);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 11px; font-weight: 700; color: var(--orange);
+  margin-bottom: 20px;
+  letter-spacing: 0.04em;
+}
+
+/* ── NOT OWNER ── */
+.lock-icon {
+  font-size: 56px;
+  margin-bottom: 20px;
+  animation: fadeUp 0.5s ease both;
+}
+.not-owner-title {
+  font-size: 26px; font-weight: 900;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+  animation: fadeUp 0.5s 0.1s ease both; opacity: 0;
+}
+.not-owner-body {
+  font-size: 15px; color: var(--dim); line-height: 1.7;
+  max-width: 400px;
+  animation: fadeUp 0.5s 0.2s ease both; opacity: 0;
+}
+.not-owner-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 28px;
+  padding: 14px 28px;
+  background: var(--d2);
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  color: var(--txt);
+  font-size: 14px; font-weight: 700;
+  text-decoration: none;
+  transition: border-color 0.2s;
+  animation: fadeUp 0.5s 0.3s ease both; opacity: 0;
+}
+.not-owner-cta:hover { border-color: var(--violet); }
+
+/* ── ERROR ── */
+.error-icon { font-size: 48px; margin-bottom: 16px; }
+.error-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+.error-body { font-size: 14px; color: var(--dim); line-height: 1.7; max-width: 360px; }
+
+/* ── LOGO ── */
+.page-logo {
+  position: fixed; top: 20px; left: 24px; z-index: 100;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 800; color: var(--violet);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  text-decoration: none;
+}
+.logo-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px rgba(40,183,157,0.6);
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+/* ── RADIAL BG ── */
+body::before {
+  content: '';
+  position: fixed; top: -200px; right: -200px;
+  width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(106,20,219,0.1) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed; bottom: -200px; left: -200px;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(40,183,157,0.06) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+.state { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<!-- Logo -->
+<a href="https://destore.network" class="page-logo">
+  <span class="logo-dot"></span>
+  DeAR
+</a>
+
+<!-- ── STATE: LOADING ── -->
+<div class="state active" id="stateLoading">
+  <div class="spinner"></div>
+  <p class="loading-text">Verifying ownership on-chain…</p>
+</div>
+
+<!-- ── STATE: OWNER — iOS AR ── -->
+<div class="state" id="stateOwnerAR">
+  <div class="product-card-wrap" id="productCardWrap">
+    <div class="product-card">
+      <div class="card-label">Digital Product Passport</div>
+      <div class="card-title">◈ EU ESPR · EPRG-2027</div>
+      <div class="card-product-name" id="productName">—</div>
+      <div class="card-brand" id="productBrand">—</div>
+      <div class="card-sku" id="productSKU">—</div>
+      <div class="card-verified">
+        <span class="card-dot"></span>
+        Ownership Verified On-Chain
+      </div>
+      <div class="card-hash" id="dppHash">—</div>
+    </div>
+  </div>
+
+  <!-- iOS AR Quick Look button -->
+  <a rel="ar" id="arQuickLookBtn" class="ar-btn" href="#">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+    </svg>
+    View Your Product in AR
+  </a>
+  <p class="ar-sub">Opens in your space using ARKit · iPhone 12+ recommended<br>Your ownership is verified — this experience is exclusive to you</p>
+</div>
+
+<!-- ── STATE: OWNER — 3D VIEWER FALLBACK ── -->
+<div class="state" id="stateOwner3D">
+  <div class="product-card-wrap" style="animation: float 5s ease-in-out infinite; margin-bottom: 20px;">
+    <div class="product-card">
+      <div class="card-label">Digital Product Passport</div>
+      <div class="card-title">◈ EU ESPR · EPRG-2027</div>
+      <div class="card-product-name" id="productName3D">—</div>
+      <div class="card-brand" id="productBrand3D">—</div>
+      <div class="card-verified">
+        <span class="card-dot"></span>
+        Ownership Verified On-Chain
+      </div>
+    </div>
+  </div>
+
+  <div class="viewer-badge">◐ 3D Viewer · AR available on iPhone 12+</div>
+
+  <div id="viewer-container">
+    <model-viewer
+      id="modelViewer"
+      src=""
+      alt="Product 3D model"
+      shadow-intensity="1"
+      camera-controls
+      auto-rotate
+      ar
+      ar-modes="scene-viewer quick-look"
+      style="--progress-bar-color: #B354F1;">
+    </model-viewer>
+  </div>
+
+  <p class="ar-sub">Drag to rotate · Pinch to zoom<br>Your ownership is verified on-chain</p>
+</div>
+
+<!-- ── STATE: NOT OWNER ── -->
+<div class="state" id="stateNotOwner">
+  <div class="lock-icon">🔒</div>
+  <h1 class="not-owner-title">This experience belongs<br>to someone else.</h1>
+  <p class="not-owner-body">
+    The AR content for this Digital Product Passport is locked to its verified on-chain owner. This product's DPP has been authenticated — but your wallet isn't the registered owner.
+    <br><br>
+    If you purchased this product legitimately, scan the QR code on the product to claim ownership.
+  </p>
+  <a href="https://destore.network" class="not-owner-cta">
+    Learn about DeStore DPPs →
+  </a>
+</div>
+
+<!-- ── STATE: NO MODEL ── -->
+<div class="state" id="stateNoModel">
+  <div style="font-size: 48px; margin-bottom: 20px;">📦</div>
+  <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 12px;">AR coming soon</h1>
+  <p style="font-size: 14px; color: var(--dim); line-height: 1.7; max-width: 360px;">
+    Your ownership is verified on-chain. The brand hasn't uploaded a 3D model for this product yet — check back soon.
+  </p>
+  <div style="margin-top: 24px; padding: 16px 20px; background: var(--d2); border: 1px solid rgba(40,183,157,0.2); border-radius: 12px; font-size: 12px; color: var(--green); font-weight: 700;">
+    ✓ Ownership confirmed · DPP verified
+  </div>
+</div>
+
+<!-- ── STATE: ERROR ── -->
+<div class="state" id="stateError">
+  <div class="error-icon">⚠️</div>
+  <h2 class="error-title">Couldn't verify this passport</h2>
+  <p class="error-body" id="errorMsg">Something went wrong. Please try scanning the QR code again.</p>
+</div>
+
+<script>
+// ── CONFIG ──
+// In production, DPP_ID comes from the URL: /ar/DPPID
+// Product data + AR model URL would come from your DeStore API
+// Ownership check would call your on-chain verification endpoint
+
+const DPP_DATABASE = {
+  // Demo entry — replace with real API call in production
+  'demo': {
+    name: 'Coast Runner Mid',
+    brand: 'Surfa & Soul Co.',
+    sku: 'SKU SR-2024-CRM-09 · Byron Bay, Australia',
+    hash: '0x4f2a…8c3d',
+    modelUrl: '', // .usdz URL for iOS, .glb for Android/3D viewer
+    iosArUrl: '', // Direct .usdz URL for AR Quick Look
+    ownerWallet: 'demo', // In production: check on-chain
+  }
+};
+
+// ── DEVICE DETECTION ──
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const supportsArQuickLook = isIOS && ('xr' in navigator || CSS.supports('(-webkit-overflow-scrolling: touch)'));
+
+// ── UTILS ──
+function showState(id) {
+  document.querySelectorAll('.state').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function populateCard(data, suffix = '') {
+  const name  = document.getElementById('productName'  + suffix);
+  const brand = document.getElementById('productBrand' + suffix);
+  const sku   = document.getElementById('productSKU'   + suffix);
+  const hash  = document.getElementById('dppHash'      + suffix);
+  if (name)  name.textContent  = data.name;
+  if (brand) brand.textContent = data.brand;
+  if (sku)   sku.textContent   = data.sku;
+  if (hash)  hash.textContent  = data.hash;
+}
+
+// ── OWNERSHIP CHECK ──
+// In production, replace this with a real on-chain check:
+// POST /api/verify-ownership { dppId, walletAddress }
+// Returns { isOwner: bool }
+async function checkOwnership(dppId, walletAddress) {
+  // DEMO MODE: always returns true for 'demo' DPP
+  // Production: call your DeStore API
+  await new Promise(r => setTimeout(r, 1800)); // simulate network delay
+  return dppId === 'demo' || walletAddress === DPP_DATABASE[dppId]?.ownerWallet;
+}
+
+// ── MAIN ──
+async function init() {
+  showState('stateLoading');
+
+  // Get DPP ID from URL path: /ar/DPPID or ?id=DPPID
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  const dppId = pathParts[pathParts.length - 1] ||
+                new URLSearchParams(window.location.search).get('id') ||
+                'demo';
+
+  // Get wallet address — in production from DeAR wallet session/cookie
+  // For now, demo mode always grants access
+  const walletAddress = new URLSearchParams(window.location.search).get('wallet') || 'demo';
+
+  const product = DPP_DATABASE[dppId];
+  if (!product) {
+    showState('stateError');
+    document.getElementById('errorMsg').textContent = `No product found for passport ID: ${dppId}`;
+    return;
+  }
+
+  let isOwner;
+  try {
+    isOwner = await checkOwnership(dppId, walletAddress);
+  } catch (err) {
+    showState('stateError');
+    document.getElementById('errorMsg').textContent = 'Ownership check failed. Please try again.';
+    return;
+  }
+
+  if (!isOwner) {
+    showState('stateNotOwner');
+    return;
+  }
+
+  // No model uploaded yet
+  if (!product.modelUrl && !product.iosArUrl) {
+    showState('stateNoModel');
+    return;
+  }
+
+  // iOS — serve AR Quick Look
+  if (isIOS && product.iosArUrl) {
+    populateCard(product);
+    populateCard(product, '3D');
+    document.getElementById('arQuickLookBtn').href = product.iosArUrl;
+    showState('stateOwnerAR');
+    return;
+  }
+
+  // All other devices — serve 3D model viewer with AR button if supported
+  if (product.modelUrl) {
+    populateCard(product, '3D');
+    const viewer = document.getElementById('modelViewer');
+    viewer.setAttribute('src', product.modelUrl);
+    if (product.iosArUrl) {
+      viewer.setAttribute('ios-src', product.iosArUrl);
+    }
+    showState('stateOwner3D');
+    return;
+  }
+
+  showState('stateNoModel');
+}
+
+init();
+</script>
+</body>
+</html>
