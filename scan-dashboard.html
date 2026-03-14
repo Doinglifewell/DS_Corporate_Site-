@@ -1,5 +1,4 @@
-import os
-content = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -517,7 +516,3 @@ setTimeout(()=>simulateScan(),1100);
 </script>
 </body>
 </html>
-"""
-path = os.path.expanduser('~/Downloads/destore-vercel-deploy/scan-dashboard.html')
-open(path,'w').write(content)
-print('Written', len(content), 'chars to', path)
