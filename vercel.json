@@ -1,8 +1,0 @@
-{
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/ar/:path*", "destination": "/ar.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/scans", "destination": "/scan-dashboard.html" }
-  ]
-}
