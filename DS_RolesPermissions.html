@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeStore · Platform Roles & Permissions</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;
+  --green:#28B79D;--greenAlt:#2FB457;--orange:#FF9F46;--pink:#FF1B9A;
+  --d0:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;
+  --bdr:#2e2e38;--subtle:#3a3a4a;--muted:#6b6b80;--dim:#9999b0;
+}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--d0);color:var(--d4);font-family:'Plus Jakarta Sans',sans-serif}
+
+/* ── Nav ── */
+nav{height:52px;background:var(--royal);display:flex;align-items:center;padding:0 24px;gap:12px}
+nav svg{height:18px}
+nav .sep{width:1px;height:24px;background:rgba(106, 20, 219, 0.15)}
+nav .label{font-size:12px;font-weight:700;color:rgba(240, 240, 245, 0.85)}
+.grad{height:3px;background:linear-gradient(90deg,var(--orchid),var(--violet),var(--green))}
+
+/* ── Layout ── */
+.page{max-width:1100px;margin:0 auto;padding:40px 24px 80px}
+.hero{margin-bottom:48px}
+.hero h1{font-size:clamp(28px,4vw,40px);font-weight:900;letter-spacing:-1px;margin-bottom:8px}
+.hero p{font-size:15px;color:var(--dim);max-width:600px;line-height:1.7}
+
+/* ── Section ── */
+.sec{margin-bottom:48px}
+.sec-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.sec-num{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--orchid),var(--violet));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;flex-shrink:0}
+.sec-title{font-size:22px;font-weight:900;letter-spacing:-.4px}
+.sec-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* ── Role Cards ── */
+.role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.role-card{background:var(--d2);border:1.5px solid var(--bdr);border-radius:18px;padding:24px;transition:all .2s;position:relative;overflow:hidden}
+.role-card:hover{border-color:rgba(179,84,241,.3);transform:translateY(-2px);box-shadow:0 8px 32px rgba(10, 10, 13, 0.22)}
+.role-card .rc-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.role-card .rc-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.role-card .rc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.role-card .rc-name{font-size:16px;font-weight:900;letter-spacing:-.2px}
+.role-card .rc-scope{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.role-card .rc-desc{font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:16px}
+
+/* Permission tags */
+.perm-grid{display:flex;flex-wrap:wrap;gap:4px}
+.perm{font-size:9px;font-weight:700;padding:4px 8px;border-radius:5px;border:1px solid;white-space:nowrap}
+.perm.yes{color:var(--green);border-color:rgba(40,183,157,.25);background:rgba(40,183,157,.06)}
+.perm.no{color:var(--muted);border-color:var(--bdr);background:var(--d3);text-decoration:line-through;opacity:.5}
+.perm.future{color:var(--violet);border-color:rgba(179,84,241,.25);background:rgba(179,84,241,.06)}
+
+/* ── Permissions Matrix ── */
+.matrix-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.matrix{width:100%;border-collapse:collapse;font-size:11px}
+.matrix th{text-align:left;padding:10px 12px;background:var(--d2);border-bottom:2px solid var(--bdr);font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);position:sticky;top:0;white-space:nowrap}
+.matrix th.role-col{text-align:center;min-width:80px}
+.matrix td{padding:8px 12px;border-bottom:1px solid rgba(46,46,56,.4);vertical-align:middle}
+.matrix td.perm-name{font-weight:700;color:var(--d4);white-space:nowrap}
+.matrix td.perm-cat{font-weight:900;color:var(--violet);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding-top:16px}
+.matrix td.check{text-align:center;font-size:14px}
+.ck-y{color:var(--green)}
+.ck-n{color:var(--bdr)}
+.ck-f{color:var(--violet);font-size:10px;font-weight:800}
+.ck-r{color:var(--orange);font-size:10px;font-weight:800}
+
+/* ── DPP Access Tiers ── */
+.tier-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:700px){.tier-cards{grid-template-columns:1fr}}
+.tier-card{background:var(--d2);border-radius:18px;padding:24px;border:1.5px solid var(--bdr)}
+.tier-card .tc-head{font-size:14px;font-weight:900;margin-bottom:4px}
+.tier-card .tc-sub{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.tier-card .tc-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.tier-card .tc-list li{font-size:11px;color:var(--dim);line-height:1.5;padding-left:16px;position:relative}
+.tier-card .tc-list li::before{content:'';position:absolute;left:0;top:6px;width:6px;height:6px;border-radius:50%}
+
+/* ── Invite Flow ── */
+.flow-steps{display:flex;flex-direction:column;gap:0}
+.flow-step{display:flex;gap:0}
+.flow-dot-col{display:flex;flex-direction:column;align-items:center;width:36px;flex-shrink:0}
+.flow-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;z-index:1;flex-shrink:0}
+.flow-line{width:2px;flex:1;background:var(--bdr)}
+.flow-step:last-child .flow-line{display:none}
+.flow-content{flex:1;padding:0 0 32px 16px}
+.flow-content .fc-title{font-size:13px;font-weight:800;margin-bottom:4px}
+.flow-content .fc-desc{font-size:11px;color:var(--dim);line-height:1.6}
+.flow-content .fc-tech{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--violet);background:rgba(179,84,241,.06);border:1px solid rgba(179,84,241,.15);border-radius:6px;padding:6px 10px;margin-top:8px;display:inline-block}
+
+/* ── Invite Modal Preview ── */
+.invite-preview{background:var(--d2);border:1.5px solid var(--bdr);border-radius:22px;padding:32px;max-width:480px}
+.invite-preview h3{font-size:18px;font-weight:900;letter-spacing:-.3px;margin-bottom:16px}
+.invite-preview .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.invite-preview label{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.invite-preview input,.invite-preview select{background:var(--d0);border:1.5px solid var(--bdr);border-radius:10px;padding:10px 14px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none}
+.invite-preview input:focus,.invite-preview select:focus{border-color:var(--violet)}
+.invite-preview .btn{display:block;width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;cursor:pointer;margin-top:20px}
+
+/* ── Footer ── */
+.wf-footer{text-align:center;padding:48px 24px;font-size:11px;font-weight:600;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav>
+<svg viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#fff"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#fff"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#fff"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#fff"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#fff"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#fff"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#fff"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#fff"/></svg>
+<div class="sep"></div>
+<span class="label">Platform Roles & Permissions</span>
+</nav>
+<div class="grad"></div>
+
+<div class="page">
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+  <h1>Roles & Permissions Architecture</h1>
+  <p>Two systems that intersect. Platform roles control what users can do. DPP access tiers control what product data the public can see. Both are required for ESPR compliance.</p>
+</div>
+
+<!-- ═══ 1. PLATFORM ROLES ═══ -->
+<div class="sec">
+  <div class="sec-header">
+    <div class="sec-num">1</div>
+    <div><div class="sec-title">Platform Roles</div><div class="sec-sub">Who can do what inside DeStore.</div></div>
+  </div>
+
+  <div class="role-grid">
+
+    <!-- Webmaster -->
+    <div class="role-card">
+      <div class="rc-accent" style="background:linear-gradient(90deg,var(--pink),var(--orange))"></div>
+      <div class="rc-head">
+        <div class="rc-icon" style="background:rgba(255,27,154,.1);color:var(--pink)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <div><div class="rc-name">Webmaster</div><div class="rc-scope" style="color:var(--pink)">Platform-level · DeStore internal</div></div>
+      </div>
+      <div class="rc-desc">Full platform control. Manages all brands, configures system settings, overrides per-brand permissions, manages QR templates, edits result screen permissions, sets physical tag pricing. This is Josiah / DeStore admin team.</div>
+      <div class="perm-grid">
+        <span class="perm yes">All brand access</span>
+        <span class="perm yes">System config</span>
+        <span class="perm yes">QR template library</span>
+        <span class="perm yes">Result screen permissions</span>
+        <span class="perm yes">Tag pricing</span>
+        <span class="perm yes">User management</span>
+        <span class="perm yes">Audit logs</span>
+        <span class="perm yes">EU Registry admin</span>
+      </div>
+    </div>
+
+    <!-- Brand Owner -->
+    <div class="role-card">
+      <div class="rc-accent" style="background:linear-gradient(90deg,var(--orchid),var(--violet))"></div>
+      <div class="rc-head">
+        <div class="rc-icon" style="background:rgba(106,20,219,.1);color:var(--orchid)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div><div class="rc-name">Brand Owner</div><div class="rc-scope" style="color:var(--orchid)">Brand-level · Primary account holder</div></div>
+      </div>
+      <div class="rc-desc">The brand's primary account. Creates collections and products, runs AI onboarding, configures DPP workflow, manages team members, invites compliance officers, views analytics, issues DPPs. Full control of their brand's data.</div>
+      <div class="perm-grid">
+        <span class="perm yes">Create collections</span>
+        <span class="perm yes">Create products</span>
+        <span class="perm yes">AI onboarding</span>
+        <span class="perm yes">DPP workflow</span>
+        <span class="perm yes">Issue DPPs</span>
+        <span class="perm yes">Invite team</span>
+        <span class="perm yes">Invite compliance officer</span>
+        <span class="perm yes">View reports</span>
+        <span class="perm yes">Analytics</span>
+        <span class="perm yes">Billing</span>
+        <span class="perm yes">Branding settings</span>
+      </div>
+    </div>
+
+    <!-- Brand Team Member -->
+    <div class="role-card">
+      <div class="rc-accent" style="background:linear-gradient(90deg,var(--green),var(--greenAlt))"></div>
+      <div class="rc-head">
+        <div class="rc-icon" style="background:rgba(40,183,157,.1);color:var(--green)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div><div class="rc-name">Brand Team Member</div><div class="rc-scope" style="color:var(--green)">Brand-level · Invited by Brand Owner</div></div>
+      </div>
+      <div class="rc-desc">Staff members at the brand. Can create products, run AI onboarding, generate reports, and manage day-to-day DPP operations. Cannot invite compliance officers, manage billing, or change brand settings.</div>
+      <div class="perm-grid">
+        <span class="perm yes">Create products</span>
+        <span class="perm yes">AI onboarding</span>
+        <span class="perm yes">DPP workflow</span>
+        <span class="perm yes">Issue DPPs</span>
+        <span class="perm yes">View reports</span>
+        <span class="perm no">Invite compliance officer</span>
+        <span class="perm no">Billing</span>
+        <span class="perm no">Branding settings</span>
+        <span class="perm no">Invite team</span>
+      </div>
+    </div>
+
+    <!-- Compliance Officer -->
+    <div class="role-card">
+      <div class="rc-accent" style="background:linear-gradient(90deg,var(--orange),#FFCC00)"></div>
+      <div class="rc-head">
+        <div class="rc-icon" style="background:rgba(255,159,70,.1);color:var(--orange)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div><div class="rc-name">Compliance Officer</div><div class="rc-scope" style="color:var(--orange)">Brand-level · External · Invited by Brand Owner</div></div>
+      </div>
+      <div class="rc-desc">External reviewer invited by the brand. Can view DPP Preliminary Reports, review compliance data, approve or reject DPPs, and add reviewer notes. Cannot edit product data, create products, or access billing. Their approval is captured with timestamp, signature, and (future) KILT DID.</div>
+      <div class="perm-grid">
+        <span class="perm yes">View DPP reports</span>
+        <span class="perm yes">Review compliance data</span>
+        <span class="perm yes">Approve / reject DPPs</span>
+        <span class="perm yes">Add reviewer notes</span>
+        <span class="perm yes">Digital signature</span>
+        <span class="perm future">KILT DID sign (future)</span>
+        <span class="perm future">Deloitte KYC (future)</span>
+        <span class="perm no">Edit product data</span>
+        <span class="perm no">Create products</span>
+        <span class="perm no">Billing</span>
+        <span class="perm no">Branding</span>
+      </div>
+    </div>
+
+    <!-- Consumer -->
+    <div class="role-card">
+      <div class="rc-accent" style="background:linear-gradient(90deg,var(--blue),var(--violet))"></div>
+      <div class="rc-head">
+        <div class="rc-icon" style="background:rgba(0,200,255,.1);color:var(--blue)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+        <div><div class="rc-name">Consumer</div><div class="rc-scope" style="color:var(--blue)">Public · No login required for Tier 1</div></div>
+      </div>
+      <div class="rc-desc">End users who scan QR codes and interact with product DPPs. Tier 1 data (product info, materials, sustainability) is free and ungated. Logged-in consumers can claim ownership, trade, gift, recycle, and view their DeAR wallet.</div>
+      <div class="perm-grid">
+        <span class="perm yes">View DPP (Tier 1)</span>
+        <span class="perm yes">Scan QR codes</span>
+        <span class="perm yes">Claim ownership</span>
+        <span class="perm yes">Trade / Gift / Recycle</span>
+        <span class="perm yes">DeAR wallet</span>
+        <span class="perm no">Edit product data</span>
+        <span class="perm no">View Tier 2/3 data</span>
+        <span class="perm no">Admin access</span>
+      </div>
+    </div>
+
+    <!-- Trade / Recycler -->
+    <div class="role-card">
+      <div class="rc-accent" style="background:linear-gradient(90deg,var(--greenAlt),var(--green))"></div>
+      <div class="rc-head">
+        <div class="rc-icon" style="background:rgba(47,180,87,.1);color:var(--greenAlt)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg></div>
+        <div><div class="rc-name">Trade Partner / Recycler</div><div class="rc-scope" style="color:var(--greenAlt)">ESPR Tier 2 · Business auth required</div></div>
+      </div>
+      <div class="rc-desc">Resellers, repair shops, and recyclers who need access to extended product data for circular economy operations. Sees Tier 1 + REACH details, Bill of Materials, supplier names, disassembly instructions. Requires business authentication.</div>
+      <div class="perm-grid">
+        <span class="perm yes">View DPP (Tier 1 + 2)</span>
+        <span class="perm yes">REACH / BoM data</span>
+        <span class="perm yes">Supplier names</span>
+        <span class="perm yes">Disassembly instructions</span>
+        <span class="perm future">Business verification</span>
+        <span class="perm no">Tier 3 data</span>
+        <span class="perm no">Compliance docs</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ 2. PERMISSIONS MATRIX ═══ -->
+<div class="sec">
+  <div class="sec-header">
+    <div class="sec-num">2</div>
+    <div><div class="sec-title">Permissions Matrix</div><div class="sec-sub">Complete permission map across all roles.</div></div>
+  </div>
+
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>Permission</th>
+        <th class="role-col" style="color:var(--pink)">Webmaster</th>
+        <th class="role-col" style="color:var(--orchid)">Brand Owner</th>
+        <th class="role-col" style="color:var(--green)">Team Member</th>
+        <th class="role-col" style="color:var(--orange)">Compliance Officer</th>
+        <th class="role-col" style="color:var(--blue)">Consumer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Product Management -->
+      <tr><td class="perm-cat" colspan="6">Product Management</td></tr>
+      <tr><td class="perm-name">Create collections</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Create products</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Edit product data</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Delete products</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Upload product images</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+
+      <!-- DPP Workflow -->
+      <tr><td class="perm-cat" colspan="6">DPP Workflow</td></tr>
+      <tr><td class="perm-name">Run AI onboarding</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Configure DPP workflow</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Generate preliminary report</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Issue DPP (mint SBT)</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Send for compliance review</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+
+      <!-- Compliance -->
+      <tr><td class="perm-cat" colspan="6">Compliance & Approval</td></tr>
+      <tr><td class="perm-name">View preliminary reports</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Review compliance data</td><td class="check ck-y">✓</td><td class="check ck-r">View</td><td class="check ck-r">View</td><td class="check ck-y">✓</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Approve / reject DPP</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-y">✓</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Add reviewer notes</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-y">✓</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Digital signature on approval</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-y">✓</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">KILT DID sign (future)</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-f">Future</td><td class="check ck-n">—</td></tr>
+
+      <!-- QR & Result Screen -->
+      <tr><td class="perm-cat" colspan="6">QR & Result Screen</td></tr>
+      <tr><td class="perm-name">Design QR templates</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Manage QR template library</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Configure result screen</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Edit result screen permissions</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+
+      <!-- User Management -->
+      <tr><td class="perm-cat" colspan="6">User & Team Management</td></tr>
+      <tr><td class="perm-name">Invite brand team members</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Invite compliance officer</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Remove team members</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">View all brands (cross-brand)</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+
+      <!-- Settings -->
+      <tr><td class="perm-cat" colspan="6">Settings & Configuration</td></tr>
+      <tr><td class="perm-name">Brand logo & branding pack</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Billing & subscription</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Marketing pixels & SEO</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">n8n webhook config</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Physical tag pricing</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+      <tr><td class="perm-name">Platform system config</td><td class="check ck-y">✓</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td></tr>
+
+      <!-- Consumer Actions -->
+      <tr><td class="perm-cat" colspan="6">Consumer Actions</td></tr>
+      <tr><td class="perm-name">Scan QR / view DPP (Tier 1)</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td><td class="check ck-y">✓</td></tr>
+      <tr><td class="perm-name">Claim ownership</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-y">✓</td></tr>
+      <tr><td class="perm-name">Trade / Gift / Recycle / Return</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-y">✓</td></tr>
+      <tr><td class="perm-name">DeAR wallet</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-n">—</td><td class="check ck-y">✓</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ═══ 3. DPP ACCESS TIERS ═══ -->
+<div class="sec">
+  <div class="sec-header">
+    <div class="sec-num">3</div>
+    <div><div class="sec-title">DPP Access Tiers (ESPR RBAC)</div><div class="sec-sub">What product data each audience can see when scanning a QR code. Required by EU ESPR Article 10.</div></div>
+  </div>
+
+  <div class="tier-cards">
+    <div class="tier-card" style="border-color:rgba(0,200,255,.3)">
+      <div class="tc-head" style="color:var(--blue)">Tier 1 · Public</div>
+      <div class="tc-sub" style="color:var(--blue)">No login required · Free and ungated</div>
+      <ul class="tc-list">
+        <li style="--dot-color:var(--blue)">Product name, brand, images</li>
+        <li style="--dot-color:var(--blue)">Material composition summary</li>
+        <li style="--dot-color:var(--blue)">Recycled content percentage</li>
+        <li style="--dot-color:var(--blue)">Carbon footprint (kg CO₂e)</li>
+        <li style="--dot-color:var(--blue)">Country of manufacture</li>
+        <li style="--dot-color:var(--blue)">Durability rating</li>
+        <li style="--dot-color:var(--blue)">Repairability score</li>
+        <li style="--dot-color:var(--blue)">Recycling instructions</li>
+        <li style="--dot-color:var(--blue)">Circular actions (trade/gift/recycle)</li>
+        <li style="--dot-color:var(--blue)">Verified badge status</li>
+      </ul>
+      <style>.tier-card .tc-list li::before{background:var(--dot-color,var(--muted))}</style>
+    </div>
+
+    <div class="tier-card" style="border-color:rgba(40,183,157,.3)">
+      <div class="tc-head" style="color:var(--green)">Tier 2 · Trade / Recycler</div>
+      <div class="tc-sub" style="color:var(--green)">Business authentication required</div>
+      <ul class="tc-list">
+        <li style="--dot-color:var(--green)">Everything in Tier 1, plus:</li>
+        <li style="--dot-color:var(--green)">Full material composition table</li>
+        <li style="--dot-color:var(--green)">REACH / SVHC substance details</li>
+        <li style="--dot-color:var(--green)">Bill of Materials reference</li>
+        <li style="--dot-color:var(--green)">Supplier names (if disclosed)</li>
+        <li style="--dot-color:var(--green)">Disassembly instructions (full)</li>
+        <li style="--dot-color:var(--green)">Spare parts availability</li>
+        <li style="--dot-color:var(--green)">Packaging composition</li>
+      </ul>
+    </div>
+
+    <div class="tier-card" style="border-color:rgba(179,84,241,.3)">
+      <div class="tc-head" style="color:var(--violet)">Tier 3 · Regulator</div>
+      <div class="tc-sub" style="color:var(--violet)">eIDAS authentication · Future (KILT DID)</div>
+      <ul class="tc-list">
+        <li style="--dot-color:var(--violet)">Everything in Tier 1 + 2, plus:</li>
+        <li style="--dot-color:var(--violet)">Declaration of Conformity (PDF)</li>
+        <li style="--dot-color:var(--violet)">Full supply chain provenance</li>
+        <li style="--dot-color:var(--violet)">On-chain token IDs + tx hashes</li>
+        <li style="--dot-color:var(--violet)">Compliance officer approval record</li>
+        <li style="--dot-color:var(--violet)">W3C Verifiable Credential (future)</li>
+        <li style="--dot-color:var(--violet)">KILT DID verification (future)</li>
+        <li style="--dot-color:var(--violet)">EU DPP Registry submission status</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 4. COMPLIANCE OFFICER INVITE FLOW ═══ -->
+<div class="sec">
+  <div class="sec-header">
+    <div class="sec-num">4</div>
+    <div><div class="sec-title">Compliance Officer Invite Flow</div><div class="sec-sub">How a brand invites an external reviewer and how the approval gets captured.</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start">
+    <div>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-dot-col"><div class="flow-dot" style="background:var(--orchid)">1</div><div class="flow-line"></div></div>
+          <div class="flow-content">
+            <div class="fc-title">Brand Owner invites officer</div>
+            <div class="fc-desc">Enters name, email, title, company. DeStore sends an invitation email with a unique link.</div>
+            <div class="fc-tech">POST /api/invites { role: "compliance_officer", email, brandId }</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot-col"><div class="flow-dot" style="background:var(--orchid)">2</div><div class="flow-line"></div></div>
+          <div class="flow-content">
+            <div class="fc-title">Officer clicks email link</div>
+            <div class="fc-desc">Lands on DeStore. Creates account (email + Google SSO) or signs in if they already have one. Account linked to brand with "compliance_officer" role.</div>
+            <div class="fc-tech">Thirdweb inAppWallet → Smart Account created on first login</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot-col"><div class="flow-dot" style="background:var(--green)">3</div><div class="flow-line"></div></div>
+          <div class="flow-content">
+            <div class="fc-title">Officer reviews DPP report</div>
+            <div class="fc-desc">Sees the DPP Preliminary Report with compliance score, traffic-light status per field, and all product data. Can add reviewer notes to specific sections.</div>
+            <div class="fc-tech">GET /api/reports/{reportId} → scoped to compliance_officer role</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot-col"><div class="flow-dot" style="background:var(--green)">4</div><div class="flow-line"></div></div>
+          <div class="flow-content">
+            <div class="fc-title">Officer approves (or requests changes)</div>
+            <div class="fc-desc">Clicks "Approve" → enters digital signature (drawn or typed). Or clicks "Request Changes" with notes on what needs fixing.</div>
+            <div class="fc-tech">POST /api/reports/{reportId}/approve { signature, notes, timestamp }</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot-col"><div class="flow-dot" style="background:var(--green)">5</div><div class="flow-line"></div></div>
+          <div class="flow-content">
+            <div class="fc-title">Approval captured (3 layers)</div>
+            <div class="fc-desc">Layer 1: Name, title, timestamp, SHA-256 report hash stored in DB. Layer 2: Event logged to Soneium SBT. Layer 3 (future): KILT DID + Deloitte KYC credential signs the approval.</div>
+            <div class="fc-tech">n8n webhook → Soneium SBT event → (future) KILT DaaS API</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot-col"><div class="flow-dot" style="background:var(--orange)">6</div></div>
+          <div class="flow-content">
+            <div class="fc-title">Both parties notified</div>
+            <div class="fc-desc">Brand owner receives email: "Your DPP has been approved by [officer name]." Officer receives confirmation email with receipt. DPP status changes to "Externally Verified ◈".</div>
+            <div class="fc-tech">n8n email workflow → brand + officer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invite Modal Preview -->
+    <div>
+      <div style="font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Invite Modal Preview</div>
+      <div class="invite-preview">
+        <h3>Invite Compliance Officer</h3>
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" placeholder="Dr. Sarah Chen">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" placeholder="sarah@compliancefirm.com">
+        </div>
+        <div class="field">
+          <label>Title</label>
+          <input type="text" placeholder="Senior Sustainability Consultant">
+        </div>
+        <div class="field">
+          <label>Company</label>
+          <input type="text" placeholder="GreenAudit Pty Ltd">
+        </div>
+        <div class="field">
+          <label>Products to Review</label>
+          <select>
+            <option>All pending DPPs</option>
+            <option>Yowah Opals 2026 collection</option>
+            <option>Specific products (select after invite)</option>
+          </select>
+        </div>
+        <div style="font-size:10px;color:var(--dim);line-height:1.6;margin-top:12px;padding:10px;background:var(--d3);border:1px solid var(--bdr);border-radius:10px">
+          The officer will receive an email invitation with a link to review your DPP reports. They can approve or request changes. Their approval is permanently recorded with a digital signature and on-chain event.
+        </div>
+        <button class="btn" onclick="alert('Invitation sent. The compliance officer will receive an email with a review link.')">Send Invitation</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 5. DATA MODEL ═══ -->
+<div class="sec">
+  <div class="sec-header">
+    <div class="sec-num">5</div>
+    <div><div class="sec-title">Data Model</div><div class="sec-sub">Database schema for roles, invites, and approvals.</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px">
+      <div style="font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--orchid);margin-bottom:12px">users</div>
+      <pre style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);line-height:1.8">{
+  id: uuid,
+  email: string,
+  name: string,
+  walletAddress: string,    // Thirdweb smart account
+  kiltDid: string | null,   // Future: KILT DID
+  kiltKycVerified: boolean, // Future: Deloitte KYC
+  createdAt: timestamp
+}</pre>
+    </div>
+
+    <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px">
+      <div style="font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:12px">brand_roles</div>
+      <pre style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);line-height:1.8">{
+  id: uuid,
+  userId: uuid,
+  brandId: uuid,
+  role: enum [
+    "owner",
+    "team_member",
+    "compliance_officer"
+  ],
+  title: string | null,     // Officer's title
+  company: string | null,   // Officer's company
+  invitedBy: uuid,
+  invitedAt: timestamp,
+  acceptedAt: timestamp | null
+}</pre>
+    </div>
+
+    <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px">
+      <div style="font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--orange);margin-bottom:12px">dpp_approvals</div>
+      <pre style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);line-height:1.8">{
+  id: uuid,
+  reportId: uuid,
+  officerId: uuid,          // → users.id
+  brandRoleId: uuid,        // → brand_roles.id
+  status: enum [
+    "pending",
+    "approved",
+    "changes_requested",
+    "rejected"
+  ],
+  signature: text,          // Digital signature data
+  notes: text | null,
+  reportHash: string,       // SHA-256 of report at approval
+  onChainTxHash: string,    // Soneium event tx
+  kiltCredentialId: string, // Future: KILT VC ID
+  approvedAt: timestamp
+}</pre>
+    </div>
+
+    <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px">
+      <div style="font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);margin-bottom:12px">invites</div>
+      <pre style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);line-height:1.8">{
+  id: uuid,
+  brandId: uuid,
+  email: string,
+  role: enum,
+  name: string,
+  title: string | null,
+  company: string | null,
+  token: string,            // Unique invite token
+  invitedBy: uuid,
+  status: enum [
+    "pending",
+    "accepted",
+    "expired",
+    "revoked"
+  ],
+  expiresAt: timestamp,     // 30 days
+  createdAt: timestamp
+}</pre>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 6. API ENDPOINTS ═══ -->
+<div class="sec">
+  <div class="sec-header">
+    <div class="sec-num">6</div>
+    <div><div class="sec-title">API Endpoints</div><div class="sec-sub">REST endpoints for role management, invites, and approvals.</div></div>
+  </div>
+
+  <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;overflow:hidden">
+    <table class="matrix" style="margin:0">
+      <thead>
+        <tr>
+          <th style="width:80px">Method</th>
+          <th>Endpoint</th>
+          <th>Description</th>
+          <th style="width:120px">Auth</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="perm-cat" colspan="4">Invites</td></tr>
+        <tr><td><span style="color:var(--green);font-weight:800;font-size:10px">POST</span></td><td class="perm-name" style="font-family:'JetBrains Mono',monospace;font-size:10px">/api/invites</td><td style="font-size:11px;color:var(--dim)">Send invite. Body: { brandId, email, role, name, title, company }</td><td style="font-size:10px;color:var(--orchid)">Owner+</td></tr>
+        <tr><td><span style="color:var(--blue);font-weight:800;font-size:10px">GET</span></td><td class="perm-name" style="font-family:'JetBrains Mono',monospace;font-size:10px">/api/invites/{token}</td><td style="font-size:11px;color:var(--dim)">Validate invite token. Returns invite details.</td><td style="font-size:10px;color:var(--muted)">Public</td></tr>
+        <tr><td><span style="color:var(--green);font-weight:800;font-size:10px">POST</span></td><td class="perm-name" style="font-family:'JetBrains Mono',monospace;font-size:10px">/api/invites/{token}/accept</td><td style="font-size:11px;color:var(--dim)">Accept invite. Creates brand_role record. Links user to brand.</td><td style="font-size:10px;color:var(--muted)">Auth</td></tr>
+
+        <tr><td class="perm-cat" colspan="4">Roles</td></tr>
+        <tr><td><span style="color:var(--blue);font-weight:800;font-size:10px">GET</span></td><td class="perm-name" style="font-family:'JetBrains Mono',monospace;font-size:10px">/api/brands/{brandId}/team</td><td style="font-size:11px;color:var(--dim)">List all team members + compliance officers for a brand.</td><td style="font-size:10px;color:var(--orchid)">Owner+</td></tr>
+        <tr><td><span style="color:var(--orange);font-weight:800;font-size:10px">PATCH</span></td><td class="perm-name" style="font-family:'JetBrains Mono',monospace;font-size:10px">/api/brands/{brandId}/team/{userId}</td><td style="font-size:11px;color:var(--dim)">Update role or permissions for a team member.</td><td style="font-size:10px;color:var(--orchid)">Owner+</td></tr>
+        <tr><td><span style="color:var(--pink);font-weight:800;font-size:10px">DELETE</span></td><td class="perm-name" style="font-family:'JetBrains Mono',monospace;font-size:10px">/api/brands/{brandId}/team/{userId}</td><td style="font-size:11px;color:var(--dim)">Remove team member or compliance officer from brand.</td><td style="font-size:10px;color:var(--orchid)">Owner+</td></tr>
+
+        <tr><td class="perm-cat" colspan="4">Approvals</td></tr>
+        <tr><td><span style="color:var(--blue);font-weight:800;font-size:10px">GET</span></td><td class="perm-name" style="font-family:'JetBrains Mono',monospace;font-size:10px">/api/reports/{reportId}</td><td style="font-size:11px;color:var(--dim)">Get full DPP Preliminary Report with compliance score.</td><td style="font-size:10px;color:var(--orange)">Officer+</td></tr>
+        <tr><td><span style="color:var(--green);font-weight:800;font-size:10px">POST</span></td><td class="perm-name" style="font-family:'JetBrains Mono',monospace;font-size:10px">/api/reports/{reportId}/approve</td><td style="font-size:11px;color:var(--dim)">Approve DPP. Body: { signature, notes }. Triggers on-chain event.</td><td style="font-size:10px;color:var(--orange)">Officer only</td></tr>
+        <tr><td><span style="color:var(--green);font-weight:800;font-size:10px">POST</span></td><td class="perm-name" style="font-family:'JetBrains Mono',monospace;font-size:10px">/api/reports/{reportId}/request-changes</td><td style="font-size:11px;color:var(--dim)">Request changes. Body: { notes }. Notifies brand team.</td><td style="font-size:10px;color:var(--orange)">Officer only</td></tr>
+        <tr><td><span style="color:var(--blue);font-weight:800;font-size:10px">GET</span></td><td class="perm-name" style="font-family:'JetBrains Mono',monospace;font-size:10px">/api/reports/{reportId}/approval</td><td style="font-size:11px;color:var(--dim)">Get approval record with signature, hash, tx hash, timestamp.</td><td style="font-size:10px;color:var(--muted)">Auth</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="wf-footer">
+<svg width="100" height="18.9" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 8px"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#6b6b80"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#6b6b80"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#6b6b80"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#6b6b80"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#6b6b80"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#6b6b80"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#6b6b80"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#6b6b80"/></svg>
+Built for Circular Trade · Roam Free</div>
+
+</div>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+</script>
+</body>
+</html>

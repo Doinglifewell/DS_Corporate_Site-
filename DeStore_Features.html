@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Features — DeStore</title>
+<meta name="description" content="Laava Smart Fingerprints, GS1 traceability, on-chain provenance, circular trade actions, and scan analytics. Circular trade infrastructure for every product.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@property --angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--d3);border-radius:2px}
+body{background:var(--bg);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+:root{--royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;--green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--pink:#FF1B9A;--d0:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;--bdr:#2e2e38;--muted:#6b6b80;--dim:#9999b0}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+@keyframes spin-border{to{--angle:360deg}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-glow{0%,100%{box-shadow:0 4px 20px rgba(179,84,241,.35)}50%{box-shadow:0 4px 32px rgba(179,84,241,.65),0 0 60px rgba(179,84,241,.15)}}
+.conic-wrap{position:relative;border-radius:14px;padding:1.5px;display:inline-block;background:conic-gradient(from var(--angle,0deg),var(--violet),var(--orchid),var(--blue),var(--violet) 40%,var(--royal) 60%,var(--violet));animation:spin-border 2.5s linear infinite}.conic-inner{background:var(--d2);border-radius:12px}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(13,13,16,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr)}.nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}.nav-links{display:flex;gap:28px;align-items:center}.nav-link{font-size:13px;font-weight:600;color:var(--dim);text-decoration:none;transition:color .18s}.nav-link:hover{color:#fff}.nav-link.active{color:var(--violet)}.nav-cta{padding:9px 20px;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;border-radius:14px;font-weight:800;font-size:12px;letter-spacing:.02em;text-decoration:none;transition:transform .12s,filter .12s;box-shadow:0 4px 20px rgba(179,84,241,.35)}.nav-cta:active{transform:scale(.97)}.nav-cta:hover{filter:brightness(1.1)}.nav-bar{height:3px;background:linear-gradient(90deg,var(--violet),var(--orchid),transparent)}.mobile-menu-btn{display:none;background:none;border:1px solid var(--bdr);border-radius:8px;width:36px;height:36px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:0}.mobile-menu-btn span{display:block;width:16px;height:1.5px;background:var(--dim);border-radius:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;letter-spacing:.02em;cursor:pointer;transition:transform .12s,opacity .12s,filter .12s;text-decoration:none}.btn:active{transform:scale(.97);opacity:.88}.btn:hover{filter:brightness(1.1)}.btn-primary{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;padding:15px 30px;box-shadow:0 4px 20px rgba(179,84,241,.35)}.btn-primary-glow{animation:pulse-glow 3s ease infinite}.btn-ghost{background:transparent;color:var(--dim);border:1.5px solid var(--bdr);padding:13px 24px}.btn-ghost:hover{border-color:var(--violet);color:#fff}
+.section{padding:100px 24px;max-width:1200px;margin:0 auto}.section-eyebrow{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--violet);margin-bottom:14px}.section-title{font-size:clamp(28px,4vw,42px);font-weight:900;letter-spacing:-1px;line-height:1.08;margin-bottom:16px}.section-sub{font-size:15px;color:var(--dim);line-height:1.7;max-width:560px;margin-bottom:48px}
+.hero{padding:140px 24px 80px;max-width:1200px;margin:0 auto;text-align:center;position:relative}.hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(106,20,219,.1),transparent 70%);pointer-events:none}.hero-label{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--violet);margin-bottom:14px}.hero-title{font-size:clamp(38px,5.5vw,60px);font-weight:900;letter-spacing:-2px;line-height:1.04;margin-bottom:20px;position:relative}.hero-title .accent{background:linear-gradient(135deg,var(--violet),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hero-desc{font-size:17px;color:var(--dim);line-height:1.7;max-width:600px;margin:0 auto 36px}.hero-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.features-list{max-width:1200px;margin:0 auto;padding:0 24px 100px;display:flex;flex-direction:column;gap:2px}
+.feature-row{display:grid;grid-template-columns:1fr 1.5fr;gap:0;background:var(--d2);transition:background .3s;min-height:220px}.feature-row:first-child{border-radius:14px 14px 0 0}.feature-row:last-child{border-radius:0 0 14px 14px}.feature-row:hover{background:var(--d3)}
+.feature-row-left{padding:48px 40px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--bdr)}.feature-row-right{padding:48px 40px;display:flex;flex-direction:column;justify-content:center}
+.fr-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}.fr-violet{background:rgba(179,84,241,.1)}.fr-green{background:rgba(40,183,157,.1)}.fr-orange{background:rgba(255,159,70,.1)}
+.fr-title{font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}.fr-tag{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--violet);margin-bottom:4px}.fr-body{font-size:14px;line-height:1.8;color:var(--dim)}.fr-body strong{color:#fff;font-weight:700}
+.fr-bullets{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}.fr-bullet{padding:5px 12px;border-radius:20px;background:rgba(179,84,241,.06);border:1px solid var(--bdr);font-size:11px;font-weight:600;color:var(--dim)}
+.cta-banner{max-width:1200px;margin:0 auto 0;padding:0 24px 100px}.cta-inner{background:linear-gradient(135deg,var(--royal),#1a0e3a);border:1px solid rgba(179,84,241,.2);border-radius:20px;padding:60px;text-align:center;position:relative;overflow:hidden}.cta-inner::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(106,20,219,.08),transparent)}.cta-inner h2{font-size:28px;font-weight:900;letter-spacing:-.8px;margin-bottom:12px;position:relative}.cta-inner p{font-size:15px;color:var(--dim);margin-bottom:28px;position:relative}
+.footer{border-top:1px solid var(--bdr);padding:48px 24px;max-width:1200px;margin:0 auto}.footer-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px}.footer-tagline{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6}.footer-cols{display:flex;gap:60px}.footer-col h4{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}.footer-col a{display:block;color:var(--dim);text-decoration:none;font-size:13px;margin-bottom:8px;transition:color .18s}.footer-col a:hover{color:var(--violet)}.footer-bottom{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding-top:24px;border-top:1px solid var(--bdr)}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}.reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:768px){.nav-links a:not(.nav-cta){display:none}.mobile-menu-btn{display:flex}.hero,.section,.features-list,.cta-banner{padding-left:20px;padding-right:20px}.feature-row{grid-template-columns:1fr}.feature-row-left{border-right:none;border-bottom:1px solid var(--bdr);padding:32px 24px}.feature-row-right{padding:32px 24px}.cta-inner{padding:40px 24px}.footer-top{flex-direction:column;gap:28px}.footer-cols{flex-direction:column;gap:24px}}
+</style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner"><a href="DeStore_Landing_Page_V2.html"><svg width="130" height="24.5" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#fff"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#fff"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#fff"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#fff"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#fff"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#fff"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#fff"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#fff"/></svg></a><div class="nav-links"><a href="DeStore_Landing_Page_V2.html" class="nav-link">Home</a><a href="DeStore_Features.html" class="nav-link active">Features</a><a href="DeStore_Industries.html" class="nav-link">Industries</a><a href="DeStore_For_Brands.html" class="nav-link">For Brands</a><a href="DeStore_Collection_Creator_v0.4.html" class="nav-cta">Get Started</a></div><button class="mobile-menu-btn" aria-label="Menu"><span></span><span></span><span></span></button></div><div class="nav-bar"></div></nav>
+
+<section class="hero"><div class="hero-label reveal">Features</div><h1 class="hero-title reveal">Secure authentication<br>meets <span class="accent">verified provenance.</span></h1><p class="hero-desc reveal">Laava Smart Fingerprints, GS1 global traceability, on-chain records, and circular trade actions. Everything brands need to protect products and engage consumers — zero crypto UX.</p><div class="hero-btns reveal"><a href="DeStore_Collection_Creator_v0.4.html" class="btn btn-primary btn-primary-glow">Create your first DPP →</a><a href="https://t.me/DeStore_Network" class="btn btn-ghost" target="_blank">Talk to the team</a></div></section>
+
+<div class="features-list">
+
+<div class="feature-row reveal">
+<div class="feature-row-left">
+<div class="fr-icon fr-violet">⬡</div>
+<div class="fr-tag">Core Technology</div>
+<h3 class="fr-title">Laava Smart Fingerprints.</h3>
+</div>
+<div class="feature-row-right">
+<p class="fr-body">The secure, unclonable alternative to QR codes — developed in collaboration with <strong>CSIRO</strong> and <strong>AustCyber</strong>. Each product receives a unique optical fingerprint that counterfeiters cannot replicate. Unlike QR codes, Smart Fingerprints contain no encoded data or URLs that can be copied. Only the Laava scanner can authenticate them, and every scan is logged with date, time, location, and forensic data.</p>
+<div class="fr-bullets">
+<span class="fr-bullet">Patented Computer Vision</span>
+<span class="fr-bullet">No Special Inks or NFC</span>
+<span class="fr-bullet">Standard Digital Printing</span>
+<span class="fr-bullet">White-Label Ready</span>
+</div>
+</div>
+</div>
+
+<div class="feature-row reveal">
+<div class="feature-row-left">
+<div class="fr-icon fr-green">◈</div>
+<div class="fr-tag">Brand Protection</div>
+<h3 class="fr-title">Anti-counterfeit detection.</h3>
+</div>
+<div class="feature-row-right">
+<p class="fr-body">Real-time counterfeit detection and automatic flagging. When a copied or reproduced Smart Fingerprint is scanned, the system immediately flags it as <strong>"Suspected Counterfeit"</strong> and alerts the brand owner. Reid Fruits deployed Smart Fingerprints on <strong>340,000 cherry boxes</strong> across 20 export markets — counterfeit attempts dropped from 10 in season one to <strong>zero</strong> by season three.</p>
+<div class="fr-bullets">
+<span class="fr-bullet">Real-Time Alerts</span>
+<span class="fr-bullet">Forensic Scan Data</span>
+<span class="fr-bullet">Distribution Anomaly Detection</span>
+<span class="fr-bullet">Channel Integrity</span>
+</div>
+</div>
+</div>
+
+<div class="feature-row reveal">
+<div class="feature-row-left">
+<div class="fr-icon fr-orange">◎</div>
+<div class="fr-tag">Verified Provenance</div>
+<h3 class="fr-title">On-chain records.</h3>
+</div>
+<div class="feature-row-right">
+<p class="fr-body">Every product gets a Digital Product Passport — a DPP Soulbound record minted to your brand wallet on <strong>Base</strong>, <strong>Polygon</strong>, or <strong>Soneium</strong>. Metadata stored permanently on Arweave. Consumers receive a transferable Ownership Claim in their smart account. Scan the product, verify the chain of custody. Transfer ownership when the product changes hands — zero crypto UX required.</p>
+<div class="fr-bullets">
+<span class="fr-bullet">Multi-Chain (Base Primary)</span>
+<span class="fr-bullet">Ownership Claim Cards</span>
+<span class="fr-bullet">DeAR Wallet Integration</span>
+<span class="fr-bullet">Zero Crypto UX</span>
+</div>
+</div>
+</div>
+
+<div class="feature-row reveal">
+<div class="feature-row-left">
+<div class="fr-icon fr-violet"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg></div>
+<div class="fr-tag">Circular Trade</div>
+<h3 class="fr-title">Trade, gift, recycle, return.</h3>
+</div>
+<div class="feature-row-right">
+<p class="fr-body">Every DPP enables circular trade actions. Ownership transfers via USDC atomic swap on Thirdweb Marketplace V3. Consumers can trade, gift, recycle, or return products — all from a single scan. <strong>$0.01 USDC</strong> per lifecycle event funds the B&B Treasury for future buyback-and-burn. The record follows the product through every owner.</p>
+<div class="fr-bullets">
+<span class="fr-bullet">USDC Payments Only</span>
+<span class="fr-bullet">Atomic Swaps</span>
+<span class="fr-bullet">B&B Treasury</span>
+<span class="fr-bullet">Full Lifecycle Tracking</span>
+</div>
+</div>
+</div>
+
+<div class="feature-row reveal">
+<div class="feature-row-left">
+<div class="fr-icon fr-violet">⊞</div>
+<div class="fr-tag">Consumer Engagement</div>
+<h3 class="fr-title">Digital storytelling.</h3>
+</div>
+<div class="feature-row-right">
+<p class="fr-body">Turn every scan into a brand experience. Share origin stories, artist profiles, sustainability credentials, and exclusive promotions — content that changes in real-time. Tamburlaine Organic Wines deployed <strong>1 million Smart Fingerprints</strong> across their ranges, connecting wine lovers to digital storytelling and exclusive offers. Engagement, not just verification.</p>
+<div class="fr-bullets">
+<span class="fr-bullet">Dynamic Content</span>
+<span class="fr-bullet">Competitions &amp; Promotions</span>
+<span class="fr-bullet">Brand Stories</span>
+<span class="fr-bullet">AR Experiences</span>
+</div>
+</div>
+</div>
+
+<div class="feature-row reveal">
+<div class="feature-row-left">
+<div class="fr-icon fr-green">◉</div>
+<div class="fr-tag">Supply Chain</div>
+<h3 class="fr-title">GS1 global standards.</h3>
+</div>
+<div class="feature-row-right">
+<p class="fr-body">Industry-standard <strong>GTIN-14</strong> identifiers with <strong>GS1 Digital Link</strong> URIs. Compatible with existing supply chain systems, ERP platforms, customs frameworks, and barcode scanners worldwide. Serialised down to individual units with GS1 Application Identifiers for serial numbers (AI 21), batch/lot (AI 10), and expiry dates. Built for the EU's mandatory Digital Product Passport regulations under ESPR — textiles first wave ~mid-2028.</p>
+<div class="fr-bullets">
+<span class="fr-bullet">GTIN-14 Identifiers</span>
+<span class="fr-bullet">GS1 Digital Links</span>
+<span class="fr-bullet">Unit-Level Serialisation</span>
+<span class="fr-bullet">ESPR Compliant</span>
+</div>
+</div>
+</div>
+
+<div class="feature-row reveal">
+<div class="feature-row-left">
+<div class="fr-icon fr-orange">⬢</div>
+<div class="fr-tag">Intelligence</div>
+<h3 class="fr-title">Scan analytics and insights.</h3>
+</div>
+<div class="feature-row-right">
+<p class="fr-body">Track every scan — when, where, and which device. Monitor consumer engagement across global markets, detect distribution anomalies, and measure campaign performance in real-time. Reid Fruits saw <strong>175% engagement growth</strong> year-on-year, with some posts driving <strong>408K+ views</strong>. WeChat integration delivered <strong>28–37% click-through rates</strong> on competitions. Data-driven brand protection meets marketing intelligence.</p>
+<div class="fr-bullets">
+<span class="fr-bullet">Global Scan Heatmaps</span>
+<span class="fr-bullet">Device &amp; Platform Analytics</span>
+<span class="fr-bullet">Campaign ROI Tracking</span>
+<span class="fr-bullet">Real-Time Dashboards</span>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="section" style="padding-top:0;padding-bottom:40px"><div style="background:rgba(40,183,157,.05);border:1px solid rgba(40,183,157,.15);border-radius:16px;padding:28px 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px"><div><div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:4px">EU ESPR</div><div style="font-size:13px;font-weight:600;color:var(--text2)">Built for mandatory DPP compliance. Textiles first wave ~mid-2028.</div></div><div><div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:4px">Chains</div><div style="font-size:13px;font-weight:600;color:var(--text2)">Base (primary) · Polygon · Soneium. Brand selects at onboarding.</div></div><div><div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:4px">Survivability</div><div style="font-size:13px;font-weight:600;color:var(--text2)">DPP lives on-chain regardless of DeStore infrastructure. Arweave metadata is permanent.</div></div><div><div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:4px">B&amp;B Treasury</div><div style="font-size:13px;font-weight:600;color:var(--text2)">$0.01 USDC per lifecycle event. Accumulates for future buyback-and-burn.</div></div></div></div>
+
+<div class="cta-banner reveal">
+<div class="cta-inner">
+<h2>Your products have a lifecycle.<br>Let's build the record for it.</h2>
+<p>Start building your first authenticated product collection today.</p>
+<a href="DeStore_Collection_Creator_v0.4.html" class="btn btn-primary">Launch Collection Creator →</a>
+</div>
+</div>
+
+<footer class="footer"><div class="footer-top"><div><svg width="110" height="20.7" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#6b6b80"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#6b6b80"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#6b6b80"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#6b6b80"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#6b6b80"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#6b6b80"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#6b6b80"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#6b6b80"/></svg><div class="footer-tagline">Circular Trade Infrastructure.<br>The record is permanent.</div></div><div class="footer-cols"><div class="footer-col"><h4>Product</h4><a href="DeStore_Collection_Creator_v0.4.html">Collection Creator</a><a href="https://laava.id" target="_blank">Smart Fingerprints</a><a href="DeStore_GS1_QR_Generator_v0.2.html">QR Generator</a><a href="DeStore_Landing_Page_V2.html">Digital Product Passports</a></div><div class="footer-col"><h4>Partners</h4><a href="https://laava.id" target="_blank">Laava</a><a href="https://thirdweb.com" target="_blank">Thirdweb</a><a href="https://base.org" target="_blank">Base</a><a href="https://soneium.org" target="_blank">Soneium</a></div><div class="footer-col"><h4>Company</h4><a href="https://destore.network" target="_blank">About</a><a href="https://t.me/DeStore_Network" target="_blank">Telegram</a><a href="https://github.com/DeStore-Network" target="_blank">GitHub</a></div></div></div><div class="footer-bottom"><span>© 2026 DeStore Network. All rights reserved.</span><span>Built in Byron Bay, Australia.</span></div></footer>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+window.addEventListener('scroll',()=>{document.querySelector('.nav').style.background=window.scrollY>40?'rgba(13,13,16,.98)':'rgba(13,13,16,.92)'});
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

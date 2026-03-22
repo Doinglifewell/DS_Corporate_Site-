@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeStore · Clippy</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;
+  --green:#28B79D;--orange:#FF9F46;--pink:#FF1B9A;
+  --d0:#0a0a0d;--d2:#141418;--d3:#1c1c22;--bdr:#2e2e38;--muted:#6b6b80;--dim:#9999b0;
+}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--d0);color:var(--d4);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 24px 80px;gap:24px}
+
+h1{font-size:32px;font-weight:900;letter-spacing:-1px;text-align:center}
+h1 span{background:linear-gradient(135deg,var(--violet),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:13px;color:var(--dim);text-align:center;max-width:400px;line-height:1.6}
+
+/* ── Clippy Stage ── */
+.stage{position:relative;width:220px;height:320px;margin:16px 0}
+
+/* ── Speech Bubble ── */
+.bubble{position:absolute;top:0;left:50%;transform:translateX(-50%);background:var(--d2);border:1.5px solid var(--bdr);border-radius:16px;padding:12px 18px;font-size:13px;font-weight:700;line-height:1.5;white-space:nowrap;opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:10;text-align:center}
+.bubble::after{content:'';position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:9px solid var(--bdr)}
+.bubble.show{opacity:1;top:-10px}
+
+/* ── SVG Clippy ── */
+.clippy-svg{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:160px;height:280px}
+
+/* Idle animation */
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-8px)}}
+@keyframes bob-happy{0%,100%{transform:translateX(-50%) translateY(0)}25%{transform:translateX(-50%) translateY(-14px)}50%{transform:translateX(-50%) translateY(-4px)}75%{transform:translateX(-50%) translateY(-10px)}}
+@keyframes bob-think{0%,100%{transform:translateX(-50%) rotate(0deg)}50%{transform:translateX(-50%) rotate(4deg)}}
+@keyframes bob-type{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}
+@keyframes bob-sad{0%,100%{transform:translateX(-50%) translateY(0) rotate(0)}50%{transform:translateX(-50%) translateY(2px) rotate(-2deg)}}
+
+/* Dance — full body groove */
+@keyframes dance-body{
+  0%,100%{transform:translateX(-50%) translateY(0) rotate(0)}
+  10%{transform:translateX(-50%) translateY(-12px) rotate(-4deg)}
+  20%{transform:translateX(-50%) translateY(-2px) rotate(4deg)}
+  30%{transform:translateX(-50%) translateY(-16px) rotate(-2deg)}
+  40%{transform:translateX(-50%) translateY(-4px) rotate(3deg)}
+  50%{transform:translateX(-50%) translateY(-14px) rotate(-5deg)}
+  60%{transform:translateX(-50%) translateY(-2px) rotate(5deg)}
+  70%{transform:translateX(-50%) translateY(-18px) rotate(-3deg)}
+  80%{transform:translateX(-50%) translateY(-4px) rotate(4deg)}
+  90%{transform:translateX(-50%) translateY(-12px) rotate(-4deg)}
+}
+@keyframes dance-arm-L{
+  0%,100%{transform:rotate(0)}
+  15%{transform:rotate(-40deg)}
+  30%{transform:rotate(10deg)}
+  45%{transform:rotate(-50deg)}
+  60%{transform:rotate(15deg)}
+  75%{transform:rotate(-45deg)}
+  90%{transform:rotate(5deg)}
+}
+@keyframes dance-arm-R{
+  0%,100%{transform:rotate(0)}
+  10%{transform:rotate(15deg)}
+  25%{transform:rotate(-45deg)}
+  40%{transform:rotate(10deg)}
+  55%{transform:rotate(-50deg)}
+  70%{transform:rotate(15deg)}
+  85%{transform:rotate(-40deg)}
+}
+@keyframes dance-foot-L{
+  0%,100%{transform:translateX(0) translateY(0)}
+  25%{transform:translateX(-4px) translateY(-3px)}
+  50%{transform:translateX(2px) translateY(0)}
+  75%{transform:translateX(-3px) translateY(-2px)}
+}
+@keyframes dance-foot-R{
+  0%,100%{transform:translateX(0) translateY(0)}
+  25%{transform:translateX(4px) translateY(-2px)}
+  50%{transform:translateX(-2px) translateY(0)}
+  75%{transform:translateX(3px) translateY(-3px)}
+}
+
+.clippy-svg.idle{animation:bob 2.5s ease-in-out infinite}
+.clippy-svg.happy{animation:bob-happy .6s ease}
+.clippy-svg.thinking{animation:bob-think 1.8s ease-in-out infinite}
+.clippy-svg.typing{animation:bob-type .35s ease infinite}
+.clippy-svg.sad{animation:bob-sad 2s ease-in-out infinite}
+.clippy-svg.waving{animation:bob 2.5s ease-in-out infinite}
+.clippy-svg.dancing{animation:dance-body .8s ease infinite}
+.clippy-svg.dancing .arm-left{animation:dance-arm-L .8s ease infinite;transform-origin:55px 145px}
+.clippy-svg.dancing .arm-right{animation:dance-arm-R .8s ease infinite;transform-origin:105px 145px}
+.clippy-svg.dancing #footL{animation:dance-foot-L .4s ease infinite}
+.clippy-svg.dancing #footR{animation:dance-foot-R .4s ease infinite}
+
+/* Blink */
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.05)}}
+.eye-group{animation:blink 3.5s ease infinite}
+
+/* Wave arm */
+@keyframes wave{0%,100%{transform:rotate(0)}25%{transform:rotate(-35deg)}50%{transform:rotate(-15deg)}75%{transform:rotate(-30deg)}}
+.clippy-svg.waving .arm-right{animation:wave .6s ease 2;transform-origin:85px 155px}
+
+/* Emoji */
+.emoji-hold{font-size:24px;opacity:0;transition:all 1s ease;filter:drop-shadow(0 2px 6px rgba(10, 10, 13, 0.40))}
+.emoji-hold.show{opacity:1}
+/* Left emoji drops in from above-left, lands at hand */
+@keyframes emoji-arrive-L{0%{transform:translate(-20px,-35px) scale(0) rotate(-25deg);opacity:0}50%{transform:translate(-3px,-6px) scale(1.15) rotate(5deg);opacity:1}100%{transform:translate(0,0) scale(1) rotate(0);opacity:1}}
+/* Right emoji drops in from above-right, lands at hand */
+@keyframes emoji-arrive-R{0%{transform:translate(20px,-35px) scale(0) rotate(25deg);opacity:0}50%{transform:translate(3px,-6px) scale(1.15) rotate(-5deg);opacity:1}100%{transform:translate(0,0) scale(1) rotate(0);opacity:1}}
+#emojiL.pop{animation:emoji-arrive-L 1.6s ease forwards}
+#emojiR.pop{animation:emoji-arrive-R 1.6s ease forwards}
+
+/* ── POO THROW ── */
+.poo-projectile{position:fixed;font-size:48px;pointer-events:none;z-index:9999;opacity:0}
+@keyframes poo-throw{
+  0%{opacity:1;transform:scale(.3) rotate(0)}
+  20%{opacity:1;transform:scale(.6) rotate(-20deg)}
+  50%{opacity:1;transform:scale(1) rotate(15deg) translate(0,-40px)}
+  80%{opacity:1;transform:scale(2.5) rotate(-10deg) translate(0,0)}
+  100%{opacity:1;transform:scale(4) rotate(5deg)}
+}
+.poo-projectile.throw{animation:poo-throw .8s ease-in forwards}
+
+/* Splat overlay */
+.splat-overlay{position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:0;transition:opacity .3s}
+.splat-overlay.show{opacity:1}
+.splat-drip{position:absolute;background:#8B6914;border-radius:0 0 50% 50%;opacity:0;transition:all .6s ease}
+.splat-drip.show{opacity:.7}
+.splat-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:120px;opacity:0;transition:all .3s}
+.splat-center.show{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+
+/* Clippy straining face */
+.clippy-svg.straining{animation:strain .3s ease infinite}
+@keyframes strain{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(2px)}}
+.clippy-svg.disgusted{animation:bob-sad 1.5s ease infinite}
+
+/* Poo dropping from Clippy */
+.poo-drop{position:absolute;font-size:20px;opacity:0;z-index:6;pointer-events:none}
+@keyframes poo-squeeze{
+  0%{opacity:0;transform:translate(-50%,0) scale(.2)}
+  30%{opacity:1;transform:translate(-50%,5px) scale(.6)}
+  60%{opacity:1;transform:translate(-50%,12px) scale(.9)}
+  100%{opacity:1;transform:translate(-50%,18px) scale(1)}
+}
+.poo-drop.squeeze{animation:poo-squeeze .8s ease forwards}
+
+@keyframes poo-pickup{
+  0%{transform:translate(-50%,18px) scale(1)}
+  100%{transform:translate(-50%,-10px) scale(.8)}
+}
+.poo-drop.pickup{animation:poo-pickup .4s ease forwards}
+
+/* ── MONEY GUN ── */
+.money-bill{position:fixed;pointer-events:none;z-index:9997;font-size:32px;opacity:0}
+@keyframes bill-spray{
+  0%{opacity:1;transform:translate(0,0) rotate(0) scale(.4)}
+  30%{opacity:1;transform:translate(var(--tx),var(--ty)) rotate(var(--rot)) scale(.9)}
+  70%{opacity:.9;transform:translate(calc(var(--tx)*2.2),calc(var(--ty)*2.2)) rotate(calc(var(--rot)*1.5)) scale(1)}
+  100%{opacity:0;transform:translate(calc(var(--tx)*3),calc(var(--ty)*3 + 80px)) rotate(calc(var(--rot)*2)) scale(.8)}
+}
+.money-bill.spray{animation:bill-spray var(--dur) ease-out forwards}
+
+/* Clippy with money gun pose */
+.clippy-svg.money-gun{animation:bob-happy .5s ease infinite}
+
+/* Money counter */
+.money-counter{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;font-weight:900;font-family:'Plus Jakarta Sans',sans-serif;color:var(--green);opacity:0;z-index:9999;pointer-events:none;text-shadow:0 4px 20px rgba(40,183,157,.5)}
+@keyframes counter-pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes counter-out{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) translateY(-30px)}}
+.money-counter.pop{animation:counter-pop .3s ease forwards}
+.money-counter.out{animation:counter-out .5s ease forwards}
+
+/* ── LOVE EFFECT ── */
+.fx-overlay{position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:0;transition:opacity .4s}
+.fx-overlay.show{opacity:1}
+.heart-particle{position:fixed;font-size:28px;pointer-events:none;z-index:9999;opacity:0}
+@keyframes heart-float{
+  0%{opacity:0;transform:scale(0) rotate(-20deg)}
+  15%{opacity:1;transform:scale(1.2) rotate(10deg)}
+  50%{opacity:1;transform:scale(1) translateY(-80px) rotate(-5deg)}
+  100%{opacity:0;transform:scale(.6) translateY(-200px) rotate(15deg)}
+}
+.heart-particle.fly{animation:heart-float 2.5s ease forwards}
+
+/* ── APPROVED EFFECT ── */
+.approved-badge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:9999;pointer-events:none;transition:all .6s cubic-bezier(.34,1.56,.64,1)}
+.approved-badge.show{transform:translate(-50%,-50%) scale(1)}
+.approved-badge .ab-ring{width:160px;height:160px;border-radius:50%;border:6px solid var(--green);display:flex;align-items:center;justify-content:center;background:rgba(10,10,13,.9)}
+.approved-badge .ab-check{font-size:64px}
+.approved-badge .ab-text{position:absolute;bottom:-36px;left:50%;transform:translateX(-50%);font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:900;color:var(--green);white-space:nowrap;letter-spacing:.08em;text-transform:uppercase}
+@keyframes ring-draw{0%{stroke-dashoffset:502}100%{stroke-dashoffset:0}}
+.approved-badge .ab-ring-svg{position:absolute;inset:-4px;width:168px;height:168px}
+.approved-badge .ab-ring-svg circle{fill:none;stroke:var(--green);stroke-width:4;stroke-dasharray:502;stroke-dashoffset:502;stroke-linecap:round}
+.approved-badge.show .ab-ring-svg circle{animation:ring-draw 1.2s ease forwards}
+
+/* Stamp particles */
+.stamp-particle{position:fixed;pointer-events:none;z-index:9999;opacity:0}
+@keyframes stamp-burst{
+  0%{opacity:1;transform:translate(0,0) scale(1)}
+  100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)}
+}
+.stamp-particle.burst{animation:stamp-burst .8s ease forwards}
+
+/* ── CELEBRATE EFFECT ── */
+.confetti{position:fixed;width:10px;pointer-events:none;z-index:9999;opacity:0;border-radius:2px}
+@keyframes confetti-fall{
+  0%{opacity:1;transform:translateY(-20px) rotate(0) scale(1)}
+  50%{opacity:1;transform:translateY(calc(50vh)) rotate(360deg) scale(.9)}
+  100%{opacity:0;transform:translateY(calc(100vh + 20px)) rotate(720deg) scale(.5)}
+}
+.confetti.fall{animation:confetti-fall var(--dur) ease forwards}
+
+/* ── LASER EFFECT ── */
+.laser-beam{position:fixed;height:3px;z-index:9999;pointer-events:none;opacity:0;transform-origin:left center}
+@keyframes laser-fire{
+  0%{width:0;opacity:1;box-shadow:0 0 8px 2px #FF0033}
+  30%{width:var(--len);opacity:1;box-shadow:0 0 16px 4px #FF0033}
+  60%{width:var(--len);opacity:1;box-shadow:0 0 8px 2px #FF0033}
+  100%{width:var(--len);opacity:0;box-shadow:0 0 0 0 transparent}
+}
+.laser-beam.fire{animation:laser-fire .5s ease forwards}
+.laser-impact{position:fixed;width:40px;height:40px;border-radius:50%;pointer-events:none;z-index:9999;opacity:0;transform:translate(-50%,-50%)}
+@keyframes laser-hit{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(0);box-shadow:0 0 0 0 rgba(255,0,51,.5)}
+  30%{opacity:1;transform:translate(-50%,-50%) scale(1.5);box-shadow:0 0 30px 10px rgba(255,0,51,.4)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(3);box-shadow:0 0 0 0 transparent}
+}
+.laser-impact.hit{animation:laser-hit .6s ease forwards}
+/* Laser eyes */
+.clippy-svg.laser-eyes #eyeL ellipse,.clippy-svg.laser-eyes #eyeR ellipse{fill:#FF0033;transition:fill .2s}
+.clippy-svg.laser-eyes #pupilL,.clippy-svg.laser-eyes #pupilR{fill:#FF0033}
+
+/* ── Controls ── */
+.controls-wrap{display:flex;flex-direction:column;gap:16px;width:100%;max-width:560px}
+.ctrl-label{font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:6px}
+.ctrl{padding:7px 14px;border-radius:8px;border:1.5px solid var(--bdr);background:var(--d2);color:var(--dim);font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+.ctrl:hover{border-color:var(--violet);color:#fff}
+.ctrl.active{border-color:var(--orchid);background:rgba(106,20,219,.08);color:var(--violet)}
+</style>
+</head>
+<body>
+
+<h1>Meet <span>Clippy</span></h1>
+<div class="sub">Your DPP Assistant. Friendly, helpful, and always carrying exactly what you need.</div>
+
+<div class="stage">
+  <div class="bubble" id="bubble">Hi, let's build your DPP.</div>
+
+  <svg class="clippy-svg idle" id="clippy" viewBox="0 0 160 280" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gViolet" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#6A14DB"/>
+        <stop offset="100%" stop-color="#B354F1"/>
+      </linearGradient>
+      <linearGradient id="gDark" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#4A0FB0"/>
+        <stop offset="100%" stop-color="#6A14DB"/>
+      </linearGradient>
+      <linearGradient id="gShine" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="rgba(255,255,255,.25)"/>
+        <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+      </linearGradient>
+      <filter id="shadow">
+        <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="rgba(0,0,0,.35)"/>
+      </filter>
+      <filter id="glow">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="3"/>
+      </filter>
+    </defs>
+
+    <!-- Shadow on ground -->
+    <ellipse cx="80" cy="272" rx="35" ry="6" fill="rgba(0,0,0,.3)"/>
+
+    <!-- ═══ BODY — Paperclip shape ═══ -->
+    <g filter="url(#shadow)">
+      <!-- Outer loop -->
+      <path d="M55,240 L55,80 Q55,40 80,40 Q105,40 105,80 L105,220 Q105,250 80,250 Q55,250 55,220" 
+            fill="none" stroke="url(#gViolet)" stroke-width="12" stroke-linecap="round"/>
+      <!-- Inner loop -->
+      <path d="M70,220 L70,95 Q70,70 80,70 Q90,70 90,95 L90,200" 
+            fill="none" stroke="url(#gDark)" stroke-width="10" stroke-linecap="round"/>
+      <!-- Shine highlight on outer -->
+      <path d="M55,240 L55,80 Q55,40 80,40 Q105,40 105,80 L105,140" 
+            fill="none" stroke="url(#gShine)" stroke-width="5" stroke-linecap="round" opacity=".4"/>
+    </g>
+
+    <!-- ═══ FACE ═══ -->
+    <g transform="translate(80,108)">
+      <!-- Face background (subtle) -->
+      <ellipse cx="0" cy="0" rx="20" ry="18" fill="rgba(179,84,241,.06)"/>
+      
+      <!-- Eyebrows -->
+      <g id="brows">
+        <rect x="-14" y="-14" width="9" height="3" rx="1.5" fill="#B354F1" id="browL"/>
+        <rect x="5" y="-14" width="9" height="3" rx="1.5" fill="#B354F1" id="browR"/>
+      </g>
+
+      <!-- Eyes -->
+      <g class="eye-group">
+        <g id="eyeL" transform="translate(-9,0)">
+          <ellipse cx="0" cy="0" rx="6" ry="7" fill="#fff"/>
+          <circle id="pupilL" cx="1" cy="1" r="3.5" fill="#321B68"/>
+          <circle cx="2.5" cy="-1.5" r="1.2" fill="#fff" opacity=".9"/>
+        </g>
+        <g id="eyeR" transform="translate(9,0)">
+          <ellipse cx="0" cy="0" rx="6" ry="7" fill="#fff"/>
+          <circle id="pupilR" cx="1" cy="1" r="3.5" fill="#321B68"/>
+          <circle cx="2.5" cy="-1.5" r="1.2" fill="#fff" opacity=".9"/>
+        </g>
+      </g>
+
+      <!-- Mouth -->
+      <path id="mouth" d="M-6,10 Q0,16 6,10" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+
+    <!-- ═══ ARMS ═══ -->
+    <!-- Left arm -->
+    <g class="arm-left" id="armL">
+      <path d="M55,145 Q30,145 22,130" fill="none" stroke="url(#gViolet)" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="22" cy="130" r="6" fill="#B354F1"/>
+      <text class="emoji-hold" id="emojiL" x="22" y="130" text-anchor="middle" dominant-baseline="middle"></text>
+    </g>
+
+    <g class="arm-right" id="armR">
+      <path d="M105,145 Q130,145 138,130" fill="none" stroke="url(#gViolet)" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="138" cy="130" r="6" fill="#B354F1"/>
+      <text class="emoji-hold" id="emojiR" x="138" y="130" text-anchor="middle" dominant-baseline="middle"></text>
+    </g>
+
+    <!-- ═══ FEET ═══ -->
+    <g>
+      <ellipse id="footL" cx="67" cy="258" rx="10" ry="5" fill="#6A14DB"/>
+      <ellipse id="footR" cx="93" cy="258" rx="10" ry="5" fill="#6A14DB"/>
+    </g>
+
+    <!-- ═══ ACCESSORY SLOT ═══ -->
+    <!-- Tiny DeStore diamond on the body -->
+    <g transform="translate(80,180)" opacity=".6">
+      <polygon points="0,-6 5,0 0,6 -5,0" fill="none" stroke="#B354F1" stroke-width="1.5"/>
+    </g>
+
+  </svg>
+  <!-- Poo drop (appears under Clippy during strain) -->
+  <div class="poo-drop" id="pooDrop" style="bottom:20px;left:50%">💩</div>
+</div>
+
+<!-- Poo projectile (flies at screen) -->
+<div class="poo-projectile" id="pooProjectile">💩</div>
+
+<!-- Splat overlay -->
+<div class="splat-overlay" id="splatOverlay">
+
+<!-- Money counter -->
+<div class="money-counter" id="moneyCounter">$0</div>
+  <div class="splat-center" id="splatCenter">💩</div>
+  <div class="splat-drip" id="drip1" style="top:0;left:30%;width:40px;height:0"></div>
+  <div class="splat-drip" id="drip2" style="top:0;left:55%;width:30px;height:0"></div>
+  <div class="splat-drip" id="drip3" style="top:0;left:42%;width:50px;height:0"></div>
+  <div class="splat-drip" id="drip4" style="top:0;left:65%;width:25px;height:0"></div>
+  <div class="splat-drip" id="drip5" style="top:0;left:20%;width:35px;height:0"></div>
+</div>
+
+<!-- Approved badge -->
+<div class="approved-badge" id="approvedBadge">
+  <div class="ab-ring">
+    <div class="ab-check">✓</div>
+  </div>
+  <svg class="ab-ring-svg" viewBox="0 0 168 168"><circle cx="84" cy="84" r="80"/></svg>
+  <div class="ab-text">DPP Verified ◈</div>
+</div>
+
+<!-- Particle container (hearts, confetti, lasers spawn here) -->
+<div id="particleContainer" style="position:fixed;inset:0;pointer-events:none;z-index:9997"></div>
+
+<!-- ── Controls ── -->
+<div class="controls-wrap">
+  <div>
+    <div class="ctrl-label">Mood</div>
+    <div class="ctrl-row">
+      <button class="ctrl active" onclick="mood('idle',this)">Idle</button>
+      <button class="ctrl" onclick="mood('waving',this)">Wave 👋</button>
+      <button class="ctrl" onclick="mood('happy',this)">Happy 😊</button>
+      <button class="ctrl" onclick="mood('thinking',this)">Thinking 🤔</button>
+      <button class="ctrl" onclick="mood('typing',this)">Typing ⌨️</button>
+      <button class="ctrl" onclick="mood('sad',this)">Sad 😔</button>
+      <button class="ctrl" onclick="mood('dancing',this)">Dance 🕺</button>
+    </div>
+  </div>
+  <div>
+    <div class="ctrl-label">Carry</div>
+    <div class="ctrl-row">
+      <button class="ctrl" onclick="carry('📋','R')">📋 Report</button>
+      <button class="ctrl" onclick="carry('🏷️','R')">🏷️ Barcode</button>
+      <button class="ctrl" onclick="carry('✅','R')">✅ Approved</button>
+      <button class="ctrl" onclick="carry('📱','L')">📱 QR</button>
+      <button class="ctrl" onclick="carry('🔍','L')">🔍 Search</button>
+      <button class="ctrl" onclick="carry('📄','L')">📄 Doc</button>
+      <button class="ctrl" onclick="carry('♻️','R')">♻️ Recycle</button>
+      <button class="ctrl" onclick="carry('⛓️','L')">⛓️ Chain</button>
+      <button class="ctrl" onclick="carry('🎉','B')">🎉 Celebrate</button>
+      <button class="ctrl" onclick="carry('💎','R')">💎 Gem</button>
+      <button class="ctrl" onclick="carry('🌱','L')">🌱 Sustain</button>
+      <button class="ctrl" onclick="carry('🇪🇺','R')">🇪🇺 EU</button>
+      <button class="ctrl" onclick="dropAll()">✕ Drop</button>
+    </div>
+  </div>
+  <div>
+    <div class="ctrl-label">Say</div>
+    <div class="ctrl-row">
+      <button class="ctrl" onclick="say(`Hi, let's build your DPP.`)">Greet</button>
+      <button class="ctrl" onclick="say(`What's this product made of?`)">Materials</button>
+      <button class="ctrl" onclick="say(`Got it. That's captured.`)">Confirm</button>
+      <button class="ctrl" onclick="say(`Compliance score: 74%`)">Score</button>
+      <button class="ctrl" onclick="say(`Almost done — two more questions.`)">Progress</button>
+      <button class="ctrl" onclick="say(`DPP complete. You're all set.`)">Done</button>
+      <button class="ctrl" onclick="say(`Let me review that document...`)">Doc</button>
+      <button class="ctrl" onclick="say(`Where is this manufactured?`)">Origin</button>
+    </div>
+  </div>
+  <div>
+    <div class="ctrl-label">Context (auto mood + emoji + speech)</div>
+    <div class="ctrl-row">
+      <button class="ctrl" onclick="ctx('greeting')">Greeting</button>
+      <button class="ctrl" onclick="ctx('materials')">Materials</button>
+      <button class="ctrl" onclick="ctx('barcode')">Barcode</button>
+      <button class="ctrl" onclick="ctx('document')">Document</button>
+      <button class="ctrl" onclick="ctx('capturing')">Capturing</button>
+      <button class="ctrl" onclick="ctx('approved')">Approved</button>
+      <button class="ctrl" onclick="ctx('changes')">Changes</button>
+      <button class="ctrl" onclick="ctx('celebrate')">Celebrate</button>
+      <button class="ctrl" onclick="ctx('recycle')">Recycle</button>
+      <button class="ctrl" onclick="ctx('chain')">On-chain</button>
+      <button class="ctrl" onclick="ctx('gemstone')">Gemstone</button>
+      <button class="ctrl" onclick="ctx('error')">Error</button>
+      <button class="ctrl" onclick="effectLove()" style="border-color:rgba(255,70,120,.3);color:#FF4678">❤️ Love</button>
+      <button class="ctrl" onclick="effectApproved()" style="border-color:rgba(40,183,157,.3);color:var(--green)">✅ Approved</button>
+      <button class="ctrl" onclick="effectCelebrate()" style="border-color:rgba(255,204,0,.3);color:#FFCC00">🎉 Celebrate</button>
+      <button class="ctrl" onclick="effectLaser()" style="border-color:rgba(255,0,0,.3);color:#FF0033">🔫 Laser</button>
+      <button class="ctrl" onclick="naughty()" style="border-color:rgba(139,105,20,.3);color:#8B6914">💩 Naughty</button>
+      <button class="ctrl" onclick="moneyGun()" style="border-color:rgba(40,183,157,.3);color:var(--green)">💸 Money Gun</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+const svg = document.getElementById('clippy');
+const bub = document.getElementById('bubble');
+let bubTimer = null;
+let currentMood = 'idle';
+
+// ─── EYES FOLLOW MOUSE ───
+document.addEventListener('mousemove', e => {
+  const svgRect = svg.getBoundingClientRect();
+  const faceCX = svgRect.left + svgRect.width * 0.5;
+  const faceCY = svgRect.top + svgRect.height * 0.385;
+  const dx = e.clientX - faceCX;
+  const dy = e.clientY - faceCY;
+  const angle = Math.atan2(dy, dx);
+  const dist = Math.min(2.5, Math.sqrt(dx*dx+dy*dy)/80);
+  const px = Math.cos(angle)*dist;
+  const py = Math.sin(angle)*dist;
+  document.getElementById('pupilL').setAttribute('cx', 1+px);
+  document.getElementById('pupilL').setAttribute('cy', 1+py);
+  document.getElementById('pupilR').setAttribute('cx', 1+px);
+  document.getElementById('pupilR').setAttribute('cy', 1+py);
+});
+
+// ─── MOOD ───
+function mood(m, btn) {
+  currentMood = m;
+  svg.className.baseVal = 'clippy-svg ' + m;
+  if(btn){
+    document.querySelectorAll('.ctrl-row')[0].querySelectorAll('.ctrl').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // Mouth shape
+  const mouth = document.getElementById('mouth');
+  const browL = document.getElementById('browL');
+  const browR = document.getElementById('browR');
+  switch(m){
+    case 'happy':
+    case 'dancing':
+      mouth.setAttribute('d','M-7,9 Q0,18 7,9');
+      browL.setAttribute('transform','rotate(-10 -9 -14)');
+      browR.setAttribute('transform','rotate(10 9 -14)');
+      break;
+    case 'sad':
+      mouth.setAttribute('d','M-5,14 Q0,9 5,14');
+      browL.setAttribute('transform','rotate(10 -9 -14)');
+      browR.setAttribute('transform','rotate(-10 9 -14)');
+      break;
+    case 'thinking':
+      mouth.setAttribute('d','M-3,12 Q0,13 3,11');
+      browL.setAttribute('transform','rotate(-15 -9 -14)');
+      browR.setAttribute('transform','rotate(5 9 -14)');
+      break;
+    default:
+      mouth.setAttribute('d','M-6,10 Q0,16 6,10');
+      browL.setAttribute('transform','');
+      browR.setAttribute('transform','');
+  }
+
+  // Auto-speech
+  const speeches = {
+    waving:"Hey there.",
+    happy:"That's great.",
+    thinking:"Hmm, let me think...",
+    sad:"Something's not right.",
+    typing:"Processing...",
+    dancing:"Let's gooo."
+  };
+  if(speeches[m]) say(speeches[m]);
+
+  // Reset wave/happy (not dance — dance loops)
+  if(m==='waving'||m==='happy'){
+    setTimeout(()=>{svg.className.baseVal='clippy-svg idle';currentMood='idle'},m==='waving'?1300:700);
+  }
+}
+
+// ─── SPEECH ───
+function say(text){
+  bub.textContent = text;
+  bub.classList.add('show');
+  clearTimeout(bubTimer);
+  bubTimer = setTimeout(()=>bub.classList.remove('show'),4000);
+}
+
+// ─── CARRY EMOJI ───
+function carry(emoji, hand){
+  if(hand==='L'||hand==='B') setEmoji('emojiL', emoji);
+  if(hand==='R'||hand==='B') setEmoji('emojiR', emoji);
+}
+
+function setEmoji(id, emoji){
+  const el = document.getElementById(id);
+  el.textContent = emoji;
+  el.classList.remove('show','pop');
+  void el.offsetWidth;
+  el.classList.add('show','pop');
+}
+
+function dropAll(){
+  ['emojiL','emojiR'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.classList.remove('show','pop');
+    setTimeout(()=>el.textContent='',1500);
+  });
+}
+
+// ─── CONTEXT API ───
+const ctxMap = {
+  greeting:    {emoji:'👋',hand:'R',mood:'waving',  text:"Hi, let's build your DPP."},
+  materials:   {emoji:'🧪',hand:'L',mood:'thinking', text:"What's this product made of?"},
+  barcode:     {emoji:'🏷️',hand:'R',mood:'idle',    text:"Let's sort your GS1 barcode."},
+  qr:          {emoji:'📱',hand:'L',mood:'idle',    text:"Time to design your QR code."},
+  document:    {emoji:'📄',hand:'L',mood:'thinking', text:"Let me review that document."},
+  capturing:   {emoji:'📋',hand:'R',mood:'typing',  text:"Capturing your data..."},
+  score:       {emoji:'📊',hand:'R',mood:'idle',    text:"Checking your compliance score."},
+  approved:    {emoji:'✅',hand:'R',mood:'happy',   text:"DPP approved. Looking good."},
+  changes:     {emoji:'✏️',hand:'L',mood:'sad',     text:"A few things need updating."},
+  recycle:     {emoji:'♻️',hand:'R',mood:'idle',    text:"Let's talk end of life."},
+  chain:       {emoji:'⛓️',hand:'L',mood:'idle',    text:"Logging this on-chain."},
+  celebrate:   {emoji:'🎉',hand:'B',mood:'dancing',  text:"DPP complete. Well done."},
+  searching:   {emoji:'🔍',hand:'L',mood:'thinking', text:"Looking into that..."},
+  gemstone:    {emoji:'💎',hand:'R',mood:'happy',   text:"A beauty. Let's document it."},
+  shipping:    {emoji:'📦',hand:'R',mood:'idle',    text:"Where does this ship from?"},
+  sustainability:{emoji:'🌱',hand:'L',mood:'idle',  text:"Tell me about sustainability."},
+  error:       {emoji:'⚠️',hand:'R',mood:'sad',     text:"Something went wrong. Try again?"},
+};
+
+function ctx(context){
+  const c = ctxMap[context];
+  if(!c) return;
+  dropAll();
+  setTimeout(()=>{
+    carry(c.emoji, c.hand);
+    mood(c.mood, null);
+    say(c.text);
+  },500);
+}
+
+// Initial
+setTimeout(()=>say("Hi, let's build your DPP."),600);
+
+// ─── MONEY GUN ───
+let moneyRunning = false;
+function moneyGun(){
+  if(moneyRunning || naughtyRunning) return;
+  moneyRunning = true;
+
+  const bills = ['💵','💴','💶','💷','💸','🤑','💰'];
+  const counter = document.getElementById('moneyCounter');
+  let totalMoney = 0;
+  let billsCreated = 0;
+  const totalBills = 40;
+  let sprayInterval;
+
+  // Step 1: Clippy picks up money gun
+  dropAll();
+  say("Let's make it rain.");
+  carry('💰','R');
+  mood('happy', null);
+  const mouthEl = document.getElementById('mouth');
+  mouthEl.setAttribute('d','M-7,9 Q0,18 7,9');
+  document.getElementById('browL').setAttribute('transform','rotate(-10 -9 -14)');
+  document.getElementById('browR').setAttribute('transform','rotate(10 9 -14)');
+
+  // Step 2: Start spraying (after 1s)
+  setTimeout(()=>{
+    svg.className.baseVal = 'clippy-svg money-gun';
+    say("Brrrrrrr 💸💸💸");
+    
+    // Show counter
+    counter.textContent = '$0';
+    counter.className = 'money-counter pop';
+
+    // Spray bills
+    const svgRect = svg.getBoundingClientRect();
+    const originX = svgRect.left + svgRect.width * 0.85;
+    const originY = svgRect.top + svgRect.height * 0.45;
+
+    sprayInterval = setInterval(()=>{
+      if(billsCreated >= totalBills){
+        clearInterval(sprayInterval);
+        return;
+      }
+
+      // Create a bill
+      const bill = document.createElement('div');
+      bill.className = 'money-bill';
+      bill.textContent = bills[Math.floor(Math.random()*bills.length)];
+      
+      // Random trajectory — fan out to the right and up
+      const angle = -30 + Math.random()*120; // -30 to 90 degrees from horizontal
+      const rad = angle * Math.PI/180;
+      const dist = 100 + Math.random()*200;
+      const tx = Math.cos(rad) * dist;
+      const ty = -Math.abs(Math.sin(rad) * dist) - Math.random()*60;
+      const rot = -180 + Math.random()*360;
+      const dur = 1.2 + Math.random()*0.8;
+
+      bill.style.left = originX + 'px';
+      bill.style.top = originY + 'px';
+      bill.style.setProperty('--tx', tx+'px');
+      bill.style.setProperty('--ty', ty+'px');
+      bill.style.setProperty('--rot', rot+'deg');
+      bill.style.setProperty('--dur', dur+'s');
+      bill.style.fontSize = (24 + Math.random()*20) + 'px';
+      
+      document.body.appendChild(bill);
+      
+      // Trigger animation
+      requestAnimationFrame(()=> bill.classList.add('spray'));
+
+      // Remove after animation
+      setTimeout(()=> bill.remove(), dur*1000 + 200);
+
+      // Update counter
+      totalMoney += Math.floor(50 + Math.random()*450);
+      counter.textContent = '$' + totalMoney.toLocaleString();
+
+      billsCreated++;
+    }, 80); // New bill every 80ms
+
+  },1000);
+
+  // Step 3: Wind down (after spray + 1s buffer)
+  setTimeout(()=>{
+    say("That's " + '$' + totalMoney.toLocaleString() + " in DPP value.");
+    svg.className.baseVal = 'clippy-svg idle';
+    dropAll();
+    carry('🤑','R');
+  }, 1000 + totalBills*80 + 500);
+
+  // Step 4: Counter flies out, Clippy returns to normal
+  setTimeout(()=>{
+    counter.className = 'money-counter out';
+    setTimeout(()=>{
+      counter.className = 'money-counter';
+      counter.textContent = '$0';
+    },600);
+
+    say("Now, back to business.");
+    dropAll();
+    mood('idle', null);
+    document.getElementById('mouth').setAttribute('d','M-6,10 Q0,16 6,10');
+    document.getElementById('browL').setAttribute('transform','');
+    document.getElementById('browR').setAttribute('transform','');
+    moneyRunning = false;
+  }, 1000 + totalBills*80 + 3000);
+}
+
+// ─── NAUGHTY SEQUENCE ───
+let naughtyRunning = false;
+function naughty(){
+  if(naughtyRunning) return;
+  naughtyRunning = true;
+
+  const pooDrop = document.getElementById('pooDrop');
+  const projectile = document.getElementById('pooProjectile');
+  const overlay = document.getElementById('splatOverlay');
+  const splatCenter = document.getElementById('splatCenter');
+  const mouth = document.getElementById('mouth');
+
+  // Reset everything
+  dropAll();
+  pooDrop.className = 'poo-drop';
+  pooDrop.style.opacity = '0';
+  projectile.className = 'poo-projectile';
+  overlay.className = 'splat-overlay';
+  splatCenter.className = 'splat-center';
+  document.querySelectorAll('.splat-drip').forEach(d=>{d.className='splat-drip';d.style.height='0'});
+
+  // Step 1: Clippy looks annoyed (0ms)
+  say("Oh no you didn't...");
+  svg.className.baseVal = 'clippy-svg idle';
+  mouth.setAttribute('d','M-5,14 Q0,9 5,14'); // frown
+  document.getElementById('browL').setAttribute('transform','rotate(15 -9 -14)');
+  document.getElementById('browR').setAttribute('transform','rotate(-15 9 -14)');
+
+  // Step 2: Straining (1200ms)
+  setTimeout(()=>{
+    say("Nnnngh...");
+    svg.className.baseVal = 'clippy-svg straining';
+    // Squinty eyes
+    mouth.setAttribute('d','M-4,13 Q0,10 4,13');
+  },1200);
+
+  // Step 3: Poo drops out (2200ms)
+  setTimeout(()=>{
+    pooDrop.style.opacity = '1';
+    pooDrop.className = 'poo-drop squeeze';
+  },2200);
+
+  // Step 4: Clippy looks down at it, relieved (2800ms)
+  setTimeout(()=>{
+    svg.className.baseVal = 'clippy-svg idle';
+    say("Right then...");
+    mouth.setAttribute('d','M-6,10 Q0,16 6,10'); // normal smile
+    document.getElementById('pupilL').setAttribute('cy','4');
+    document.getElementById('pupilR').setAttribute('cy','4');
+  },2800);
+
+  // Step 5: Pick it up (3400ms)
+  setTimeout(()=>{
+    pooDrop.className = 'poo-drop pickup';
+    say("Catch this.");
+    mouth.setAttribute('d','M-7,9 Q0,18 7,9'); // big grin
+    document.getElementById('browL').setAttribute('transform','rotate(-10 -9 -14)');
+    document.getElementById('browR').setAttribute('transform','rotate(10 9 -14)');
+  },3400);
+
+  // Step 6: Poo disappears from ground, projectile launches (3900ms)
+  setTimeout(()=>{
+    pooDrop.style.opacity = '0';
+    // Position projectile at Clippy's location
+    const svgRect = svg.getBoundingClientRect();
+    projectile.style.left = (svgRect.left + svgRect.width/2 - 24) + 'px';
+    projectile.style.top = (svgRect.top + svgRect.height * 0.5) + 'px';
+    projectile.className = 'poo-projectile throw';
+  },3900);
+
+  // Step 7: Splat on screen (4700ms)
+  setTimeout(()=>{
+    projectile.style.opacity = '0';
+    overlay.className = 'splat-overlay show';
+    splatCenter.className = 'splat-center show';
+
+    // Drips start falling
+    const drips = document.querySelectorAll('.splat-drip');
+    drips.forEach((d,i)=>{
+      setTimeout(()=>{
+        d.classList.add('show');
+        d.style.height = (80 + Math.random()*120) + 'px';
+        d.style.transition = 'height '+(1+Math.random())+'s ease-in';
+      }, i * 150);
+    });
+  },4700);
+
+  // Step 8: Clippy looks disgusted but satisfied (4700ms)
+  setTimeout(()=>{
+    svg.className.baseVal = 'clippy-svg disgusted';
+    say("Keep it professional next time.");
+    mouth.setAttribute('d','M-4,12 Q0,14 4,12');
+    document.getElementById('browL').setAttribute('transform','rotate(8 -9 -14)');
+    document.getElementById('browR').setAttribute('transform','rotate(-8 9 -14)');
+    document.getElementById('pupilL').setAttribute('cy','1');
+    document.getElementById('pupilR').setAttribute('cy','1');
+  },4700);
+
+  // Step 9: Clean up (7500ms)
+  setTimeout(()=>{
+    overlay.className = 'splat-overlay';
+    splatCenter.className = 'splat-center';
+    document.querySelectorAll('.splat-drip').forEach(d=>{d.className='splat-drip';d.style.height='0'});
+    projectile.className = 'poo-projectile';
+    projectile.style.opacity = '';
+    projectile.style.left = '';
+    projectile.style.top = '';
+    pooDrop.className = 'poo-drop';
+
+    // Clippy returns to normal
+    svg.className.baseVal = 'clippy-svg idle';
+    mouth.setAttribute('d','M-6,10 Q0,16 6,10');
+    document.getElementById('browL').setAttribute('transform','');
+    document.getElementById('browR').setAttribute('transform','');
+    say("Now, where were we?");
+    naughtyRunning = false;
+  },7500);
+}
+
+// ─── EFFECT: LOVE ───
+let loveRunning = false;
+function effectLove(){
+  if(loveRunning) return;
+  loveRunning = true;
+  const container = document.getElementById('particleContainer');
+
+  // Clippy mood
+  dropAll();
+  carry('❤️','B');
+  mood('happy', null);
+  say("Aww, I love this product too.");
+  document.getElementById('mouth').setAttribute('d','M-7,9 Q0,18 7,9');
+
+  // Spawn hearts
+  const colors = ['❤️','💜','💗','💖','🩷','💕'];
+  let spawned = 0;
+  const spawnInterval = setInterval(()=>{
+    if(spawned >= 30){clearInterval(spawnInterval);return}
+    const heart = document.createElement('div');
+    heart.className = 'heart-particle';
+    heart.textContent = colors[Math.floor(Math.random()*colors.length)];
+    heart.style.left = (Math.random()*90+5)+'%';
+    heart.style.top = (Math.random()*60+30)+'%';
+    heart.style.fontSize = (20+Math.random()*28)+'px';
+    container.appendChild(heart);
+    requestAnimationFrame(()=>heart.classList.add('fly'));
+    setTimeout(()=>heart.remove(),2600);
+    spawned++;
+  },80);
+
+  // Big central heart pulse
+  setTimeout(()=>{
+    say("Your DPP is full of love.");
+  },1500);
+
+  // Cleanup
+  setTimeout(()=>{
+    mood('idle',null);
+    dropAll();
+    say("Right, back to business.");
+    document.getElementById('mouth').setAttribute('d','M-6,10 Q0,16 6,10');
+    loveRunning = false;
+  },4500);
+}
+
+// ─── EFFECT: APPROVED ───
+let approvedRunning = false;
+function effectApproved(){
+  if(approvedRunning) return;
+  approvedRunning = true;
+  const badge = document.getElementById('approvedBadge');
+  const container = document.getElementById('particleContainer');
+
+  // Clippy gets serious then celebrates
+  dropAll();
+  mood('thinking',null);
+  say("Reviewing...");
+
+  // Step 1: Checking (1s)
+  setTimeout(()=>{
+    carry('📋','R');
+    say("Checking compliance fields...");
+  },800);
+
+  // Step 2: Badge appears (2.2s)
+  setTimeout(()=>{
+    dropAll();
+    carry('✅','R');
+    mood('happy',null);
+    say("Verified. DPP approved.");
+    badge.classList.add('show');
+
+    // Stamp burst particles
+    for(let i=0;i<16;i++){
+      const p = document.createElement('div');
+      p.className='stamp-particle';
+      p.style.left='50%';p.style.top='50%';
+      p.style.width='8px';p.style.height='8px';
+      p.style.borderRadius='50%';
+      p.style.background=i%2===0?'var(--green)':'var(--violet)';
+      const angle=Math.random()*Math.PI*2;
+      const dist=60+Math.random()*80;
+      p.style.setProperty('--tx',Math.cos(angle)*dist+'px');
+      p.style.setProperty('--ty',Math.sin(angle)*dist+'px');
+      container.appendChild(p);
+      requestAnimationFrame(()=>p.classList.add('burst'));
+      setTimeout(()=>p.remove(),900);
+    }
+  },2200);
+
+  // Step 3: Hold (4.5s)
+  setTimeout(()=>{
+    say("This one's solid.");
+  },3800);
+
+  // Step 4: Cleanup (5.5s)
+  setTimeout(()=>{
+    badge.classList.remove('show');
+    dropAll();
+    mood('idle',null);
+    say("Next product?");
+    document.getElementById('mouth').setAttribute('d','M-6,10 Q0,16 6,10');
+    approvedRunning = false;
+  },5500);
+}
+
+// ─── EFFECT: CELEBRATE ───
+let celebrateRunning = false;
+function effectCelebrate(){
+  if(celebrateRunning) return;
+  celebrateRunning = true;
+  const container = document.getElementById('particleContainer');
+  const confettiColors=['#B354F1','#6A14DB','#28B79D','#FF9F46','#FF1B9A','#00c8ff','#FFCC00','#2FB457'];
+
+  // Clippy dances
+  dropAll();
+  carry('🎉','B');
+  mood('dancing',null);
+  say("Let's gooo. DPP complete.");
+
+  // Confetti storm
+  let spawned=0;
+  const spawnInterval=setInterval(()=>{
+    if(spawned>=80){clearInterval(spawnInterval);return}
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=(Math.random()*100)+'%';
+    c.style.top='-10px';
+    c.style.width=(6+Math.random()*8)+'px';
+    c.style.height=(12+Math.random()*16)+'px';
+    c.style.background=confettiColors[Math.floor(Math.random()*confettiColors.length)];
+    c.style.setProperty('--dur',(2+Math.random()*2)+'s');
+    c.style.transform='rotate('+Math.random()*360+'deg)';
+    container.appendChild(c);
+    requestAnimationFrame(()=>c.classList.add('fall'));
+    setTimeout(()=>c.remove(),4500);
+    spawned++;
+  },40);
+
+  // Phase 2: bigger text
+  setTimeout(()=>{
+    say("You're DPP ready.");
+  },2000);
+
+  setTimeout(()=>{
+    say("That deserves a dance.");
+  },3500);
+
+  // Cleanup
+  setTimeout(()=>{
+    mood('idle',null);
+    dropAll();
+    say("Alright, what's next?");
+    document.getElementById('mouth').setAttribute('d','M-6,10 Q0,16 6,10');
+    celebrateRunning = false;
+  },6000);
+}
+
+// ─── EFFECT: LASER ───
+let laserRunning = false;
+function effectLaser(){
+  if(laserRunning) return;
+  laserRunning = true;
+  const container = document.getElementById('particleContainer');
+  const svgRect = svg.getBoundingClientRect();
+  const eyeX = svgRect.left + svgRect.width*0.5;
+  const eyeY = svgRect.top + svgRect.height*0.385;
+
+  // Clippy powers up
+  dropAll();
+  mood('thinking',null);
+  say("Powering up...");
+
+  // Step 1: Eyes go red (800ms)
+  setTimeout(()=>{
+    svg.classList.add('laser-eyes');
+    say("Target acquired.");
+    document.getElementById('mouth').setAttribute('d','M-4,11 L4,11');
+    document.getElementById('browL').setAttribute('transform','rotate(-15 -9 -14)');
+    document.getElementById('browR').setAttribute('transform','rotate(15 9 -14)');
+  },800);
+
+  // Step 2: Fire lasers at random targets (1.5s)
+  let shotCount = 0;
+  const fireInterval = setInterval(()=>{
+    if(shotCount >= 8){clearInterval(fireInterval);return}
+
+    // Random target on screen
+    const tx = Math.random()*window.innerWidth;
+    const ty = Math.random()*window.innerHeight;
+    const dx = tx-eyeX;
+    const dy = ty-eyeY;
+    const len = Math.sqrt(dx*dx+dy*dy);
+    const angle = Math.atan2(dy,dx)*180/Math.PI;
+
+    // Create beam
+    const beam = document.createElement('div');
+    beam.className = 'laser-beam';
+    beam.style.left = eyeX+'px';
+    beam.style.top = eyeY+'px';
+    beam.style.transform = 'rotate('+angle+'deg)';
+    beam.style.setProperty('--len',len+'px');
+    beam.style.background = 'linear-gradient(90deg,#FF0033,#FF6644)';
+    container.appendChild(beam);
+    requestAnimationFrame(()=>beam.classList.add('fire'));
+
+    // Impact
+    setTimeout(()=>{
+      const impact = document.createElement('div');
+      impact.className = 'laser-impact';
+      impact.style.left = tx+'px';
+      impact.style.top = ty+'px';
+      impact.style.background = 'radial-gradient(circle,rgba(255,0,51,.6),transparent)';
+      container.appendChild(impact);
+      requestAnimationFrame(()=>impact.classList.add('hit'));
+      setTimeout(()=>impact.remove(),700);
+    },250);
+
+    setTimeout(()=>beam.remove(),600);
+    shotCount++;
+  },350);
+
+  // Step 3: Say something cool (2.5s)
+  setTimeout(()=>{
+    say("Pew pew pew.");
+  },2000);
+
+  // Step 4: Final big blast (4.5s)
+  setTimeout(()=>{
+    // Big screen flash
+    const flash = document.createElement('div');
+    flash.style.cssText = 'position:fixed;inset:0;background:rgba(255,0,51,.15);z-index:9996;pointer-events:none;transition:opacity .5s';
+    container.appendChild(flash);
+    setTimeout(()=>{flash.style.opacity='0';setTimeout(()=>flash.remove(),600)},100);
+    say("Area secured.");
+  },4500);
+
+  // Cleanup (5.5s)
+  setTimeout(()=>{
+    svg.classList.remove('laser-eyes');
+    mood('idle',null);
+    dropAll();
+    say("Targets eliminated. Back to DPPs.");
+    document.getElementById('mouth').setAttribute('d','M-6,10 Q0,16 6,10');
+    document.getElementById('browL').setAttribute('transform','');
+    document.getElementById('browR').setAttribute('transform','');
+    document.getElementById('pupilL').setAttribute('fill','#321B68');
+    document.getElementById('pupilR').setAttribute('fill','#321B68');
+    laserRunning = false;
+  },5500);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Industries — DeStore</title>
+<meta name="description" content="From Australian opals and premium cherries to Indigenous art and luxury spirits. Circular trade infrastructure for any product that needs provenance.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@property --angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--d3);border-radius:2px}
+body{background:var(--bg);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+:root{--royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;--green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--pink:#FF1B9A;--d0:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;--bdr:#2e2e38;--muted:#6b6b80;--dim:#9999b0}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+@keyframes spin-border{to{--angle:360deg}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-glow{0%,100%{box-shadow:0 4px 20px rgba(179,84,241,.35)}50%{box-shadow:0 4px 32px rgba(179,84,241,.65),0 0 60px rgba(179,84,241,.15)}}
+.conic-wrap{position:relative;border-radius:14px;padding:1.5px;display:inline-block;background:conic-gradient(from var(--angle,0deg),var(--violet),var(--orchid),var(--blue),var(--violet) 40%,var(--royal) 60%,var(--violet));animation:spin-border 2.5s linear infinite}.conic-inner{background:var(--d2);border-radius:12px}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(13,13,16,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr)}.nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between}.nav-links{display:flex;gap:28px;align-items:center}.nav-link{font-size:13px;font-weight:600;color:var(--dim);text-decoration:none;transition:color .18s}.nav-link:hover{color:#fff}.nav-link.active{color:var(--violet)}.nav-cta{padding:9px 20px;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;border-radius:14px;font-weight:800;font-size:12px;letter-spacing:.02em;text-decoration:none;transition:transform .12s,filter .12s;box-shadow:0 4px 20px rgba(179,84,241,.35)}.nav-cta:active{transform:scale(.97)}.nav-cta:hover{filter:brightness(1.1)}.nav-bar{height:3px;background:linear-gradient(90deg,var(--violet),var(--orchid),transparent)}.mobile-menu-btn{display:none;background:none;border:1px solid var(--bdr);border-radius:8px;width:36px;height:36px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:0}.mobile-menu-btn span{display:block;width:16px;height:1.5px;background:var(--dim);border-radius:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;letter-spacing:.02em;cursor:pointer;transition:transform .12s,opacity .12s,filter .12s;text-decoration:none}.btn:active{transform:scale(.97);opacity:.88}.btn:hover{filter:brightness(1.1)}.btn-primary{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;padding:15px 30px;box-shadow:0 4px 20px rgba(179,84,241,.35)}.btn-primary-glow{animation:pulse-glow 3s ease infinite}.btn-ghost{background:transparent;color:var(--dim);border:1.5px solid var(--bdr);padding:13px 24px}.btn-ghost:hover{border-color:var(--violet);color:#fff}
+.hero{padding:140px 24px 80px;max-width:1200px;margin:0 auto;text-align:center;position:relative}.hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(106,20,219,.1),transparent 70%);pointer-events:none}.hero-label{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--violet);margin-bottom:14px}.hero-title{font-size:clamp(38px,5.5vw,60px);font-weight:900;letter-spacing:-2px;line-height:1.04;margin-bottom:20px;position:relative}.hero-title .accent{background:linear-gradient(135deg,var(--violet),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hero-desc{font-size:17px;color:var(--dim);line-height:1.7;max-width:600px;margin:0 auto 36px}
+.section{padding:100px 24px;max-width:1200px;margin:0 auto}
+.industries-grid{max-width:1200px;margin:0 auto;padding:0 24px 100px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.industry-card{background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:44px 36px;transition:all .35s;position:relative;overflow:hidden}.industry-card:hover{border-color:rgba(179,84,241,.2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(50,27,104,.15)}
+.industry-card::after{content:'';position:absolute;top:0;right:0;width:180px;height:180px;border-radius:50%;filter:blur(80px);opacity:0;transition:opacity .4s;pointer-events:none}.industry-card:hover::after{opacity:1}
+.ic-produce::after{background:rgba(40,183,157,.12)}.ic-gems::after{background:rgba(179,84,241,.12)}.ic-wine::after{background:rgba(255,159,70,.12)}.ic-art::after{background:rgba(236,72,153,.12)}.ic-fashion::after{background:rgba(179,84,241,.12)}.ic-health::after{background:rgba(40,183,157,.12)}
+.ic-icon{font-size:36px;margin-bottom:20px}
+.ic-tag{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;display:inline-block;padding:3px 10px;border-radius:12px}.ic-tag-green{color:var(--green);background:rgba(40,183,157,.1)}.ic-tag-violet{color:var(--violet);background:rgba(179,84,241,.1)}.ic-tag-orange{color:var(--orange);background:rgba(255,159,70,.1)}.ic-tag-pink{color:#EC4899;background:rgba(236,72,153,.1)}
+.industry-card h3{font-size:22px;font-weight:800;margin-bottom:12px;letter-spacing:-.5px}.industry-card p{font-size:14px;color:var(--dim);line-height:1.75;margin-bottom:20px}
+.ic-case{padding:16px;background:var(--d0);border-radius:12px;border:1px solid var(--bdr)}.ic-case-label{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}.ic-case p{font-size:13px;color:var(--dim);margin-bottom:0;line-height:1.6}.ic-case strong{color:#fff}
+.ic-stats{display:flex;gap:20px;margin-top:16px}.ic-stat{text-align:center}.ic-stat-num{font-size:20px;font-weight:900;color:var(--violet)}.ic-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.callout{max-width:1200px;margin:0 auto 80px;padding:0 24px}.callout-inner{background:linear-gradient(135deg,var(--royal),#1a0e3a);border:1px solid rgba(179,84,241,.2);border-radius:20px;padding:60px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}.callout-text h2{font-size:28px;font-weight:900;letter-spacing:-.8px;margin-bottom:12px}.callout-text p{font-size:14px;color:var(--dim);line-height:1.7}.callout-list{display:flex;flex-direction:column;gap:12px}.callout-item{display:flex;align-items:center;gap:12px;padding:14px 18px;background:rgba(106, 20, 219, 0.08);border-radius:12px;border:1px solid rgba(106, 20, 219, 0.08)}.callout-item span:first-child{font-size:18px}.callout-item span:last-child{font-size:13px;color:var(--dim)}.callout-item strong{color:#fff}
+.cta-banner{max-width:1200px;margin:0 auto 0;padding:0 24px 100px}.cta-inner{background:linear-gradient(135deg,var(--royal),#1a0e3a);border:1px solid rgba(179,84,241,.2);border-radius:20px;padding:60px;text-align:center;position:relative;overflow:hidden}.cta-inner::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(106,20,219,.08),transparent)}.cta-inner h2{font-size:28px;font-weight:900;letter-spacing:-.8px;margin-bottom:12px;position:relative}.cta-inner p{font-size:15px;color:var(--dim);margin-bottom:28px;position:relative}
+.footer{border-top:1px solid var(--bdr);padding:48px 24px;max-width:1200px;margin:0 auto}.footer-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px}.footer-tagline{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6}.footer-cols{display:flex;gap:60px}.footer-col h4{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}.footer-col a{display:block;color:var(--dim);text-decoration:none;font-size:13px;margin-bottom:8px;transition:color .18s}.footer-col a:hover{color:var(--violet)}.footer-bottom{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding-top:24px;border-top:1px solid var(--bdr)}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}.reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:768px){.nav-links a:not(.nav-cta){display:none}.mobile-menu-btn{display:flex}.hero,.section,.industries-grid,.callout,.cta-banner{padding-left:20px;padding-right:20px}.industries-grid{grid-template-columns:1fr}.callout-inner{grid-template-columns:1fr;padding:40px 24px}.cta-inner{padding:40px 24px}.footer-top{flex-direction:column;gap:28px}.footer-cols{flex-direction:column;gap:24px}}
+</style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner"><a href="DeStore_Landing_Page_V2.html"><svg width="130" height="24.5" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#fff"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#fff"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#fff"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#fff"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#fff"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#fff"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#fff"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#fff"/></svg></a><div class="nav-links"><a href="DeStore_Landing_Page_V2.html" class="nav-link">Home</a><a href="DeStore_Features.html" class="nav-link">Features</a><a href="DeStore_Industries.html" class="nav-link active">Industries</a><a href="DeStore_For_Brands.html" class="nav-link">For Brands</a><a href="DeStore_Collection_Creator_v0.4.html" class="nav-cta">Get Started</a></div><button class="mobile-menu-btn" aria-label="Menu"><span></span><span></span><span></span></button></div><div class="nav-bar"></div></nav>
+
+<section class="hero"><div class="hero-label reveal">Industries</div><h1 class="hero-title reveal">Trusted by brands<br>across <span class="accent">every sector.</span></h1><p class="hero-desc reveal">From Australian opals and Tasmanian cherries to Indigenous art and premium spirits. Circular trade infrastructure for any product that needs provenance, protection, and a story to tell.</p></section>
+
+<div class="industries-grid">
+
+<div class="industry-card ic-produce reveal">
+<div class="ic-icon">&#x1F352;</div>
+<span class="ic-tag ic-tag-green">Fresh Produce</span>
+<h3>Fruit, vegetables and exports.</h3>
+<p>Premium Australian produce faces rampant counterfeiting in Asian export markets. Smart Fingerprints give consumers instant verification of origin and authenticity — no apps required.</p>
+<div class="ic-case">
+<div class="ic-case-label">Case Study — Reid Fruits</div>
+<p>Tasmanian cherry exporter <strong>Reid Fruits</strong> deployed Smart Fingerprints on <strong>340,000 boxes</strong> across 20 markets. Counterfeit attempts dropped from 10 to <strong>zero</strong> within two seasons. A collaborative citrus traceability pilot with <strong>Citrus Australia</strong> and Agriculture Victoria followed.</p>
+<div class="ic-stats">
+<div class="ic-stat"><div class="ic-stat-num">340K</div><div class="ic-stat-label">Boxes</div></div>
+<div class="ic-stat"><div class="ic-stat-num">20</div><div class="ic-stat-label">Markets</div></div>
+<div class="ic-stat"><div class="ic-stat-num">0</div><div class="ic-stat-label">Counterfeits</div></div>
+</div>
+</div>
+</div>
+
+<div class="industry-card ic-gems reveal">
+<div class="ic-icon">&#x1F48E;</div>
+<span class="ic-tag ic-tag-violet">Gemstones &amp; Mining</span>
+<h3>Opals, precious stones and minerals.</h3>
+<p>Every gemstone has a unique story — origin, weight, colour, quality. DeStore gives each stone a verifiable digital identity with on-chain provenance, scanned directly from the product label. Zero crypto UX for buyers.</p>
+<div class="ic-case">
+<div class="ic-case-label">Case Study — DigiDiggers</div>
+<p>The <strong>DigiDiggers</strong> — featured on Discovery Channel's Outback Opal Hunters — are the first mine running entirely on renewable energy. As DeStore's pilot project, they pioneered verified provenance for physical gemstones with Digital Product Passports, bringing full traceability to the opal trade.</p>
+<div class="ic-stats">
+<div class="ic-stat"><div class="ic-stat-num">1st</div><div class="ic-stat-label">DPP Opals</div></div>
+<div class="ic-stat"><div class="ic-stat-num">100%</div><div class="ic-stat-label">Renewable</div></div>
+<div class="ic-stat"><div class="ic-stat-num">TV</div><div class="ic-stat-label">Discovery</div></div>
+</div>
+</div>
+</div>
+
+<div class="industry-card ic-wine reveal">
+<div class="ic-icon">&#x1F377;</div>
+<span class="ic-tag ic-tag-orange">Wine &amp; Spirits</span>
+<h3>Premium wines, whisky and craft spirits.</h3>
+<p>Wine counterfeiting costs the global industry billions. Connected labels turn every bottle into a verified brand experience — origin stories, tasting notes, exclusive offers, and proof of authenticity in one scan.</p>
+<div class="ic-case">
+<div class="ic-case-label">Case Study — Tamburlaine &amp; Lark</div>
+<p><strong>Tamburlaine Organic Wines</strong> deployed <strong>1 million Smart Fingerprints</strong> across their ranges, connecting wine lovers to digital storytelling and exclusive competitions. <strong>Lark Distillery</strong> trialled Smart Fingerprints on premium Tasmanian whisky for Asian export markets, featuring safety seals and rich brand history.</p>
+<div class="ic-stats">
+<div class="ic-stat"><div class="ic-stat-num">1M</div><div class="ic-stat-label">Fingerprints</div></div>
+<div class="ic-stat"><div class="ic-stat-num">37%</div><div class="ic-stat-label">CTR</div></div>
+</div>
+</div>
+</div>
+
+<div class="industry-card ic-art reveal">
+<div class="ic-icon">&#x1F3A8;</div>
+<span class="ic-tag ic-tag-pink">Art &amp; Cultural Heritage</span>
+<h3>Indigenous art, paintings and collectibles.</h3>
+<p>The trade in fake Indigenous Australian art is estimated at $200 million per year. Verified provenance combined with Smart Fingerprints protects artists, preserves culture, and empowers consumers to verify authenticity.</p>
+<div class="ic-case">
+<div class="ic-case-label">Case Study — Indigenous Art Authentication</div>
+<p>Smart Fingerprints were applied to authorised jigsaw puzzles featuring artist <strong>Chern'ee Sutton's</strong> work, partnering with <strong>IndigiLedger</strong>. Consumers scan to verify authenticity and connect with the artist's story. Launched during NAIDOC Week, covered by ABC Radio and 7 News Brisbane.</p>
+<div class="ic-stats">
+<div class="ic-stat"><div class="ic-stat-num">$200M</div><div class="ic-stat-label">Fake Art Trade</div></div>
+<div class="ic-stat"><div class="ic-stat-num">DPP</div><div class="ic-stat-label">Verified</div></div>
+</div>
+</div>
+</div>
+
+<div class="industry-card ic-fashion reveal">
+<div class="ic-icon">&#x1F45F;</div>
+<span class="ic-tag ic-tag-violet">Fashion &amp; Luxury</span>
+<h3>Footwear, apparel and luxury goods.</h3>
+<p>Luxury brands need proof of authenticity at the product level. Smart Fingerprints turn brand logos into scannable gateways — consumers verify, brands track distribution, and counterfeiters are locked out. EU Digital Product Passport compliant under ESPR — textiles first wave ~mid-2028.</p>
+<div class="ic-case">
+<div class="ic-case-label">Case Study — Hey Dude Shoes</div>
+<p><strong>Hey Dude</strong> (acquired by Crocs for $2.5B) engaged Laava for on-product authentication, in-market tracking, and consumer engagement experiences, giving customers confidence their shoes are genuine.</p>
+<div class="ic-stats">
+<div class="ic-stat"><div class="ic-stat-num">$2.5B</div><div class="ic-stat-label">Brand</div></div>
+<div class="ic-stat"><div class="ic-stat-num">DPP</div><div class="ic-stat-label">ESPR Ready</div></div>
+</div>
+</div>
+</div>
+
+<div class="industry-card ic-health reveal">
+<div class="ic-icon">&#x1F48A;</div>
+<span class="ic-tag ic-tag-green">Health &amp; Nutraceuticals</span>
+<h3>Supplements, wellness and pharmaceuticals.</h3>
+<p>Counterfeit health products are dangerous. Smart Fingerprints give consumers instant verification that supplements and nutraceuticals are genuine, with full supply chain transparency from manufacturer to shelf.</p>
+<div class="ic-case">
+<div class="ic-case-label">Case Study — Biogency</div>
+<p><strong>Biogency</strong>, an Australian nutraceutical exporter, has partnered with Laava for three years. Smart Fingerprints feature on six products including Bonefits. In South-East Asian export markets, Biogency had fallen prey to label copying — customers now scan to verify they are buying the genuine product.</p>
+<div class="ic-stats">
+<div class="ic-stat"><div class="ic-stat-num">3</div><div class="ic-stat-label">Year Partner</div></div>
+<div class="ic-stat"><div class="ic-stat-num">6</div><div class="ic-stat-label">Products</div></div>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="callout reveal">
+<div class="callout-inner">
+<div class="callout-text">
+<h2>Digital Product Passport ready.</h2>
+<p>The EU's Ecodesign for Sustainable Products Regulation (ESPR) mandates Digital Product Passports — textiles first wave ~mid-2028. DeStore's GS1 + circular trade infrastructure is built to meet this standard from day one.</p>
+</div>
+<div class="callout-list">
+<div class="callout-item"><span>&#x1F4CB;</span><span><strong>Textiles &amp; Apparel</strong> — DPP first wave ~mid-2028.</span></div>
+<div class="callout-item"><span>&#x1F6CB;&#xFE0F;</span><span><strong>Furniture &amp; Mattresses</strong> — DPP phasing in under ESPR.</span></div>
+<div class="callout-item"><span>&#x1F50B;</span><span><strong>Electronics &amp; Batteries</strong> — DPP phasing in 2028–2030.</span></div>
+<div class="callout-item"><span>&#x1F30D;</span><span><strong>Global Exporters</strong> — EU sets the standard, the world follows.</span></div>
+</div>
+</div>
+</div>
+
+<div class="section" style="padding-top:0;padding-bottom:40px"><div style="background:rgba(40,183,157,.05);border:1px solid rgba(40,183,157,.15);border-radius:16px;padding:28px 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px"><div><div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:4px">EU ESPR</div><div style="font-size:13px;font-weight:600;color:var(--text2)">Built for mandatory DPP compliance. Textiles first wave ~mid-2028.</div></div><div><div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:4px">Chains</div><div style="font-size:13px;font-weight:600;color:var(--text2)">Base (primary) · Polygon · Soneium. Brand selects at onboarding.</div></div><div><div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:4px">Survivability</div><div style="font-size:13px;font-weight:600;color:var(--text2)">DPP lives on-chain regardless of DeStore infrastructure. Arweave metadata is permanent.</div></div><div><div style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:4px">B&amp;B Treasury</div><div style="font-size:13px;font-weight:600;color:var(--text2)">$0.01 USDC per lifecycle event. Accumulates for future buyback-and-burn.</div></div></div></div>
+
+<div class="cta-banner reveal">
+<div class="cta-inner">
+<h2>Your industry. Your products. <span style="color:var(--violet)">Verified.</span></h2>
+<p>Whether you ship cherries to China or sell opals from the outback — the infrastructure scales with you.</p>
+<a href="DeStore_For_Brands.html" class="btn btn-primary">Learn how to get started →</a>
+</div>
+</div>
+
+<footer class="footer"><div class="footer-top"><div><svg width="110" height="20.7" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#6b6b80"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#6b6b80"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#6b6b80"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#6b6b80"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#6b6b80"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#6b6b80"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#6b6b80"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#6b6b80"/></svg><div class="footer-tagline">Circular Trade Infrastructure.<br>The record is permanent.</div></div><div class="footer-cols"><div class="footer-col"><h4>Product</h4><a href="DeStore_Collection_Creator_v0.4.html">Collection Creator</a><a href="https://laava.id" target="_blank">Smart Fingerprints</a><a href="DeStore_GS1_QR_Generator_v0.2.html">QR Generator</a><a href="DeStore_Landing_Page_V2.html">Digital Product Passports</a></div><div class="footer-col"><h4>Partners</h4><a href="https://laava.id" target="_blank">Laava</a><a href="https://thirdweb.com" target="_blank">Thirdweb</a><a href="https://base.org" target="_blank">Base</a><a href="https://soneium.org" target="_blank">Soneium</a></div><div class="footer-col"><h4>Company</h4><a href="https://destore.network" target="_blank">About</a><a href="https://t.me/DeStore_Network" target="_blank">Telegram</a><a href="https://github.com/DeStore-Network" target="_blank">GitHub</a></div></div></div><div class="footer-bottom"><span>© 2026 DeStore Network. All rights reserved.</span><span>Built in Byron Bay, Australia.</span></div></footer>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+window.addEventListener('scroll',()=>{document.querySelector('.nav').style.background=window.scrollY>40?'rgba(13,13,16,.98)':'rgba(13,13,16,.92)'});
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

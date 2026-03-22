@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boulder Opal — Yowah QLD — DeStore</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #141414;
+      --surface: #1e1e1e;
+      --elevated: #262626;
+      --border: rgba(179,84,241,0.1);
+      --royal-base: #321b68;
+      --digital-orchid: #6a14db;
+      --violet: #B354F1;
+      --accent-green: #28B79D;
+      --white: #ffffff;
+      --text: #e5e5e5;
+      --text-sec: #999;
+      --text-dim: #666;
+    }
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 170%;
+    }
+    .page { max-width: 480px; margin: 0 auto; padding: 0 16px 40px; }
+    .top-bar {
+      padding: 16px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top-bar svg { height: 20px; width: auto; }
+    .top-bar .powered {
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ─── FLOATING HERO ─── */
+    .hero-wrapper {
+      perspective: 800px;
+      margin-bottom: 24px;
+      cursor: grab;
+    }
+    .hero-wrapper:active { cursor: grabbing; }
+
+    .hero {
+      width: 100%;
+      aspect-ratio: 1;
+      max-height: 400px;
+      border-radius: 20px;
+      overflow: visible;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+      will-change: transform;
+    }
+
+    .hero-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      transform-style: preserve-3d;
+      background: linear-gradient(135deg, #0d0520, #1a0a2e, #2d1654, #1a0a2e);
+      box-shadow:
+        0 20px 60px rgba(50, 27, 104, 0.4),
+        0 8px 24px rgba(10, 10, 13, 0.22),
+        inset 0 1px 0 rgba(179,84,241,0.1);
+    }
+
+    /* Glow ring behind the product */
+    .hero-glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 65%;
+      height: 65%;
+      transform: translate(-50%, -50%) translateZ(-20px);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(179,84,241,0.25) 0%, rgba(106,20,219,0.1) 40%, transparent 70%);
+      filter: blur(30px);
+      animation: glowPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) translateZ(-20px) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) translateZ(-20px) scale(1.1); }
+    }
+
+    /* Orbiting ring */
+    .hero-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 72%;
+      height: 72%;
+      transform: translate(-50%, -50%) translateZ(10px) rotateX(65deg);
+      border: 1px solid rgba(179,84,241,0.2);
+      border-radius: 50%;
+      animation: ringRotate 12s linear infinite;
+    }
+    .hero-ring::after {
+      content: '';
+      position: absolute;
+      top: -3px; left: 50%;
+      width: 6px; height: 6px;
+      background: var(--violet);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--violet);
+      transform: translateX(-50%);
+    }
+
+    @keyframes ringRotate {
+      from { transform: translate(-50%, -50%) translateZ(10px) rotateX(65deg) rotateZ(0deg); }
+      to { transform: translate(-50%, -50%) translateZ(10px) rotateX(65deg) rotateZ(360deg); }
+    }
+
+    /* Floating product placeholder */
+    .hero-product {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) translateZ(40px);
+      font-size: 100px;
+      color: var(--violet);
+      opacity: 0.12;
+      text-shadow: 0 0 80px rgba(179,84,241,0.3);
+      animation: productFloat 6s ease-in-out infinite;
+      user-select: none;
+    }
+
+    @keyframes productFloat {
+      0%, 100% { transform: translate(-50%, -50%) translateZ(40px) translateY(0px); }
+      50% { transform: translate(-50%, -50%) translateZ(40px) translateY(-12px); }
+    }
+
+    /* Sparkle particles */
+    .sparkle {
+      position: absolute;
+      width: 3px; height: 3px;
+      background: var(--violet);
+      border-radius: 50%;
+      opacity: 0;
+      animation: sparkle 3s ease-in-out infinite;
+    }
+    .sparkle:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
+    .sparkle:nth-child(2) { top: 70%; left: 80%; animation-delay: 0.8s; }
+    .sparkle:nth-child(3) { top: 35%; left: 75%; animation-delay: 1.6s; }
+    .sparkle:nth-child(4) { top: 80%; left: 25%; animation-delay: 2.2s; }
+    .sparkle:nth-child(5) { top: 15%; left: 60%; animation-delay: 0.4s; }
+    .sparkle:nth-child(6) { top: 60%; left: 40%; animation-delay: 1.2s; }
+
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(0.5) translateZ(30px); }
+      50% { opacity: 0.8; transform: scale(1.2) translateZ(30px); }
+    }
+
+    /* Reflection surface below */
+    .hero-reflection {
+      width: 90%;
+      height: 40px;
+      margin: -8px auto 0;
+      background: radial-gradient(ellipse, rgba(179,84,241,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(4px);
+      animation: reflectionPulse 6s ease-in-out infinite;
+    }
+    @keyframes reflectionPulse {
+      0%, 100% { opacity: 0.5; transform: scaleX(1); }
+      50% { opacity: 0.8; transform: scaleX(1.05); }
+    }
+
+    /* Interaction hint */
+    .hero-hint {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      opacity: 0.5;
+      transition: opacity 0.3s;
+    }
+    .hero-wrapper:hover .hero-hint,
+    .hero-wrapper.touched .hero-hint {
+      opacity: 0;
+    }
+
+    /* ─── REST OF PAGE ─── */
+    .badges { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .badge-verified {
+      background: rgba(40,183,157,0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(40,183,157,0.3);
+    }
+    .badge-dpp {
+      background: rgba(106,20,219,0.15);
+      color: var(--violet);
+      border: 1px solid rgba(106,20,219,0.3);
+    }
+    .badge-category {
+      background: var(--elevated);
+      color: var(--text-sec);
+      border: 1px solid var(--border);
+    }
+    .product-name {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .product-brand {
+      font-size: 13px;
+      color: var(--violet);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .product-price {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--violet);
+      margin-bottom: 16px;
+    }
+    .product-price .currency {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-sec);
+      margin-left: 4px;
+    }
+    .product-desc {
+      font-size: 14px;
+      color: var(--text-sec);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(179,84,241,0.05);
+      font-size: 13px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: var(--text-dim); font-weight: 500; }
+    .detail-value { color: var(--text); font-weight: 600; text-align: right; }
+    .detail-value.mono { font-size: 11px; font-family: monospace; word-break: break-all; }
+    .dpp-card { border-color: rgba(106,20,219,0.2); }
+    .dpp-card .card-title { color: var(--violet); }
+    .gs1-card { border-color: rgba(40,183,157,0.15); }
+    .gs1-card .card-title { color: var(--accent-green); }
+    .footer {
+      text-align: center;
+      padding: 24px 0;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .footer a { color: var(--violet); text-decoration: none; }
+    .demo-banner {
+      background: var(--royal-base);
+      text-align: center;
+      padding: 8px;
+      font-size: 11px;
+      color: var(--violet);
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hero-wrapper { animation: fadeUp 0.5s ease; }
+    .badges { animation: fadeUp 0.4s ease 0.15s both; }
+    .product-name { animation: fadeUp 0.4s ease 0.2s both; }
+    .product-brand { animation: fadeUp 0.4s ease 0.22s both; }
+    .product-price { animation: fadeUp 0.4s ease 0.25s both; }
+    .product-desc { animation: fadeUp 0.4s ease 0.28s both; }
+    .card { animation: fadeUp 0.4s ease 0.32s both; }
+    .dpp-card { animation: fadeUp 0.4s ease 0.38s both; }
+    .gs1-card { animation: fadeUp 0.4s ease 0.42s both; }
+  </style>
+</head>
+<body>
+  <div class="demo-banner">PREVIEW — This is what customers see when they scan a DeStore QR code</div>
+  <div class="page">
+    <div class="top-bar">
+      <svg viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><g><g><path fill="#fff" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/></g><g><path fill="#fff" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/><path fill="#fff" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/><path fill="#fff" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/><path fill="#fff" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/><path fill="#fff" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z"/><path fill="#fff" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z"/><path fill="#fff" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/></g></g></svg>
+      <span class="powered">Verified Product</span>
+    </div>
+
+    <!-- FLOATING INTERACTIVE HERO -->
+    <div class="hero-wrapper" id="heroWrapper">
+      <div class="hero" id="hero">
+        <div class="hero-inner">
+          <div class="hero-glow"></div>
+          <div class="hero-ring"></div>
+          <div class="sparkle"></div>
+          <div class="sparkle"></div>
+          <div class="sparkle"></div>
+          <div class="sparkle"></div>
+          <div class="sparkle"></div>
+          <div class="sparkle"></div>
+          <div class="hero-product">◇</div>
+        </div>
+      </div>
+      <div class="hero-reflection"></div>
+      <div class="hero-hint">drag to rotate</div>
+    </div>
+
+    <div class="badges">
+      <span class="badge badge-verified">✓ Verified</span>
+      <span class="badge badge-dpp">Base NFT</span>
+      <span class="badge badge-category">Gemstones</span>
+    </div>
+
+    <div class="product-name">Boulder Opal — Yowah QLD</div>
+    <div class="product-brand">DigiDiggers · Yowah Opals 2026</div>
+
+    <div class="product-price">
+      $450.00
+      <span class="currency">AUD</span>
+    </div>
+
+    <div class="product-desc">Natural boulder opal specimen from the Yowah opal fields, Queensland, Australia. Features vibrant blue-green colour play with ironstone matrix. Verified authentic by DigiDiggers.</div>
+
+    <div class="card">
+      <div class="card-title">Product Details</div>
+      <div class="detail-row"><span class="detail-label">SKU</span><span class="detail-value">DD-Yowah-0047</span></div>
+      <div class="detail-row"><span class="detail-label">Weight</span><span class="detail-value">12.4ct</span></div>
+      <div class="detail-row"><span class="detail-label">Origin</span><span class="detail-value">Yowah, QLD, Australia</span></div>
+      <div class="detail-row"><span class="detail-label">Category</span><span class="detail-value">Gemstones</span></div>
+    </div>
+
+    <div class="card dpp-card">
+      <div class="card-title">On-Chain Verification</div>
+      <div class="detail-row"><span class="detail-label">Blockchain</span><span class="detail-value">Base (Coinbase L2)</span></div>
+      <div class="detail-row"><span class="detail-label">Contract</span><span class="detail-value mono">0x1234...5678</span></div>
+      <div class="detail-row"><span class="detail-label">Token ID</span><span class="detail-value">#47</span></div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value" style="color:var(--green);">Minted ✓</span></div>
+    </div>
+
+    <div class="card gs1-card">
+      <div class="card-title">GS1 Traceability</div>
+      <div class="detail-row"><span class="detail-label">GTIN-14</span><span class="detail-value mono">09506000130001</span></div>
+      <div class="detail-row"><span class="detail-label">Serial</span><span class="detail-value mono">ABC123</span></div>
+      <div class="detail-row"><span class="detail-label">Digital Link</span><span class="detail-value mono">https://qr.destore.network/01/09506000130001</span></div>
+      <div class="detail-row"><span class="detail-label">Standard</span><span class="detail-value">GS1 Digital Link</span></div>
+    </div>
+
+    <div class="footer">
+      <a href="https://destore.network">DeStore</a> · The Hybrid Marketplace · Roam Free
+    </div>
+  </div>
+
+  <script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+    const wrapper = document.getElementById('heroWrapper');
+    const hero = document.getElementById('hero');
+    let isInteracting = false;
+    let idleAngle = 0;
+    let currentX = 0, currentY = 0;
+    let targetX = 0, targetY = 0;
+
+    // ─── IDLE FLOAT ───
+    function idleFloat() {
+      if (!isInteracting) {
+        idleAngle += 0.008;
+        targetX = Math.sin(idleAngle) * 4;
+        targetY = Math.cos(idleAngle * 0.7) * 3;
+      }
+      // Smooth interpolation
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+      hero.style.transform = `rotateY(${currentX}deg) rotateX(${-currentY}deg)`;
+      requestAnimationFrame(idleFloat);
+    }
+    idleFloat();
+
+    // ─── MOUSE INTERACTION ───
+    wrapper.addEventListener('mousemove', (e) => {
+      isInteracting = true;
+      const rect = wrapper.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;  // -0.5 to 0.5
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      targetX = x * 25;  // max 12.5deg rotation
+      targetY = y * 20;
+    });
+
+    wrapper.addEventListener('mouseleave', () => {
+      isInteracting = false;
+    });
+
+    // ─── TOUCH INTERACTION ───
+    wrapper.addEventListener('touchstart', (e) => {
+      isInteracting = true;
+      wrapper.classList.add('touched');
+    }, { passive: true });
+
+    wrapper.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      const rect = wrapper.getBoundingClientRect();
+      const x = (touch.clientX - rect.left) / rect.width - 0.5;
+      const y = (touch.clientY - rect.top) / rect.height - 0.5;
+      targetX = x * 30;
+      targetY = y * 25;
+    }, { passive: true });
+
+    wrapper.addEventListener('touchend', () => {
+      isInteracting = false;
+      setTimeout(() => wrapper.classList.remove('touched'), 2000);
+    });
+
+    // ─── GYROSCOPE (mobile tilt) ───
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', (e) => {
+        if (e.gamma === null) return;
+        if (isInteracting) return;
+        // gamma: left/right tilt (-90 to 90)
+        // beta: front/back tilt (-180 to 180)
+        targetX = (e.gamma / 90) * 12;
+        targetY = ((e.beta - 45) / 90) * 8;  // offset for typical phone holding angle
+        isInteracting = true;
+        clearTimeout(window._gyroTimeout);
+        window._gyroTimeout = setTimeout(() => { isInteracting = false; }, 200);
+      });
+    }
+  </script>
+</body>
+</html>

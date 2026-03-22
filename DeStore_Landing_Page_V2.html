@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeStore — Circular Trade Infrastructure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@property --angle { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+@property --pb1 { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--d3);border-radius:2px}
+body{background:var(--bg);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ── Brand Tokens ── */
+:root{
+  --royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;
+  --green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--pink:#FF1B9A;
+  --d0:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;
+  --bdr:#2e2e38;--muted:#6b6b80;--dim:#9999b0;
+}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+
+/* ── Animations ── */
+@keyframes spin-border{to{--angle:360deg}}
+@keyframes spin-pb1{to{--pb1:360deg}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse-glow{0%,100%{box-shadow:0 4px 20px rgba(179,84,241,.35)}50%{box-shadow:0 4px 32px rgba(179,84,241,.65),0 0 60px rgba(179,84,241,.15)}}
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(40,183,157,.4)}50%{box-shadow:0 0 0 8px rgba(40,183,157,0)}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes scaleIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes liquid-blob{0%{border-radius:14px}20%{border-radius:18px 11px 16px 13px}40%{border-radius:11px 17px 13px 18px}60%{border-radius:16px 13px 18px 11px}80%{border-radius:13px 18px 11px 16px}100%{border-radius:14px}}
+@keyframes ringExpand{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.7);opacity:0}}
+@keyframes dotBlink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── Conic Border ── */
+.conic-wrap{position:relative;border-radius:16px;padding:1.5px;display:inline-block;background:conic-gradient(from var(--angle,0deg),var(--violet),var(--orchid),var(--blue),var(--violet) 40%,var(--royal) 60%,var(--violet));animation:spin-border 2.5s linear infinite}
+.conic-inner{background:var(--d2);border-radius:14px;position:relative;z-index:1}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:14px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;letter-spacing:.02em;cursor:pointer;transition:transform .12s,opacity .12s,filter .12s;text-decoration:none}
+.btn:active{transform:scale(.97);opacity:.88}
+.btn:hover{filter:brightness(1.1)}
+.btn-primary{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;padding:15px 30px;box-shadow:0 4px 20px rgba(179,84,241,.35)}
+.btn-primary-glow{animation:pulse-glow 3s ease infinite}
+.btn-ghost{background:transparent;color:var(--dim);border:1.5px solid var(--bdr);padding:13px 24px}
+.btn-ghost:hover{border-color:var(--violet);color:#fff}
+.btn-green{background:linear-gradient(135deg,#1a9a84,var(--green));color:#fff;padding:15px 30px;box-shadow:0 4px 16px rgba(40,183,157,.3)}
+.btn-sm{padding:10px 18px;font-size:12px;border-radius:10px}
+
+/* ── Chips ── */
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700}
+
+.nav-login{color:var(--dim)!important;font-weight:700!important;padding:8px 16px;border:1.5px solid var(--bdr);border-radius:10px;transition:border-color .18s,color .18s}
+.nav-login:hover{border-color:var(--violet)!important;color:#fff!important}
+
+/* ── Login Modal ── */
+.login-overlay{position:fixed;inset:0;z-index:2000;background:rgba(10,10,13,.85);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .25s}
+.login-overlay.show{display:flex;opacity:1}
+.login-card{background:var(--d2);border:1px solid var(--bdr);border-radius:20px;padding:40px 36px;width:100%;max-width:400px;position:relative;animation:fadeUp .35s cubic-bezier(.34,1.56,.64,1)}
+.login-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:background .15s}
+.login-close:hover{background:var(--d3);color:#fff}
+.login-title{font-size:22px;font-weight:900;letter-spacing:-.4px;margin-bottom:6px}
+.login-sub{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.6}
+.login-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.06em}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.login-input{width:100%;background:var(--d0);border:1.5px solid var(--bdr);border-radius:12px;padding:14px 16px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:500;outline:none;transition:border-color .18s}
+.login-input::placeholder{color:var(--muted)}
+.login-input:focus{border-color:var(--violet)}
+.login-btn{width:100%;padding:14px;border-radius:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;border:none;margin-top:10px}
+.login-btn-primary{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;box-shadow:0 4px 16px rgba(179,84,241,.3)}
+.login-btn-primary:hover{filter:brightness(1.1)}
+.login-btn-google{background: var(--d2);color:var(--text);border:1px solid rgba(106, 20, 219, 0.15)}
+.login-btn-google:hover{background:var(--d3)}
+.login-btn-apple{background: var(--bg);color:#fff;border:1px solid rgba(106, 20, 219, 0.08)}
+.login-btn-apple:hover{background: var(--d1)}
+.login-footer{text-align:center;margin-top:20px;font-size:11px;color:var(--muted);line-height:1.6}
+.login-footer a{color:var(--violet);text-decoration:none;font-weight:700}
+
+/* ── Sections ── */
+.section{padding:100px 24px;max-width:1200px;margin:0 auto}
+.section-eyebrow{font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--violet);margin-bottom:14px}
+.section-title{font-size:clamp(32px,5vw,52px);font-weight:900;letter-spacing:-1.5px;line-height:1.08;margin-bottom:18px}
+.section-sub{font-size:16px;color:var(--dim);line-height:1.7;max-width:600px}
+
+/* ── Nav ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(13,13,16,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-link{font-size:13px;font-weight:600;color:var(--dim);text-decoration:none;transition:color .18s}
+.nav-link:hover{color:#fff}
+.nav-cta{padding:9px 20px;font-size:12px}
+.nav-bar{height:3px;background:linear-gradient(90deg,var(--violet),var(--orchid),transparent)}
+.mobile-menu-btn{display:none;background:none;border:1px solid var(--bdr);border-radius:8px;width:36px;height:36px;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:0}
+.mobile-menu-btn span{display:block;width:16px;height:1.5px;background:var(--dim);border-radius:2px}
+
+/* ── Hero ── */
+.hero{padding:160px 24px 80px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(106,20,219,.15) 0%,rgba(179,84,241,.05) 40%,transparent 70%);pointer-events:none}
+.hero-title{font-size:clamp(40px,6.5vw,72px);font-weight:900;letter-spacing:-2.5px;line-height:1.04;margin-bottom:22px;position:relative}
+.hero-title .accent{background:linear-gradient(135deg,var(--violet),var(--blue),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:18px;color:var(--dim);max-width:560px;margin:0 auto 40px;line-height:1.65}
+.hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:48px}
+.hero-proof{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;opacity:.7}
+.hero-proof-item{font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-green 2s ease infinite;display:inline-block}
+
+/* ── Demo Modal Overlay ── */
+.demo-overlay{position:fixed;inset:0;z-index:2000;background:rgba(10,10,13,.9);backdrop-filter:blur(16px);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:60px 24px}
+.demo-overlay.show{display:flex}
+.demo-modal{width:100%;max-width:680px;position:relative;animation:fadeUp .4s cubic-bezier(.34,1.56,.64,1)}
+.demo-modal-close{position:fixed;top:20px;right:20px;background:var(--d3);border:1px solid var(--bdr);color:var(--muted);font-size:18px;cursor:pointer;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:12px;transition:background .15s,color .15s;z-index:2001}
+.demo-modal-close:hover{background:var(--d4);color:#fff}
+
+/* ── Demo Section (inline hidden) ── */
+.demo-section{padding:60px 24px 100px;position:relative}
+.demo-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--violet),transparent)}
+.demo-wrap{max-width:680px;margin:0 auto}
+.demo-card{background:var(--d2);border:1px solid var(--bdr);border-radius:20px;padding:40px;position:relative;overflow:hidden}
+.demo-card::after{content:'';position:absolute;top:-80px;right:-80px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(179,84,241,.1),transparent 70%);pointer-events:none}
+.demo-label{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.demo-heading{font-size:24px;font-weight:900;letter-spacing:-.5px;margin-bottom:8px}
+.demo-sub{font-size:13px;color:var(--dim);margin-bottom:28px;line-height:1.6}
+.demo-input-wrap{display:flex;gap:10px;margin-bottom:16px}
+.demo-input{flex:1;background:var(--d0);border:1.5px solid var(--bdr);border-radius:12px;padding:14px 18px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:500;outline:none;transition:border-color .18s}
+.demo-input::placeholder{color:var(--muted)}
+.demo-input:focus{border-color:var(--violet)}
+.demo-steps{display:flex;gap:8px;flex-wrap:wrap}
+.demo-step{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--muted);padding:4px 10px;border-radius:8px;background:var(--d3);border:1px solid var(--bdr)}
+.demo-step .num{width:18px;height:18px;border-radius:50%;background:var(--d4);font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;color:var(--dim)}
+
+/* ── Preview Columns ── */
+.preview-result{margin-top:32px}
+.preview-columns{display:flex;gap:24px;align-items:flex-start;justify-content:center}
+@media(max-width:640px){.preview-columns{flex-direction:column;align-items:center}}
+
+/* ── QR Tag ── */
+.qr-tag-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;animation:fadeUp .45s .15s cubic-bezier(.34,1.56,.64,1) both}
+.qr-tag-card{background:var(--d1);border:1.5px solid var(--bdr);border-radius:18px;padding:20px;width:240px;text-align:center;position:relative;overflow:hidden}
+.qr-tag-card::before{content:'';position:absolute;top:-40px;right:-40px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(179,84,241,.08),transparent 70%);pointer-events:none}
+.qr-tag-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.qr-tag-badge{font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--green);background:rgba(40,183,157,.1);border:1px solid rgba(40,183,157,.25);border-radius:4px;padding:3px 7px;white-space:nowrap}
+.qr-tag-qr{background: var(--d2);border-radius:12px;padding:12px;margin:0 auto 12px;display:inline-block;cursor:pointer;transition:transform .15s}
+.qr-tag-qr:hover{transform:scale(1.03)}
+.qr-tag-qr img{display:block}
+.qr-tag-url{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--violet);font-weight:600;word-break:break-all;margin-bottom:4px;line-height:1.4}
+.qr-tag-id{font-size:11px;font-weight:800;color:var(--dim);margin-bottom:10px}
+.qr-tag-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--bdr)}
+.qr-tag-verified{font-size:10px;font-weight:800;color:var(--green)}
+.qr-tag-chain{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.qr-tag-hint{font-size:11px;color:var(--muted);font-weight:600;text-align:center}
+.qr-download-btn{font-size:11px!important;padding:8px 16px!important}
+
+/* ── Preview mockup ── */
+.preview-phone{max-width:340px;width:100%;background:var(--d3);border:1px solid var(--bdr);border-radius:24px;padding:16px;position:relative;animation:fadeUp .45s cubic-bezier(.34,1.56,.64,1)}
+.preview-phone-bar{height:4px;width:60px;background:var(--d4);border-radius:4px;margin:0 auto 14px}
+.preview-dpp{background:var(--d1);border:1px solid var(--bdr);border-radius:14px;overflow:hidden}
+.preview-dpp-img{width:100%;height:180px;background:linear-gradient(135deg,var(--d3),var(--d4));display:flex;align-items:center;justify-content:center;font-size:48px}
+.preview-dpp-body{padding:16px}
+.preview-dpp-brand{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);margin-bottom:6px}
+.preview-dpp-name{font-size:18px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
+.preview-dpp-price{font-size:13px;color:var(--dim);margin-bottom:12px}
+.preview-dpp-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid rgba(46,46,56,.5);font-size:11px}
+.preview-dpp-row .label{color:var(--muted);font-weight:600}
+.preview-dpp-row .val{color:#fff;font-weight:700}
+.preview-dpp-actions{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:14px}
+.preview-action{background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:10px 4px;text-align:center;font-size:10px;font-weight:700;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:4px}
+.preview-action .icon{font-size:16px}
+.preview-verified{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:800;color:var(--green);margin-top:12px;padding:8px 12px;background:rgba(40,183,157,.08);border:1px solid rgba(40,183,157,.2);border-radius:8px}
+
+/* ── How It Works ── */
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.how-card{background:var(--d2);border:1px solid var(--bdr);border-radius:16px;padding:28px 24px;position:relative;transition:transform .2s,border-color .2s}
+.how-card:hover{transform:translateY(-4px);border-color:rgba(179,84,241,.2)}
+.how-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--orchid),var(--violet));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;margin-bottom:16px;box-shadow:0 0 16px rgba(179,84,241,.4)}
+.how-title{font-size:16px;font-weight:800;letter-spacing:-.2px;margin-bottom:8px}
+.how-desc{font-size:13px;color:var(--dim);line-height:1.7}
+.how-tag{font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-top:12px;display:inline-block}
+
+/* ── Features ── */
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:48px}
+.feat-card{background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:24px;transition:border-color .2s}
+.feat-card:hover{border-color:rgba(179,84,241,.15)}
+.feat-icon{font-size:24px;margin-bottom:12px}
+.feat-title{font-size:14px;font-weight:800;margin-bottom:6px}
+.feat-desc{font-size:12px;color:var(--dim);line-height:1.7}
+
+/* ── Pricing Preview ── */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.price-card{background:var(--d2);border:1px solid rgba(106, 20, 219, 0.08);border-radius:20px;padding:32px;position:relative;transition:transform .2s,border-color .2s}
+.price-card:hover{transform:translateY(-4px);border-color:rgba(179,84,241,.2)}
+.price-card.featured{border-color:transparent;animation:pulse-glow 3s ease infinite}
+.price-card.featured::before{content:'';position:absolute;inset:-1.5px;border-radius:21.5px;background:conic-gradient(from var(--angle),var(--violet),var(--orchid),var(--blue),var(--violet) 40%,var(--royal) 60%,var(--violet));animation:spin-border 2.5s linear infinite;z-index:0}
+.price-card.featured::after{content:'';position:absolute;inset:1.5px;border-radius:18.5px;background:var(--d2);z-index:1}
+.price-card-inner{position:relative;z-index:2}
+.price-badge{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:18px;display:inline-block}
+.price-name{font-size:22px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
+.price-desc{font-size:13px;color:var(--dim);margin-bottom:20px;line-height:1.5;min-height:40px}
+.price-amount{font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1;margin-bottom:4px}
+.price-amount .currency{font-size:20px;font-weight:600;vertical-align:top;margin-top:6px;display:inline-block;letter-spacing:0}
+.price-amount .period{font-size:15px;font-weight:500;color:var(--dim);letter-spacing:0}
+.price-per{font-size:12px;color:var(--dim);margin-top:6px;margin-bottom:24px}
+.price-per strong{color:#fff;font-weight:600}
+.price-feat{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text2);line-height:1.4;margin-bottom:10px}
+.price-feat .check{color:var(--green);font-weight:700;flex-shrink:0;font-size:12px;margin-top:1px}
+.price-feat .star{color:var(--violet);font-weight:700;flex-shrink:0;font-size:12px;margin-top:1px}
+.price-feat .bolt{color:var(--orange);font-weight:700;flex-shrink:0;font-size:12px;margin-top:1px}
+
+/* ── Wallet Preview ── */
+.wallet-section{position:relative;overflow:hidden}
+.wallet-section::before{content:'';position:absolute;bottom:-200px;left:50%;transform:translateX(-50%);width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(40,183,157,.08),transparent 70%);pointer-events:none}
+
+/* ── Infra Banner ── */
+.infra-banner{background:rgba(40,183,157,.05);border:1px solid rgba(40,183,157,.15);border-radius:16px;padding:24px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-top:60px}
+.infra-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:4px}
+.infra-val{font-size:13px;font-weight:600;color:var(--text2)}
+
+/* ── Ticker ── */
+.ticker-wrap{overflow:hidden;white-space:nowrap;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);padding:14px 0}
+.ticker-inner{display:inline-flex;animation:ticker 22s linear infinite}
+.ticker-item{font-size:12px;font-weight:700;color:var(--muted);padding:0 24px;display:flex;align-items:center;gap:8px}
+.ticker-dot{width:4px;height:4px;border-radius:50%;background:var(--violet)}
+
+/* ── CTA Banner ── */
+.cta-banner{background:linear-gradient(135deg,rgba(106,20,219,.2),rgba(179,84,241,.1));border:1px solid rgba(179,84,241,.2);border-radius:24px;padding:56px 48px;text-align:center;margin-top:80px}
+.cta-title{font-size:clamp(24px,4vw,36px);font-weight:900;letter-spacing:-.8px;margin-bottom:14px}
+.cta-sub{font-size:15px;color:var(--dim);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto}
+
+/* ── Footer ── */
+.footer{border-top:1px solid var(--bdr);padding:48px 24px;margin-top:80px}
+.footer-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:40px}
+.footer-col{display:flex;flex-direction:column;gap:10px}
+.footer-heading{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.footer-link{font-size:13px;color:var(--dim);text-decoration:none;transition:color .18s}
+.footer-link:hover{color:#fff}
+.footer-bottom{max-width:1200px;margin:40px auto 0;padding-top:24px;border-top:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:11px;color:var(--muted)}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  .how-grid,.pricing-grid{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr}
+  .pricing-grid{max-width:480px;margin-left:auto;margin-right:auto}
+}
+@media(max-width:768px){
+  .nav-links{display:none}
+  .mobile-menu-btn{display:flex}
+  .hero{padding:130px 20px 60px}
+  .section{padding:60px 20px}
+  .demo-card{padding:24px}
+  .demo-input-wrap{flex-direction:column}
+  .footer-inner{flex-direction:column;gap:28px}
+}
+@media(max-width:480px){
+  .hero-title{letter-spacing:-1.5px}
+  .demo-steps{flex-direction:column}
+  .preview-dpp-actions{grid-template-columns:1fr 1fr}
+}
+
+/* ── Stagger Animations ── */
+.anim{opacity:0;animation:fadeUp .5s ease forwards}
+.anim-d1{animation-delay:.1s}
+.anim-d2{animation-delay:.2s}
+.anim-d3{animation-delay:.3s}
+.anim-d4{animation-delay:.4s}
+.anim-d5{animation-delay:.5s}
+.anim-d6{animation-delay:.6s}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     NAVIGATION
+══════════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <svg width="130" height="24.5" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg">
+      <path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#fff"/>
+      <path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#fff"/>
+      <path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#fff"/>
+      <path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#fff"/>
+      <path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#fff"/>
+      <path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#fff"/>
+      <path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#fff"/>
+      <path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#fff"/>
+    </svg>
+    <div class="nav-links">
+      <a href="#how" class="nav-link">How it works</a>
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#wallet" class="nav-link">DeAR Wallet</a>
+      <a href="#" class="nav-link nav-login" onclick="openLogin();return false">Log in</a>
+      <a href="#" class="btn btn-primary btn-sm nav-cta" onclick="openDemo();return false">Try it free →</a>
+    </div>
+    <button class="mobile-menu-btn" onclick="document.querySelector('.nav-links').classList.toggle('show')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-bar"></div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="hero">
+  <div style="max-width:800px;margin:0 auto;position:relative">
+    <div class="section-eyebrow anim">Circular Trade Infrastructure</div>
+    <h1 class="hero-title anim anim-d1">Every product gets a <span class="accent">permanent record</span></h1>
+    <p class="hero-sub anim anim-d2">Create a Digital Product Passport in seconds. Prove provenance, enable resale, gift, recycle and return — one scan, any product, forever.</p>
+    <div class="hero-actions anim anim-d3">
+      <a href="#" class="btn btn-primary btn-primary-glow" onclick="openDemo();return false">Create a DPP — no signup</a>
+      <a href="#how" class="btn btn-ghost">See how it works</a>
+    </div>
+    <div class="hero-proof anim anim-d4">
+      <div class="hero-proof-item"><span class="live-dot"></span> Live on Base · Polygon · Soneium</div>
+      <div class="hero-proof-item">◈ EU ESPR ready</div>
+      <div class="hero-proof-item">◈ GS1 Digital Link</div>
+      <div class="hero-proof-item">◈ Zero crypto UX</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     INSTANT DEMO — The Freemium Funnel
+══════════════════════════════════════════ -->
+<section class="demo-section" id="demo-section" style="display:none"></section>
+
+<!-- ══ DPP CREATOR MODAL ══ -->
+<div class="demo-overlay" id="demoOverlay" onclick="if(event.target===this)closeDemo()">
+  <div class="demo-modal">
+    <button class="demo-modal-close" onclick="closeDemo()" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    <div class="demo-card">
+      <div class="demo-label"><span class="live-dot"></span> No account required</div>
+      <div class="demo-heading">Create a DPP in 5 seconds</div>
+      <div class="demo-sub">Paste any product URL. We scrape the page, build a prototype passport, and generate a QR code. Under four clicks.</div>
+
+      <div class="demo-input-wrap">
+        <input type="url" class="demo-input" id="demoUrl" placeholder="https://yourbrand.com/products/sneaker-x" spellcheck="false">
+        <button class="btn btn-green btn-sm" onclick="runDemo()" id="demoBtn">Generate →</button>
+      </div>
+
+      <div class="demo-steps">
+        <div class="demo-step"><span class="num">1</span> Paste URL</div>
+        <div class="demo-step"><span class="num">2</span> Auto-scrape</div>
+        <div class="demo-step"><span class="num">3</span> Preview DPP</div>
+        <div class="demo-step"><span class="num">4</span> Download QR</div>
+      </div>
+
+      <!-- Preview + QR Tag -->
+      <div class="preview-result" id="demoPreview" style="display:none">
+        <div class="preview-columns">
+          <!-- Left: Phone mockup -->
+          <div class="preview-phone">
+            <div class="preview-phone-bar"></div>
+            <div class="preview-dpp">
+              <div class="preview-dpp-img" id="previewImg">◈</div>
+              <div class="preview-dpp-body">
+                <div class="preview-dpp-brand" id="previewBrand">YOUR BRAND</div>
+                <div class="preview-dpp-name" id="previewName">Product Name</div>
+                <div class="preview-dpp-price" id="previewPrice">$—</div>
+                <div class="preview-dpp-row">
+                  <span class="label">DPP ID</span>
+                  <span class="val" id="previewDppId">DPP-00000</span>
+                </div>
+                <div class="preview-dpp-row">
+                  <span class="label">Status</span>
+                  <span class="val" style="color:var(--green)">◈ Verified</span>
+                </div>
+                <div class="preview-dpp-row">
+                  <span class="label">Domain</span>
+                  <span class="val" id="previewDomain" style="color:var(--violet)">demo.destore.network</span>
+                </div>
+                <div class="preview-dpp-actions">
+                  <div class="preview-action"><span class="icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></span>Sell</div>
+                  <div class="preview-action"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>Gift</div>
+                  <div class="preview-action"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg></span>Recycle</div>
+                  <div class="preview-action"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></span>Return</div>
+                </div>
+                <div class="preview-verified">◈ DPP Verified · Provenance on record</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: QR Tag -->
+          <div class="qr-tag-wrap">
+            <div class="qr-tag-card">
+              <div class="qr-tag-header">
+                <svg width="80" height="15" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#fff"/>
+                  <path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z" fill="#fff"/>
+                  <path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#fff"/>
+                  <path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#fff"/>
+                  <path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z" fill="#fff"/>
+                  <path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#fff"/>
+                  <path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z" fill="#fff"/>
+                </svg>
+                <span class="qr-tag-badge">SCAN TO VIEW DPP</span>
+              </div>
+              <div class="qr-tag-qr">
+                <a id="qrLink" href="#" target="_blank" rel="noopener">
+                  <img id="qrImage" src="" alt="DPP QR Code" width="200" height="200" style="border-radius:8px;display:block">
+                </a>
+              </div>
+              <div class="qr-tag-url" id="qrUrl">demo.destore.network/01/...</div>
+              <div class="qr-tag-id" id="qrDppId">DPP-00000</div>
+              <div class="qr-tag-footer">
+                <span class="qr-tag-verified">◈ Verified</span>
+                <span class="qr-tag-chain">Base · GS1</span>
+              </div>
+            </div>
+            <div class="qr-tag-hint">Scan with your phone camera to open this DPP.</div>
+            <button class="btn btn-ghost btn-sm qr-download-btn" onclick="downloadQr()">Download QR tag</button>
+          </div>
+        </div>
+
+        <!-- Sign-in prompt -->
+        <div style="margin-top:20px;background:rgba(179,84,241,.06);border:1px solid rgba(179,84,241,.15);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:13px;font-weight:800;margin-bottom:6px">Keep this DPP & create more?</div>
+          <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Sign in free — your demo DPP saves automatically</div>
+          <button class="btn btn-primary btn-sm" style="width:100%;max-width:340px;gap:6px" onclick="closeDemo();openLogin()">
+            <svg width="14" height="14" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92A8.78 8.78 0 0 0 17.64 9.2z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.83.86-3.04.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/><path d="M3.96 10.71A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.33z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/></svg>
+            Sign in with Google
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TICKER
+══════════════════════════════════════════ -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <div class="ticker-item"><span class="ticker-dot"></span>Own It. Prove It. Trade It.</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Digital Product Passports</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>GS1 Digital Link QR</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>EU ESPR Compliant</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Zero Crypto UX</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Circular Trade Rails</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>The Record Is Permanent</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>The Chain Doesn't Lie</div>
+    <!-- duplicate for seamless loop -->
+    <div class="ticker-item"><span class="ticker-dot"></span>Own It. Prove It. Trade It.</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Digital Product Passports</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>GS1 Digital Link QR</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>EU ESPR Compliant</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Zero Crypto UX</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Circular Trade Rails</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>The Record Is Permanent</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>The Chain Doesn't Lie</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     HOW IT WORKS
+══════════════════════════════════════════ -->
+<section class="section" id="how">
+  <div class="section-eyebrow">How it works</div>
+  <div class="section-title">Three layers. One permanent record.</div>
+  <div class="section-sub">DeStore is the infrastructure underneath circular trade. Brands, retailers, resale channels, and recyclers all plug in. The product carries its own record.</div>
+
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="how-num">1</div>
+      <div class="how-title">Create a DPP</div>
+      <div class="how-desc">Paste a product URL or fill in details manually. DeStore generates a Digital Product Passport with a GS1 Digital Link QR code. One DPP per product sold.</div>
+      <div class="how-tag" style="background:rgba(179,84,241,.1);color:var(--violet);border:1px solid rgba(179,84,241,.25)">Brand side</div>
+    </div>
+    <div class="how-card">
+      <div class="how-num">2</div>
+      <div class="how-title">Scan &amp; verify</div>
+      <div class="how-desc">Consumer scans the QR with any phone camera. The DPP landing page shows provenance, materials, sustainability data, and full ownership history. One scan, full story.</div>
+      <div class="how-tag" style="background:rgba(40,183,157,.1);color:var(--green);border:1px solid rgba(40,183,157,.25)">Consumer side</div>
+    </div>
+    <div class="how-card">
+      <div class="how-num">3</div>
+      <div class="how-title">Circulate</div>
+      <div class="how-desc">Sell, gift, recycle, or return — every circular action is recorded. Ownership transfers seamlessly. The record carries forward to the next owner, forever.</div>
+      <div class="how-tag" style="background:rgba(255,159,70,.1);color:var(--orange);border:1px solid rgba(255,159,70,.25)">Lifecycle</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     FEATURES
+══════════════════════════════════════════ -->
+<section class="section" id="features" style="padding-top:40px">
+  <div class="section-eyebrow">Infrastructure</div>
+  <div class="section-title">Built for the full lifecycle</div>
+  <div class="section-sub">Every feature exists to move a product through its circular life — from manufacture through every owner to end-of-life.</div>
+
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon">◈</div>
+      <div class="feat-title">Digital Product Passports</div>
+      <div class="feat-desc">One DPP per product sold. Standard (hosted, ESPR compliant) or on-chain (sovereign, premium). Provenance, materials, sustainability data, care instructions — all in one permanent record.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+      <div class="feat-title">GS1 Digital Link QR</div>
+      <div class="feat-desc">Industry-standard QR codes that resolve via your branded domain. Scan with any phone camera — no app required. qr.yourbrand.com/01/09506000130017</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <div class="feat-title">Zero crypto UX</div>
+      <div class="feat-desc">Consumers sign in with email, Google, or Apple. Smart accounts deploy behind the scenes. No seed phrases, no gas fees, no wallets. The infrastructure is invisible.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="feat-title">EU ESPR ready</div>
+      <div class="feat-desc">Built for the EU Ecodesign for Sustainable Products Regulation. Textiles are the first mandatory DPP wave (~mid-2028). DeStore is ahead of the compliance curve.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></div>
+      <div class="feat-title">Digital wallet cards</div>
+      <div class="feat-desc">Apple Wallet and Google Wallet passes for every product. Consumers carry proof of ownership in the same place as their boarding passes and credit cards.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg></div>
+      <div class="feat-title">Circular actions</div>
+      <div class="feat-desc">Sell, gift, recycle, return — built into every DPP. Ownership transfers with USDC atomic swaps. Every circular event is permanently recorded.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/></svg></div>
+      <div class="feat-title">White-label domain</div>
+      <div class="feat-desc">Connect your own domain. Products resolve under your brand — qr.yourbrand.com. Full DNS wizard with CNAME verification, SSL, and resolver health checks.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+      <div class="feat-title">Webhook integrations</div>
+      <div class="feat-desc">Connect Shopify, Squarespace, WooCommerce. Auto-issue DPPs at point of sale. n8n workflow engine for custom automation. Your existing stack, our circular rails.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     WALLET PREVIEW
+══════════════════════════════════════════ -->
+<section class="section wallet-section" id="wallet" style="padding-top:40px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center">
+    <div>
+      <div class="section-eyebrow">Consumer experience</div>
+      <div class="section-title" style="font-size:clamp(28px,4vw,42px)">The DeAR Wallet</div>
+      <div class="section-sub">Every product a consumer owns lives in one place. Sell, gift, recycle, or return — one tap. Full provenance. Zero crypto knowledge required.</div>
+      <div style="margin-top:24px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--dim)">
+          <span style="color:var(--green);font-size:14px">✓</span> Apple Wallet + Google Wallet passes
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--dim)">
+          <span style="color:var(--green);font-size:14px">✓</span> Pro mode (clean) & Fun mode (emoji-driven)
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--dim)">
+          <span style="color:var(--green);font-size:14px">✓</span> Full ownership history per product
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--dim)">
+          <span style="color:var(--green);font-size:14px">✓</span> Carbon footprint tracking
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center">
+      <div style="width:280px;background:var(--d1);border:1px solid var(--bdr);border-radius:28px;padding:16px;box-shadow:0 20px 60px rgba(10, 10, 13, 0.40)">
+        <div style="height:4px;width:48px;background:var(--d4);border-radius:4px;margin:0 auto 14px"></div>
+        <!-- Mini wallet mockup -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:0 4px">
+          <svg width="80" height="15" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#fff"/>
+            <path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z" fill="#fff"/>
+            <path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#fff"/>
+          </svg>
+          <span style="font-size:10px;font-weight:800;color:var(--muted)">8 items</span>
+        </div>
+        <!-- Product cards -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center">
+            <div style="width:40px;height:40px;border-radius:8px;background:var(--d3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Air Max 97</div>
+              <div style="font-size:10px;color:var(--muted);font-weight:600">Nike · DPP-00291</div>
+            </div>
+            <span style="font-size:9px;font-weight:800;color:var(--green);background:rgba(40,183,157,.12);border:1px solid rgba(40,183,157,.25);border-radius:4px;padding:2px 6px">OWNED</span>
+          </div>
+          <div style="background:var(--d2);border:1px solid rgba(179,84,241,.2);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center">
+            <div style="width:40px;height:40px;border-radius:8px;background:var(--d3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Better Sweater</div>
+              <div style="font-size:10px;color:var(--muted);font-weight:600">Patagonia · DPP-00288</div>
+            </div>
+            <span style="font-size:9px;font-weight:800;color:var(--violet);background:rgba(179,84,241,.12);border:1px solid rgba(179,84,241,.25);border-radius:4px;padding:2px 6px">LISTED</span>
+          </div>
+          <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center">
+            <div style="width:40px;height:40px;border-radius:8px;background:var(--d3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">501 Original Jeans</div>
+              <div style="font-size:10px;color:var(--muted);font-weight:600">Levi's · DPP-00271</div>
+            </div>
+            <span style="font-size:9px;font-weight:800;color:var(--green);background:rgba(40,183,157,.12);border:1px solid rgba(40,183,157,.25);border-radius:4px;padding:2px 6px">OWNED</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     PRICING PREVIEW
+══════════════════════════════════════════ -->
+<section class="section" id="pricing" style="padding-top:40px">
+  <div style="text-align:center">
+    <div class="section-eyebrow">Pricing</div>
+    <div class="section-title" style="margin-left:auto;margin-right:auto">Pay for what you actually use</div>
+    <div class="section-sub" style="margin:0 auto 0">No setup costs on SME tiers. Issue your first DPP in minutes. Scale to enterprise when you're ready.</div>
+  </div>
+
+  <div class="pricing-grid">
+    <!-- Starter -->
+    <div class="price-card">
+      <div class="price-card-inner">
+        <div class="price-badge" style="background:rgba(52,53,64,.8);color:var(--dim);border:1px solid rgba(106, 20, 219, 0.08)">◈ Starter</div>
+        <div class="price-name">Pay as you go</div>
+        <div class="price-desc">For brands getting started. No monthly commitment, no lock-in.</div>
+        <div class="price-amount"><span class="currency">$</span>0<span class="period"> /month</span></div>
+        <div class="price-per"><strong>$0.20</strong> per DPP issued + $0.80 physical tag</div>
+        <button class="btn btn-ghost" style="width:100%;margin-bottom:20px">Get started free</button>
+        <div class="price-feat"><span class="check">✓</span> Up to 500 DPPs/month</div>
+        <div class="price-feat"><span class="check">✓</span> Digital wallet cards (Apple + Google)</div>
+        <div class="price-feat"><span class="check">✓</span> Circular actions (Sell / Gift / Recycle / Return)</div>
+        <div class="price-feat"><span class="check">✓</span> On-chain event log</div>
+        <div class="price-feat"><span class="check">✓</span> White-label domain</div>
+      </div>
+    </div>
+    <!-- Growth -->
+    <div class="price-card featured">
+      <div class="price-card-inner">
+        <div class="price-badge" style="background:rgba(106,20,219,.15);color:var(--violet);border:1px solid rgba(179,84,241,.3)">✦ Growth</div>
+        <div class="price-name">Most popular</div>
+        <div class="price-desc">For growing brands issuing volume. 15% off DPP costs.</div>
+        <div class="price-amount"><span class="currency">$</span>99<span class="period"> /month</span></div>
+        <div class="price-per"><strong>$0.17</strong> per DPP · <span style="color:var(--green);font-weight:700">15% off Starter</span></div>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:20px">Start Growth plan</button>
+        <div class="price-feat"><span class="star">★</span> $0.17/DPP — 15% saving</div>
+        <div class="price-feat"><span class="star">★</span> Unlimited DPP volume</div>
+        <div class="price-feat"><span class="star">★</span> Priority onboarding support</div>
+        <div class="price-feat"><span class="star">★</span> Advanced analytics dashboard</div>
+        <div class="price-feat"><span class="star">★</span> Webhook integrations (Shopify, etc)</div>
+      </div>
+    </div>
+    <!-- Enterprise -->
+    <div class="price-card">
+      <div class="price-card-inner">
+        <div class="price-badge" style="background:rgba(255,159,70,.1);color:var(--orange);border:1px solid rgba(255,159,70,.3)">⬡ Enterprise</div>
+        <div class="price-name">Full sovereignty</div>
+        <div class="price-desc">Private data on your hardware, backed up by DeStore.</div>
+        <div class="price-amount" style="font-size:28px;letter-spacing:-1px">From <span class="currency" style="font-size:14px">$</span>433<span class="period"> /month</span></div>
+        <div class="price-per"><strong>$0.12</strong> per DPP · <span style="color:var(--orange);font-weight:700">40% off Starter</span></div>
+        <button class="btn btn-ghost" style="width:100%;margin-bottom:20px;border-color:rgba(255,159,70,.3);color:var(--orange)">Talk to us</button>
+        <div class="price-feat"><span class="bolt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span> On-premises Edge Node (Mac Mini)</div>
+        <div class="price-feat"><span class="bolt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span> Private data never leaves your building</div>
+        <div class="price-feat"><span class="bolt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span> One-way encrypted sync via Tailscale</div>
+        <div class="price-feat"><span class="bolt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span> Full ESPR compliance audit</div>
+        <div class="price-feat"><span class="bolt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span> Dedicated account manager + SLA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Infra Banner -->
+  <div class="infra-banner">
+    <div>
+      <div class="infra-label">Chains</div>
+      <div class="infra-val">Base (primary) · Polygon · Soneium</div>
+    </div>
+    <div>
+      <div class="infra-label">Settlement</div>
+      <div class="infra-val">USDC atomic swap via Thirdweb</div>
+    </div>
+    <div>
+      <div class="infra-label">Identity</div>
+      <div class="infra-val">Thirdweb inAppWallet + Smart Account</div>
+    </div>
+    <div>
+      <div class="infra-label">B&amp;B Treasury</div>
+      <div class="infra-val">$0.01 per event → buyback-and-burn</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CTA BANNER
+══════════════════════════════════════════ -->
+<section class="section" style="padding-top:40px">
+  <div class="cta-banner">
+    <div class="cta-title">The infrastructure travels with the product.</div>
+    <div class="cta-sub">Create your first Digital Product Passport right now. No signup. No credit card. Under five seconds.</div>
+    <a href="#" class="btn btn-primary btn-primary-glow" onclick="openDemo();return false" style="font-size:15px;padding:16px 36px">Create a DPP — free →</a>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <svg width="110" height="20.7" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg">
+        <path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#6b6b80"/>
+        <path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#6b6b80"/>
+        <path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#6b6b80"/>
+        <path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#6b6b80"/>
+        <path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#6b6b80"/>
+        <path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#6b6b80"/>
+        <path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#6b6b80"/>
+        <path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#6b6b80"/>
+      </svg>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6">Circular Trade Infrastructure<br>The record is permanent.</div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-heading">Product</div>
+      <a href="#" class="footer-link" onclick="openDemo();return false">Create a DPP</a>
+      <a href="#features" class="footer-link">Features</a>
+      <a href="#pricing" class="footer-link">Pricing</a>
+      <a href="#wallet" class="footer-link">DeAR Wallet</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-heading">Developers</div>
+      <a href="#" class="footer-link">API docs</a>
+      <a href="#" class="footer-link">Webhooks</a>
+      <a href="#" class="footer-link">GS1 resolver</a>
+      <a href="#" class="footer-link">Brand handbook</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-heading">Company</div>
+      <a href="#" class="footer-link">About</a>
+      <a href="#" class="footer-link">Blog</a>
+      <a href="#" class="footer-link">Contact</a>
+      <a href="#" class="footer-link">ESPR compliance</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 DeStore Network · ABN pending · Circular Trade Infrastructure</div>
+    <div style="display:flex;gap:16px">
+      <a href="#" class="footer-link" style="font-size:11px">Privacy</a>
+      <a href="#" class="footer-link" style="font-size:11px">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════ -->
+<!-- ══ LOGIN MODAL ══ -->
+<div class="login-overlay" id="loginOverlay" onclick="if(event.target===this)closeLogin()">
+  <div class="login-card">
+    <button class="login-close" onclick="closeLogin()" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    <div class="login-title">Welcome back.</div>
+    <div class="login-sub">Sign in to manage your Digital Product Passports, view scan analytics, and access your DeAR wallet.</div>
+
+    <input type="email" class="login-input" id="loginEmail" placeholder="you@yourbrand.com" autocomplete="email">
+    <button class="login-btn login-btn-primary" onclick="sendOtp()">Continue with email</button>
+
+    <div class="login-divider">or</div>
+
+    <button class="login-btn login-btn-google" onclick="alert('Google OAuth would connect here')">
+      <svg width="16" height="16" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92A8.78 8.78 0 0 0 17.64 9.2z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.83.86-3.04.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A9 9 0 0 0 9 18z" fill="#34A853"/><path d="M3.96 10.71A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.33z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+    <button class="login-btn login-btn-apple" onclick="alert('Apple Sign-In would connect here')">
+      <svg width="16" height="16" viewBox="0 0 17 20" fill="#fff"><path d="M13.55 10.47c-.02-2.13 1.74-3.15 1.82-3.2-1-1.45-2.54-1.65-3.08-1.67-1.31-.14-2.57.77-3.24.77-.67 0-1.7-.76-2.8-.73a4.14 4.14 0 0 0-3.48 2.12c-1.49 2.58-.38 6.39 1.07 8.48.71 1.02 1.55 2.17 2.66 2.13 1.07-.04 1.47-.69 2.76-.69 1.29 0 1.65.69 2.78.67 1.15-.02 1.87-1.04 2.57-2.07a8.5 8.5 0 0 0 1.16-2.39c-.03 0-2.22-.85-2.22-3.42zM11.43 3.88A4 4 0 0 0 12.39.75a4.1 4.1 0 0 0-2.65 1.37 3.83 3.83 0 0 0-.99 2.78 3.4 3.4 0 0 0 2.68-1.02z"/></svg>
+      Continue with Apple
+    </button>
+
+    <div class="login-footer">
+      No account yet? <a href="#" onclick="closeLogin();setTimeout(openDemo,300);return false">Create a DPP free</a><br>
+      Your data stays off-chain. <a href="#">Privacy policy</a>
+    </div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+// Demo URL scrape simulation
+function runDemo() {
+  const url = document.getElementById('demoUrl').value.trim();
+  if (!url) {
+    document.getElementById('demoUrl').style.borderColor = 'var(--pink)';
+    setTimeout(() => document.getElementById('demoUrl').style.borderColor = 'var(--bdr)', 1500);
+    return;
+  }
+
+  const btn = document.getElementById('demoBtn');
+  btn.textContent = 'Scanning...';
+  btn.style.opacity = '0.6';
+  btn.style.pointerEvents = 'none';
+
+  // Extract domain from URL
+  let domain = 'yourbrand';
+  try { domain = new URL(url).hostname.replace('www.','').split('.')[0]; } catch(e) {}
+
+  // Simulate product names based on URL
+  const names = ['Classic Sneaker','Eco Hoodie','Denim Jacket','Trail Runner','Wool Beanie','Canvas Tote','Linen Shirt','Running Short'];
+  const name = names[Math.floor(Math.random() * names.length)];
+  const price = (Math.floor(Math.random() * 40) + 6) * 10 + 9;
+  const dppId = 'DPP-' + String(Math.floor(Math.random() * 99999)).padStart(5,'0');
+
+  // Generate a GS1 GTIN-like number
+  const gtin = '0' + String(Math.floor(Math.random() * 9000000000000) + 1000000000000);
+  const dppUrl = 'https://demo.destore.network/01/' + gtin;
+
+  setTimeout(() => {
+    btn.textContent = 'Generate →';
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+
+    // Populate phone preview
+    document.getElementById('previewBrand').textContent = domain.toUpperCase();
+    document.getElementById('previewName').textContent = name;
+    document.getElementById('previewPrice').textContent = '$' + price;
+    document.getElementById('previewDppId').textContent = dppId;
+    document.getElementById('previewDomain').textContent = 'demo.destore.network';
+
+    // Populate QR tag
+    const qrSize = 200;
+    const qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=' + qrSize + 'x' + qrSize + '&data=' + encodeURIComponent(dppUrl) + '&color=321B68&bgcolor=ffffff&margin=0';
+    document.getElementById('qrImage').src = qrApiUrl;
+    document.getElementById('qrLink').href = dppUrl;
+    document.getElementById('qrUrl').textContent = 'demo.destore.network/01/' + gtin;
+    document.getElementById('qrDppId').textContent = dppId;
+
+    // Store for download
+    window._dppQrUrl = qrApiUrl;
+    window._dppId = dppId;
+
+    const preview = document.getElementById('demoPreview');
+    preview.style.display = 'block';
+    preview.style.animation = 'fadeUp .45s cubic-bezier(0.34,1.56,0.64,1)';
+    preview.closest('.demo-overlay').scrollTo({ top: preview.offsetTop - 40, behavior:'smooth' });
+  }, 1200);
+}
+
+// Download QR tag
+function downloadQr() {
+  if (!window._dppQrUrl) return;
+  const a = document.createElement('a');
+  a.href = window._dppQrUrl;
+  a.download = (window._dppId || 'DPP') + '-qr.png';
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// Enter key triggers demo
+document.getElementById('demoUrl').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') runDemo();
+});
+
+// DPP Creator modal
+function openDemo(){
+  const o=document.getElementById('demoOverlay');
+  o.style.display='flex';
+  requestAnimationFrame(()=>o.classList.add('show'));
+  document.body.style.overflow='hidden';
+  setTimeout(()=>{const inp=document.getElementById('demoUrl');if(inp)inp.focus()},350);
+}
+function closeDemo(){
+  const o=document.getElementById('demoOverlay');
+  o.classList.remove('show');
+  setTimeout(()=>{o.style.display='none'},250);
+  document.body.style.overflow='';
+}
+
+// Login modal
+function openLogin(){
+  const o=document.getElementById('loginOverlay');
+  o.style.display='flex';
+  requestAnimationFrame(()=>o.classList.add('show'));
+  document.getElementById('loginEmail').focus();
+  document.body.style.overflow='hidden';
+}
+function closeLogin(){
+  const o=document.getElementById('loginOverlay');
+  o.classList.remove('show');
+  setTimeout(()=>{o.style.display='none'},250);
+  document.body.style.overflow='';
+}
+function sendOtp(){
+  const email=document.getElementById('loginEmail').value.trim();
+  if(!email||!email.includes('@')){
+    document.getElementById('loginEmail').style.borderColor='var(--pink)';
+    setTimeout(()=>document.getElementById('loginEmail').style.borderColor='var(--bdr)',1500);
+    return;
+  }
+  alert('OTP sent to '+email+'. (Auth backend not yet connected.)');
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeLogin();closeDemo()}});
+
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.how-card, .feat-card, .price-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(18px)';
+  el.style.transition = 'opacity .5s ease, transform .5s ease';
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>

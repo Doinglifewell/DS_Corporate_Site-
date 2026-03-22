@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Result Screen Templates</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=DM+Serif+Display&family=Space+Mono:wght@400;700&family=Playfair+Display:wght@700;900&family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0d;--d2:#141418;--d3:#1c1c22;--border:#222230;--border2:#2e2f3a;--text:#f0f0f5;--text2:#a0a0b0;--text3:#666678;--orchid:#6A14DB;--violet:#B354F1;--green:#28B79D;--orange:#FF9F46}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+@property --angle{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes spin{to{--angle:360deg}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);padding:28px;overflow-y:auto;min-height:100vh}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:6px}
+.page-title{font-size:22px;font-weight:900;letter-spacing:-.5px}
+.page-sub{font-size:12px;color:var(--text3);margin-bottom:28px;line-height:1.6;max-width:560px}
+.back-btn{padding:9px 18px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.back-btn:hover{border-color:var(--orchid);color:var(--violet)}
+.pills{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.pill{padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text3);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+.pill:hover{border-color:var(--text3);color:var(--text2)}
+.pill.active{border-color:var(--orchid);color:#fff;background:var(--orchid)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+
+/* Card */
+.tc{border-radius:16px;overflow:hidden;cursor:pointer;transition:all .2s;background:var(--d2);border:1px solid var(--border);position:relative}
+.tc:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(10, 10, 13, 0.40);border-color:var(--border2)}
+.tc::before{content:'';position:absolute;inset:-1px;border-radius:17px;padding:1px;background:conic-gradient(from var(--angle),transparent 25%,var(--orchid) 50%,var(--violet) 75%,transparent 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .3s;animation:spin 3s linear infinite;z-index:1;pointer-events:none}
+.tc:hover::before{opacity:1}
+.badge-float{position:absolute;top:14px;right:14px;z-index:3;padding:4px 10px;border-radius:6px;font-size:8px;font-weight:800;backdrop-filter:blur(8px);border:1px solid rgba(106, 20, 219, 0.08)}
+
+/* Phone frame */
+.tc-phone-area{height:340px;display:flex;justify-content:center;align-items:flex-start;padding:20px 0 0;overflow:hidden;position:relative}
+.tc-phone-area::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50px;z-index:2;pointer-events:none}
+.mp{width:180px;height:360px;border-radius:22px;overflow:hidden;position:relative;flex-shrink:0}
+.mp-notch{width:50px;height:12px;border-radius:0 0 8px 8px;margin:0 auto;position:relative;z-index:3}
+.mp-body{padding:4px 9px 0;overflow:hidden}
+
+/* ── Shared mini block utils ── */
+.mb{margin-bottom:4px;border-radius:5px}
+.mb-bar{height:4px;border-radius:2px;overflow:hidden;margin-bottom:2px}
+.mb-bar div{height:100%;border-radius:2px}
+.mb-lbl{display:flex;justify-content:space-between;font-size:5px}
+.mb-pills{display:flex;gap:2px;flex-wrap:wrap}
+.mb-pill{padding:2px 5px;border-radius:3px;font-size:5px;font-weight:700}
+.mb-btns{display:flex;gap:2px}
+.mb-btn{flex:1;padding:4px;border-radius:4px;font-size:5px;font-weight:700;text-align:center;font-family:inherit}
+
+/* Card body */
+.tc-body{padding:16px 18px 18px}
+.tc-name{font-size:15px;font-weight:800;letter-spacing:-.3px;margin-bottom:3px}
+.tc-desc{font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:10px}
+.tc-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.tc-tag{font-size:8px;font-weight:800;padding:3px 8px;border-radius:4px}
+.tc-tag.b{background:rgba(179,84,241,.08);color:var(--violet)}
+.tc-tag.f{background:rgba(40,183,157,.08);color:var(--green)}
+.tc-tag.g{background:rgba(106,20,219,.08);color:var(--orchid)}
+.tc-tag.e{background:rgba(255,159,70,.08);color:var(--orange)}
+.tc-tag.i{background:rgba(59,130,246,.08);color:var(--blue)}
+.use-btn{width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.use-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.use-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(106, 20, 219, 0.08),transparent);transform:translateX(-100%);transition:transform .4s}
+.use-btn:hover::after{transform:translateX(100%)}
+</style>
+</head>
+<body>
+<div class="page-head">
+  <div class="page-title">Result Screen Templates</div>
+  <button class="back-btn" onclick="if(parent.load)parent.load('DS_ResultScreenBuilder.html','Result Screen Builder',this)">← Back to Builder</button>
+</div>
+<div class="page-sub">What consumers see when they scan your QR code. Pick a style, customise it in the builder.</div>
+
+<div class="pills">
+  <button class="pill active" onclick="filt('all',this)">All</button>
+  <button class="pill" onclick="filt('clean',this)">Clean</button>
+  <button class="pill" onclick="filt('bold',this)">Bold</button>
+  <button class="pill" onclick="filt('luxury',this)">Luxury</button>
+  <button class="pill" onclick="filt('fun',this)">Fun</button>
+  <button class="pill" onclick="filt('industry',this)">Industry</button>
+</div>
+
+<div class="grid">
+
+<!-- ═══ 1. CLEAN STANDARD ═══ -->
+<div class="tc" data-cat="clean">
+  <span class="badge-float" style="background:rgba(40,183,157,.9);color:#fff">RECOMMENDED</span>
+  <div class="tc-phone-area" style="background:var(--text)">
+    <div class="mp" style="background: var(--d2);border:2px solid var(--d4);box-shadow:0 8px 24px rgba(10, 10, 13, 0.10)">
+      <div class="mp-notch" style="background:#222"></div>
+      <div class="mp-body" style="font-family:'Sora',sans-serif">
+        <div class="mb" style="text-align:center;padding:12px 6px 8px;background:#fafafa;border-radius:6px">
+          <div style="font-size:6px;font-weight:800;color:#10b981;letter-spacing:.08em;text-transform:uppercase">ECOTHREADS</div>
+          <div style="font-size:11px;font-weight:800;color:#111;margin:2px 0">Organic Cotton Tee</div>
+          <div style="font-size:5px;color:var(--text3)">ECO-TEE-001 · Verified DPP</div>
+        </div>
+        <div class="mb" style="background:#f8faf8;border-radius:5px;padding:5px 7px">
+          <div style="font-size:5px;font-weight:800;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Materials</div>
+          <div class="mb-bar" style="background:#e8ece8"><div style="width:95%;background:#10b981"></div></div>
+          <div class="mb-lbl" style="color:var(--text3)"><span>Organic Cotton</span><span>95%</span></div>
+          <div class="mb-bar" style="background:#e8ece8;margin-top:3px"><div style="width:5%;background:#f59e0b"></div></div>
+          <div class="mb-lbl" style="color:var(--text3)"><span>Elastane</span><span>5%</span></div>
+        </div>
+        <div class="mb mb-pills">
+          <span class="mb-pill" style="background:#ecfdf5;color:#059669">GOTS</span>
+          <span class="mb-pill" style="background:#ecfdf5;color:#059669">OEKO-TEX</span>
+        </div>
+        <div class="mb mb-btns">
+          <div class="mb-btn" style="border:1px solid #e5e5e5;background: var(--d2);color:var(--text2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg> Recycle</div>
+          <div class="mb-btn" style="border:1px solid #e5e5e5;background: var(--d2);color:var(--text2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Trade</div>
+          <div class="mb-btn" style="border:1px solid #e5e5e5;background: var(--d2);color:var(--text2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Gift</div>
+        </div>
+        <div class="mb" style="font-size:5px;color:#888;line-height:1.5;padding:3px 2px">
+          <strong style="color:var(--text)">Our Story</strong><br>Sustainable fashion that doesn't compromise on quality. Every thread traceable.
+        </div>
+        <div class="mb" style="display:flex;gap:3px;justify-content:center">
+          <span style="width:14px;height:14px;border-radius:3px;background:var(--d3);display:flex;align-items:center;justify-content:center;font-size:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg></span>
+          <span style="width:14px;height:14px;border-radius:3px;background:var(--d3);display:flex;align-items:center;justify-content:center;font-size:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg></span>
+          <span style="width:14px;height:14px;border-radius:3px;background:var(--d3);display:flex;align-items:center;justify-content:center;font-size:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+          <span style="width:14px;height:14px;border-radius:3px;background:var(--d3);display:flex;align-items:center;justify-content:center;font-size:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tc-body">
+    <div class="tc-name">Clean Standard</div>
+    <div class="tc-desc">Light, minimal, professional. The go-to layout for most brands — materials, certs, actions, story, care.</div>
+    <div class="tc-meta"><span class="tc-tag b">6 blocks</span><span class="tc-tag g">Growth</span></div>
+    <button class="use-btn" onclick="useT(['hero','materials','certs','actions','story','care'])">Use This Template</button>
+  </div>
+</div>
+
+<!-- ═══ 2. DARK LUXE ═══ -->
+<div class="tc" data-cat="luxury bold">
+  <div class="tc-phone-area" style="background:#0a0a0f">
+    <div class="mp" style="background:#111114;border:2px solid #2a2a30;box-shadow:0 8px 24px rgba(10, 10, 13, 0.40)">
+      <div class="mp-notch" style="background:#2a2a30"></div>
+      <div class="mp-body" style="font-family:'Playfair Display',serif">
+        <div class="mb" style="text-align:center;padding:14px 6px 10px;background:linear-gradient(180deg,var(--d3),#111114);border-radius:6px">
+          <div style="font-size:5px;font-weight:700;color:#c4a97a;letter-spacing:.14em;text-transform:uppercase;font-family:'Plus Jakarta Sans',sans-serif">MAISON AUREL</div>
+          <div style="font-size:12px;font-weight:900;color:#f5f0ea;margin:3px 0;letter-spacing:-.3px">Cashmere Overcoat</div>
+          <div style="font-size:5px;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif">CA-OVR-001 · Authenticated</div>
+        </div>
+        <div class="mb" style="background:var(--d3);border-radius:5px;padding:5px 7px">
+          <div style="font-size:5px;font-weight:800;color:var(--text2);text-transform:uppercase;margin-bottom:3px;font-family:'Plus Jakarta Sans',sans-serif">Composition</div>
+          <div class="mb-bar" style="background:#2a2a30"><div style="width:90%;background:#c4a97a"></div></div>
+          <div class="mb-lbl" style="color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif"><span>Cashmere</span><span>90%</span></div>
+          <div class="mb-bar" style="background:#2a2a30;margin-top:3px"><div style="width:10%;background:#888"></div></div>
+          <div class="mb-lbl" style="color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif"><span>Silk</span><span>10%</span></div>
+        </div>
+        <div class="mb mb-pills">
+          <span class="mb-pill" style="background:rgba(196,169,122,.1);color:#c4a97a;font-family:'Plus Jakarta Sans',sans-serif">RWS</span>
+          <span class="mb-pill" style="background:rgba(196,169,122,.1);color:#c4a97a;font-family:'Plus Jakarta Sans',sans-serif">OEKO-TEX</span>
+        </div>
+        <div class="mb" style="background:var(--d3);border-radius:5px;padding:5px;text-align:center">
+          <div style="font-size:5px;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif">On-Chain Verified</div>
+          <div style="font-size:4px;color:#c4a97a;font-family:'Space Mono',monospace;margin-top:2px">0x9Bc2...4fA1 · Base</div>
+        </div>
+        <div class="mb mb-btns">
+          <div class="mb-btn" style="border:1px solid #2a2a30;background:var(--d3);color:#888;font-family:'Plus Jakarta Sans',sans-serif"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Trade</div>
+          <div class="mb-btn" style="border:1px solid #2a2a30;background:var(--d3);color:#888;font-family:'Plus Jakarta Sans',sans-serif"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Gift</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tc-body">
+    <div class="tc-name">Dark Luxe</div>
+    <div class="tc-desc">Elevated and refined. Serif typography, gold accents, on-chain proof. For premium fashion and luxury goods.</div>
+    <div class="tc-meta"><span class="tc-tag b">5 blocks</span><span class="tc-tag e">Enterprise</span></div>
+    <button class="use-btn" onclick="useT(['hero','materials','certs','chain','actions'])">Use This Template</button>
+  </div>
+</div>
+
+<!-- ═══ 3. BOLD STREETWEAR ═══ -->
+<div class="tc" data-cat="fun bold">
+  <span class="badge-float" style="background:rgba(239,68,68,.9);color:#fff">HOT</span>
+  <div class="tc-phone-area" style="background:linear-gradient(135deg,#1a0a2e,#0a1028)">
+    <div class="mp" style="background: var(--d2);border:3px solid #7c3aed;box-shadow:0 0 30px rgba(124,58,237,.2)">
+      <div class="mp-notch" style="background:#7c3aed"></div>
+      <div class="mp-body" style="font-family:'Sora',sans-serif">
+        <div style="text-align:center;font-size:24px;padding:4px 0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></div>
+        <div class="mb" style="text-align:center;padding:8px 6px;background:linear-gradient(135deg,#f5f0ff,#fff0f8);border-radius:6px">
+          <div style="font-size:7px;font-weight:800;color:#7c3aed;letter-spacing:.1em;text-transform:uppercase">HYPETHREADS</div>
+          <div style="font-size:11px;font-weight:800;color:#111;letter-spacing:-.3px">Limited Drop Tee</div>
+          <div style="font-size:5px;color:var(--text3)">#042 of 500</div>
+        </div>
+        <div class="mb mb-pills">
+          <span class="mb-pill" style="background:#fef3c7;color:#d97706"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg> Rare</span>
+          <span class="mb-pill" style="background:#ede9fe;color:#7c3aed">🌿 Eco</span>
+          <span class="mb-pill" style="background:#dbeafe;color:var(--blue)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg> Water-Safe</span>
+        </div>
+        <div class="mb mb-btns">
+          <div class="mb-btn" style="border:2px solid #7c3aed;background: var(--d2);color:#7c3aed;font-weight:800"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Trade</div>
+          <div class="mb-btn" style="border:2px solid #7c3aed;background:#7c3aed;color:#fff;font-weight:800"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Gift</div>
+        </div>
+        <div class="mb" style="font-size:5px;color:#666;text-align:center;line-height:1.5;padding:2px">
+          <strong style="color:#7c3aed">Drop #12</strong> · Released March 2026<br>Only 500 made. Yours is verified on-chain.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tc-body">
+    <div class="tc-name">Drop Culture</div>
+    <div class="tc-desc">Bold, playful, limited-edition energy. Big product icon, coloured sticker badges, and hype copy. Built for streetwear.</div>
+    <div class="tc-meta"><span class="tc-tag b">4 blocks</span><span class="tc-tag g">Growth</span><span class="tc-tag i">Streetwear</span></div>
+    <button class="use-btn" onclick="useT(['hero','certs','actions','story'])">Use This Template</button>
+  </div>
+</div>
+
+<!-- ═══ 4. WINE & SPIRITS ═══ -->
+<div class="tc" data-cat="luxury industry">
+  <div class="tc-phone-area" style="background:#1a1014">
+    <div class="mp" style="background:#faf7f3;border:2px solid #e0d4c4;box-shadow:0 8px 24px rgba(10, 10, 13, 0.22)">
+      <div class="mp-notch" style="background:#8B4050"></div>
+      <div class="mp-body" style="font-family:'DM Serif Display',serif">
+        <div class="mb" style="text-align:center;padding:12px 6px 8px;background:linear-gradient(180deg,#f5ede5,#faf7f3);border-radius:6px">
+          <div style="font-size:5px;font-weight:400;color:#8B4050;letter-spacing:.14em;text-transform:uppercase;font-family:'Plus Jakarta Sans',sans-serif">BYRON BAY WINERY</div>
+          <div style="font-size:13px;color:#3a2020;letter-spacing:-.3px">Shiraz 2024</div>
+          <div style="font-size:5px;color:var(--text3);font-family:'Plus Jakarta Sans',sans-serif">14.5% ABV · Barossa Valley</div>
+        </div>
+        <div class="mb" style="font-size:5px;color:#888;line-height:1.6;padding:4px 4px;font-family:'Plus Jakarta Sans',sans-serif">
+          <strong style="color:#5a3030">Tasting Notes</strong><br>Dark cherry, blackberry, and warm spice with a long silky finish. Oak-aged 18 months.
+        </div>
+        <div class="mb mb-pills">
+          <span class="mb-pill" style="background:#f5ede5;color:#8B4050;font-family:'Plus Jakarta Sans',sans-serif">Organic</span>
+          <span class="mb-pill" style="background:#f5ede5;color:#8B4050;font-family:'Plus Jakarta Sans',sans-serif">Biodynamic</span>
+        </div>
+        <div class="mb" style="height:28px;background:linear-gradient(135deg,#f5ede5,#ede5dd);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:5px;color:#c4a080;font-family:'Plus Jakarta Sans',sans-serif"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M12 11v11"/><path d="m19 3-7 8-7-8Z"/></svg> Vineyard Origin Map</div>
+        <div class="mb" style="display:flex;gap:3px;justify-content:center">
+          <span style="width:14px;height:14px;border-radius:3px;background:#f5ede5;display:flex;align-items:center;justify-content:center;font-size:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M12 11v11"/><path d="m19 3-7 8-7-8Z"/></svg></span>
+          <span style="width:14px;height:14px;border-radius:3px;background:#f5ede5;display:flex;align-items:center;justify-content:center;font-size:6px">🌡️</span>
+          <span style="width:14px;height:14px;border-radius:3px;background:#f5ede5;display:flex;align-items:center;justify-content:center;font-size:6px">⏳</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tc-body">
+    <div class="tc-name">Wine & Spirits</div>
+    <div class="tc-desc">Warm, earthy palette with serif typography. Tasting notes, vineyard map, and serving instructions. Elegant and informative.</div>
+    <div class="tc-meta"><span class="tc-tag b">5 blocks</span><span class="tc-tag g">Growth</span><span class="tc-tag i">Wine</span></div>
+    <button class="use-btn" onclick="useT(['hero','story','certs','map','care'])">Use This Template</button>
+  </div>
+</div>
+
+<!-- ═══ 5. GEMSTONES / DIGIDIGGERS ═══ -->
+<div class="tc" data-cat="bold industry">
+  <span class="badge-float" style="background:rgba(255,159,70,.9);color:#fff">DIGIDIGGERS</span>
+  <div class="tc-phone-area" style="background:#06060c">
+    <div class="mp" style="background:linear-gradient(180deg,#0c0c18,#141428);border:2px solid #252540;box-shadow:0 0 40px rgba(255,159,70,.06)">
+      <div class="mp-notch" style="background:#252540"></div>
+      <div class="mp-body" style="font-family:'Sora',sans-serif">
+        <div class="mb" style="text-align:center;padding:10px 6px 8px;background:linear-gradient(180deg,#181830,#0c0c18);border-radius:6px">
+          <div style="font-size:5px;font-weight:800;color:var(--orange);letter-spacing:.1em;text-transform:uppercase">DIGIDIGGERS</div>
+          <div style="font-size:12px;font-weight:800;color:#fff;margin:2px 0;letter-spacing:-.3px">Party Rock #0042</div>
+          <div style="font-size:5px;color:var(--text2)">Boulder Opal · Lightning Ridge</div>
+        </div>
+        <div class="mb" style="background:#141428;border-radius:5px;padding:5px;text-align:center">
+          <div style="font-size:5px;color:var(--orange)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="8" cy="12" r="3"/><circle cx="16" cy="12" r="3"/></svg> Provenance Verified</div>
+          <div style="font-size:4px;color:var(--text2);font-family:'Space Mono',monospace;margin-top:1px">0x4fB7...2cD3 · Soneium</div>
+        </div>
+        <div class="mb" style="font-size:5px;color:var(--text2);line-height:1.6;padding:3px 4px">
+          <strong style="color:var(--orange)">Origin:</strong> Lightning Ridge, NSW<br>
+          <strong style="color:var(--orange)">Weight:</strong> 4.2ct &nbsp;·&nbsp; <strong style="color:var(--orange)">Grade:</strong> AAA<br>
+          <strong style="color:var(--orange)">Miner:</strong> J. Kotzur
+        </div>
+        <div class="mb" style="background:#141428;border-radius:5px;padding:5px 7px">
+          <div style="font-size:5px;font-weight:800;color:var(--text2);text-transform:uppercase;margin-bottom:3px">Play of Colour</div>
+          <div class="mb-bar" style="background:#252540"><div style="width:85%;background:linear-gradient(90deg,#ff4040,var(--orange),#40ff40,#4080ff)"></div></div>
+          <div class="mb-lbl" style="color:var(--text2)"><span>Spectral Range</span><span>Full Spectrum</span></div>
+        </div>
+        <div class="mb mb-btns">
+          <div class="mb-btn" style="border:1px solid #252540;background:#141428;color:var(--orange)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Trade</div>
+          <div class="mb-btn" style="border:1px solid #252540;background:#141428;color:var(--orange)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Gift</div>
+          <div class="mb-btn" style="border:1px solid #252540;background:#141428;color:var(--orange)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/></svg> COA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tc-body">
+    <div class="tc-name">Gemstones & Collectibles</div>
+    <div class="tc-desc">Dark, high-contrast layout for gems, opals, and rare collectibles. Provenance-first with on-chain proof and certificate of authenticity.</div>
+    <div class="tc-meta"><span class="tc-tag b">5 blocks</span><span class="tc-tag e">Enterprise</span><span class="tc-tag i">Gems</span></div>
+    <button class="use-btn" onclick="useT(['hero','chain','story','materials','actions'])">Use This Template</button>
+  </div>
+</div>
+
+<!-- ═══ 6. BEAUTY & COSMETICS ═══ -->
+<div class="tc" data-cat="clean industry">
+  <div class="tc-phone-area" style="background:#1a1018">
+    <div class="mp" style="background:#fdf8f8;border:2px solid #edd8e0;box-shadow:0 8px 24px rgba(10, 10, 13, 0.10)">
+      <div class="mp-notch" style="background:#c88098"></div>
+      <div class="mp-body" style="font-family:'Sora',sans-serif">
+        <div class="mb" style="text-align:center;padding:12px 6px 8px;background:linear-gradient(135deg,#fdf0f5,#f8e8f0);border-radius:6px">
+          <div style="font-size:5px;font-weight:800;color:#a05080;letter-spacing:.1em;text-transform:uppercase">GLOW BOTANICS</div>
+          <div style="font-size:11px;font-weight:800;color:#4a2838;margin:2px 0">Hyaluronic Serum</div>
+          <div style="font-size:5px;color:#c0a0b0">30ml · CPSR Approved</div>
+        </div>
+        <div class="mb" style="background:#fdf5f8;border-radius:5px;padding:5px 7px">
+          <div style="font-size:5px;font-weight:800;color:#c0a0b0;text-transform:uppercase;margin-bottom:3px">Key Ingredients</div>
+          <div class="mb-bar" style="background:#f0e0e8"><div style="width:40%;background:#a05080"></div></div>
+          <div class="mb-lbl" style="color:#c0a0b0"><span>Hyaluronic Acid</span><span>40%</span></div>
+          <div class="mb-bar" style="background:#f0e0e8;margin-top:3px"><div style="width:30%;background:#c07898"></div></div>
+          <div class="mb-lbl" style="color:#c0a0b0"><span>Vitamin C</span><span>30%</span></div>
+          <div class="mb-bar" style="background:#f0e0e8;margin-top:3px"><div style="width:15%;background:#d8a0b8"></div></div>
+          <div class="mb-lbl" style="color:#c0a0b0"><span>Niacinamide</span><span>15%</span></div>
+        </div>
+        <div class="mb mb-pills">
+          <span class="mb-pill" style="background:#f8e8f0;color:#a05080">Cruelty Free</span>
+          <span class="mb-pill" style="background:#f8e8f0;color:#a05080">Vegan</span>
+          <span class="mb-pill" style="background:#f8e8f0;color:#a05080">Derma Tested</span>
+        </div>
+        <div class="mb" style="font-size:5px;color:#b08898;line-height:1.5;padding:3px 2px">
+          <strong style="color:#4a2838">How to use:</strong> Apply 3-4 drops to cleansed skin morning and evening. Pat gently, don't rub.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tc-body">
+    <div class="tc-name">Beauty & Cosmetics</div>
+    <div class="tc-desc">Soft, rose-tinted palette for skincare and beauty. INCI-style ingredient bars, cruelty-free badges, usage instructions.</div>
+    <div class="tc-meta"><span class="tc-tag b">4 blocks</span><span class="tc-tag f">Free</span><span class="tc-tag i">Beauty</span></div>
+    <button class="use-btn" onclick="useT(['hero','materials','certs','story'])">Use This Template</button>
+  </div>
+</div>
+
+<!-- ═══ 7. ECO EARTH ═══ -->
+<div class="tc" data-cat="clean fun">
+  <span class="badge-float" style="background:rgba(16,185,129,.9);color:#fff">NEW</span>
+  <div class="tc-phone-area" style="background:#0a1210">
+    <div class="mp" style="background:#f4f9f6;border:2px solid #c8ddd0;box-shadow:0 8px 24px rgba(10, 10, 13, 0.10)">
+      <div class="mp-notch" style="background:#2d6a4f"></div>
+      <div class="mp-body" style="font-family:'Sora',sans-serif">
+        <div class="mb" style="text-align:center;padding:10px 6px 8px;background:linear-gradient(135deg,#ecfdf5,#f0fdf4);border-radius:6px;border:1px solid #d1fae5">
+          <div style="font-size:5px;font-weight:800;color:#059669;letter-spacing:.1em;text-transform:uppercase">TERRA GOODS</div>
+          <div style="font-size:11px;font-weight:800;color:#064e3b;margin:2px 0">Recycled Tote Bag</div>
+          <div style="font-size:5px;color:#6ee7b7">100% Post-Consumer Waste</div>
+        </div>
+        <div class="mb" style="text-align:center;padding:6px">
+          <div style="width:28px;height:28px;border-radius:50%;border:3px solid #a7f3d0;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#059669">A+</div>
+          <div style="font-size:5px;color:#6ee7b7;margin-top:2px">Sustainability Score</div>
+        </div>
+        <div class="mb" style="background:#ecfdf5;border-radius:5px;padding:5px 7px">
+          <div style="font-size:5px;font-weight:800;color:#6ee7b7;text-transform:uppercase;margin-bottom:3px">Materials</div>
+          <div class="mb-bar" style="background:#d1fae5"><div style="width:70%;background:#059669"></div></div>
+          <div class="mb-lbl" style="color:#6ee7b7"><span>Recycled PET</span><span>70%</span></div>
+          <div class="mb-bar" style="background:#d1fae5;margin-top:3px"><div style="width:30%;background:#34d399"></div></div>
+          <div class="mb-lbl" style="color:#6ee7b7"><span>Organic Hemp</span><span>30%</span></div>
+        </div>
+        <div class="mb" style="height:24px;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:5px;color:#6ee7b7"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Supply Chain Map</div>
+        <div class="mb mb-btns">
+          <div class="mb-btn" style="border:1px solid #a7f3d0;background:#ecfdf5;color:#059669;font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg> Recycle</div>
+          <div class="mb-btn" style="border:1px solid #a7f3d0;background:#ecfdf5;color:#059669;font-weight:700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Gift</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tc-body">
+    <div class="tc-name">Eco Earth</div>
+    <div class="tc-desc">Green-forward, nature-inspired. Sustainability score front and centre, provenance map, and recycling-first actions. For eco brands that walk the talk.</div>
+    <div class="tc-meta"><span class="tc-tag b">6 blocks</span><span class="tc-tag g">Growth</span><span class="tc-tag i">Eco</span></div>
+    <button class="use-btn" onclick="useT(['hero','score','materials','map','actions','care'])">Use This Template</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+function filt(cat,btn){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tc').forEach(c=>{
+    c.style.display=(cat==='all'||c.dataset.cat.includes(cat))?'':'none';
+  });
+}
+function useT(blocks){
+  sessionStorage.setItem('ds_template_blocks',JSON.stringify(blocks));
+  if(parent.load) parent.load('DS_ResultScreenBuilder.html','Result Screen Builder',document.querySelector('.use-btn'));
+  else alert('Template loaded: '+blocks.join(', ')+'.\nOpen the builder to customise.');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brand Assets</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0d;--d2:#141418;--d3:#1c1c22;--d4:#202128;--border:#222230;--border2:#2e2f3a;--text:#f0f0f5;--text2:#a0a0b0;--text3:#666678;--orchid:#6A14DB;--violet:#B354F1;--green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--red:#e74c3c}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+@property --angle{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes spin{to{--angle:360deg}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);padding:28px;overflow-y:auto;min-height:100vh}
+.page-title{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
+.page-sub{font-size:12px;color:var(--text3);margin-bottom:28px;line-height:1.6;max-width:560px}
+
+/* Sections */
+.section{background:var(--d2);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px}
+.section:hover{border-color:var(--border2)}
+.s-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.s-title{font-size:14px;font-weight:800;letter-spacing:-.2px}
+.s-desc{font-size:10px;color:var(--text3);margin-top:2px}
+.s-badge{font-size:8px;font-weight:800;padding:3px 8px;border-radius:4px;letter-spacing:.02em}
+.s-badge.required{background:rgba(231,76,60,.1);color:var(--red)}
+.s-badge.optional{background:rgba(102,102,120,.1);color:var(--text3)}
+
+/* Upload zones */
+.upload-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.upload-box{border:2px dashed var(--border2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.upload-box:hover{border-color:var(--orchid);background:rgba(106,20,219,.02)}
+.upload-box.has-file{border-style:solid;border-color:var(--green);background:rgba(40,183,157,.02)}
+.upload-box input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ub-icon{font-size:28px;margin-bottom:8px;opacity:.4}
+.ub-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:2px}
+.ub-hint{font-size:9px;color:var(--text3)}
+.ub-preview{width:80px;height:80px;border-radius:8px;object-fit:contain;margin-bottom:6px;display:none}
+.ub-filename{font-size:9px;color:var(--green);font-weight:700;display:none;margin-top:4px}
+.ub-remove{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;border:none;background:var(--red);color:#fff;font-size:9px;cursor:pointer;display:none;align-items:center;justify-content:center;font-weight:900}
+.upload-box.has-file .ub-remove{display:flex}
+.upload-box.has-file .ub-preview{display:block}
+.upload-box.has-file .ub-filename{display:block}
+.upload-box.has-file .ub-icon{display:none}
+.upload-box.has-file .ub-hint{display:none}
+
+/* Large upload */
+.upload-large{border:2px dashed var(--border2);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .15s;position:relative}
+.upload-large:hover{border-color:var(--orchid);background:rgba(106,20,219,.02)}
+.upload-large input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ul-icon{font-size:36px;margin-bottom:10px;opacity:.3}
+.ul-label{font-size:13px;font-weight:700;color:var(--text2)}
+.ul-hint{font-size:10px;color:var(--text3);margin-top:4px}
+
+/* Colour palette */
+.colour-row{display:flex;gap:10px;flex-wrap:wrap}
+.colour-item{text-align:center}
+.colour-swatch{width:56px;height:56px;border-radius:10px;border:2px solid var(--border);cursor:pointer;position:relative;overflow:hidden;transition:border-color .15s}
+.colour-swatch:hover{border-color:var(--orchid)}
+.colour-swatch input[type="color"]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;cursor:pointer;opacity:0}
+.colour-label{font-size:8px;font-weight:700;color:var(--text3);margin-top:5px}
+.colour-hex{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text3);margin-top:1px}
+
+/* Font section */
+.font-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.font-field{background:var(--d3);border:1px solid var(--border);border-radius:8px;padding:12px}
+.ff-label{font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.ff-select{width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--d4);color:var(--text);font-family:inherit;font-size:12px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666678'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.ff-select:focus{border-color:var(--orchid)}
+.ff-preview{margin-top:8px;padding:8px;border-radius:6px;background:var(--bg);border:1px solid var(--border)}
+.ff-preview .heading{font-size:16px;font-weight:800;margin-bottom:2px}
+.ff-preview .body{font-size:11px;color:var(--text2);line-height:1.5}
+
+/* Social links */
+.social-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.social-field{display:flex;align-items:center;gap:8px}
+.sf-icon{width:28px;height:28px;border-radius:6px;background:var(--d3);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:var(--text3)}
+.sf-input{flex:1;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--d3);color:var(--text);font-family:inherit;font-size:11px;outline:none}
+.sf-input:focus{border-color:var(--orchid)}
+.sf-input::placeholder{color:var(--text3)}
+
+/* Preview card */
+.preview-section{background:var(--d3);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px}
+.preview-card{background: var(--d2);border-radius:12px;padding:20px;max-width:300px;margin:0 auto;text-align:center;box-shadow:0 4px 16px rgba(10, 10, 13, 0.10)}
+.pc-logo{width:60px;height:60px;border-radius:10px;background:var(--d4);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3);overflow:hidden}
+.pc-logo img{width:100%;height:100%;object-fit:contain}
+.pc-brand{font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.pc-product{font-size:16px;font-weight:900;color: var(--text);margin-bottom:2px}
+.pc-sub{font-size:9px;color:var(--text3)}
+.pc-colours{display:flex;gap:4px;justify-content:center;margin-top:10px}
+.pc-colour{width:20px;height:20px;border-radius:4px;border:1px solid rgba(10, 10, 13, 0.10)}
+
+/* Buttons */
+.btn-row{display:flex;gap:8px;margin-top:16px}
+.btn{padding:10px 20px;border-radius:8px;border:none;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;transition:all .12s}
+.btn-p{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff}
+.btn-p:hover{filter:brightness(1.1)}
+.btn-s{background:var(--d3);border:1px solid var(--border);color:var(--text2)}
+.btn-s:hover{border-color:var(--orchid)}
+
+/* Used in section */
+.used-in{display:flex;gap:4px;flex-wrap:wrap;margin-top:12px}
+.used-tag{font-size:8px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(106,20,219,.06);color:var(--violet)}
+/* Brand Intelligence */
+.bi-section{background:linear-gradient(135deg,var(--d2),rgba(106,20,219,.03));border:1px solid var(--orchid);border-radius:14px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
+.bi-section::before{content:'';position:absolute;top:-60px;right:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(106,20,219,.06) 0%,transparent 70%);pointer-events:none}
+.bi-glow{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:6px;background:rgba(106,20,219,.1);font-size:9px;font-weight:800;color:var(--violet);margin-bottom:14px}
+.bi-upload-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:600px){.bi-upload-row{grid-template-columns:1fr}}
+.bi-upload{border:2px dashed var(--border2);border-radius:10px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .15s;position:relative}
+.bi-upload:hover{border-color:var(--orchid);background:rgba(106,20,219,.02)}
+.bi-upload.has-file{border-style:solid;border-color:var(--green)}
+.bi-upload input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.bi-upload .bi-icon{font-size:28px;margin-bottom:8px;opacity:.4}
+.bi-upload .bi-label{font-size:12px;font-weight:700;color:var(--text2)}
+.bi-upload .bi-hint{font-size:9px;color:var(--text3);margin-top:3px}
+.bi-upload .bi-file{font-size:10px;color:var(--green);font-weight:700;display:none;margin-top:6px}
+.bi-upload.has-file .bi-file{display:block}
+.bi-upload.has-file .bi-icon{opacity:1}
+.bi-url{display:flex;gap:8px;margin-bottom:16px}
+.bi-url input{flex:1;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--d3);color:var(--text);font-family:inherit;font-size:13px;outline:none}
+.bi-url input:focus{border-color:var(--orchid)}
+.bi-url button{padding:10px 18px;border-radius:8px;border:none;background:var(--orchid);color:#fff;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}
+.bi-url button:hover{filter:brightness(1.1)}
+.bi-extracted{background:var(--d3);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;display:none}
+.bi-extracted.visible{display:block}
+.bi-ext-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.bi-ext-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.bi-ext-title{font-size:11px;font-weight:800;color:var(--green)}
+.bi-ext-time{font-size:9px;color:var(--text3);margin-left:auto}
+.bi-field{margin-bottom:10px}
+.bi-field-label{font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.bi-field-value{font-size:12px;color:var(--text);line-height:1.6;padding:8px 10px;background:var(--d4);border-radius:6px;border:1px solid var(--border)}
+.bi-field-value.editable{cursor:text;outline:none}
+.bi-field-value.editable:focus{border-color:var(--orchid)}
+.bi-tags{display:flex;gap:4px;flex-wrap:wrap}
+.bi-tag{padding:3px 8px;border-radius:4px;font-size:9px;font-weight:700}
+.bi-preview{background:var(--d3);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:none}
+.bi-preview.visible{display:block}
+.bi-preview-head{padding:10px 14px;border-bottom:1px solid var(--border);font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between}
+.bi-preview-body{padding:14px}
+.bi-sample{background: var(--d2);border-radius:8px;padding:16px;color: var(--text);font-size:11px;line-height:1.7}
+.bi-sample .bs-brand{font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.bi-sample .bs-title{font-size:16px;font-weight:900;margin-bottom:2px}
+.bi-sample .bs-sub{font-size:9px;color:var(--text3);margin-bottom:10px}
+.bi-sample .bs-desc{font-size:10px;color:var(--text2);line-height:1.7}
+.bi-sample .bs-tags{display:flex;gap:4px;margin-top:8px}
+.bi-sample .bs-tag{padding:2px 6px;border-radius:3px;font-size:8px;font-weight:700}
+.bi-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(179,84,241,.3);border-top-color:var(--violet);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bi-regen{padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--text3);font-family:inherit;font-size:9px;font-weight:700;cursor:pointer}
+.bi-regen:hover{border-color:var(--orchid);color:var(--violet)}
+</style>
+</head>
+<body>
+
+<div class="page-title">Brand Assets</div>
+<div class="page-sub">Upload your logo, colours, fonts, and brand materials. These assets are used across your DPP reports, result screens, QR codes, email receipts, and white-label touchpoints.</div>
+
+<!-- ═══ LOGOS ═══ -->
+<div class="section">
+  <div class="s-head">
+    <div><div class="s-title">Logos</div><div class="s-desc">Primary logo, icon, and dark/light variants</div></div>
+    <span class="s-badge required">Required</span>
+  </div>
+  <div class="upload-row">
+    <div class="upload-box" id="logoPrimary" onclick="document.getElementById('logoPrimaryInput').click()">
+      <input type="file" id="logoPrimaryInput" accept="image/*" onchange="handleUpload(this,'logoPrimary')">
+      <button class="ub-remove" onclick="event.stopPropagation();clearUpload('logoPrimary')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      <img class="ub-preview" id="logoPrimaryPreview">
+      <div class="ub-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+      <div class="ub-label">Primary Logo</div>
+      <div class="ub-hint">SVG or PNG · Transparent bg</div>
+      <div class="ub-filename" id="logoPrimaryName"></div>
+    </div>
+    <div class="upload-box" id="logoIcon" onclick="document.getElementById('logoIconInput').click()">
+      <input type="file" id="logoIconInput" accept="image/*" onchange="handleUpload(this,'logoIcon')">
+      <button class="ub-remove" onclick="event.stopPropagation();clearUpload('logoIcon')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      <img class="ub-preview" id="logoIconPreview">
+      <div class="ub-icon">⬡</div>
+      <div class="ub-label">Icon / Favicon</div>
+      <div class="ub-hint">Square · 512×512px min</div>
+      <div class="ub-filename" id="logoIconName"></div>
+    </div>
+    <div class="upload-box" id="logoLight" onclick="document.getElementById('logoLightInput').click()">
+      <input type="file" id="logoLightInput" accept="image/*" onchange="handleUpload(this,'logoLight')">
+      <button class="ub-remove" onclick="event.stopPropagation();clearUpload('logoLight')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      <img class="ub-preview" id="logoLightPreview">
+      <div class="ub-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-14.07 1.41 1.41M18.66 18.66l1.41 1.41M2 12h2M20 12h2m-15.07 5.07 1.41-1.41M18.66 5.34l1.41-1.41"/></svg></div>
+      <div class="ub-label">Light Background</div>
+      <div class="ub-hint">For white/light surfaces</div>
+      <div class="ub-filename" id="logoLightName"></div>
+    </div>
+    <div class="upload-box" id="logoDark" onclick="document.getElementById('logoDarkInput').click()">
+      <input type="file" id="logoDarkInput" accept="image/*" onchange="handleUpload(this,'logoDark')">
+      <button class="ub-remove" onclick="event.stopPropagation();clearUpload('logoDark')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      <img class="ub-preview" id="logoDarkPreview">
+      <div class="ub-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg></div>
+      <div class="ub-label">Dark Background</div>
+      <div class="ub-hint">For dark surfaces</div>
+      <div class="ub-filename" id="logoDarkName"></div>
+    </div>
+  </div>
+  <div class="used-in">
+    <span class="used-tag">Result Screens</span>
+    <span class="used-tag">DPP Reports</span>
+    <span class="used-tag">QR Codes</span>
+    <span class="used-tag">Email Receipts</span>
+    <span class="used-tag">PDF Exports</span>
+  </div>
+</div>
+
+<!-- ═══ COLOURS ═══ -->
+<div class="section">
+  <div class="s-head">
+    <div><div class="s-title">Brand Colours</div><div class="s-desc">Your primary palette — applied to result screens, reports, and QR overlays</div></div>
+    <span class="s-badge required">Required</span>
+  </div>
+  <div class="colour-row" id="colourRow">
+    <div class="colour-item">
+      <div class="colour-swatch" id="sw0" style="background:var(--orchid)">
+        <input type="color" value="#6A14DB" onchange="updateColour(0,this.value)">
+      </div>
+      <div class="colour-label">Primary</div>
+      <div class="colour-hex" id="hex0">#6A14DB</div>
+    </div>
+    <div class="colour-item">
+      <div class="colour-swatch" id="sw1" style="background:var(--violet)">
+        <input type="color" value="#B354F1" onchange="updateColour(1,this.value)">
+      </div>
+      <div class="colour-label">Secondary</div>
+      <div class="colour-hex" id="hex1">#B354F1</div>
+    </div>
+    <div class="colour-item">
+      <div class="colour-swatch" id="sw2" style="background:var(--green)">
+        <input type="color" value="#28B79D" onchange="updateColour(2,this.value)">
+      </div>
+      <div class="colour-label">Accent</div>
+      <div class="colour-hex" id="hex2">#28B79D</div>
+    </div>
+    <div class="colour-item">
+      <div class="colour-swatch" id="sw3" style="background: var(--bg)">
+        <input type="color" value="#111111" onchange="updateColour(3,this.value)">
+      </div>
+      <div class="colour-label">Text Dark</div>
+      <div class="colour-hex" id="hex3">#111111</div>
+    </div>
+    <div class="colour-item">
+      <div class="colour-swatch" id="sw4" style="background: var(--d2);border-color:var(--border2)">
+        <input type="color" value="#FFFFFF" onchange="updateColour(4,this.value)">
+      </div>
+      <div class="colour-label">Text Light</div>
+      <div class="colour-hex" id="hex4">#FFFFFF</div>
+    </div>
+    <div class="colour-item">
+      <div class="colour-swatch" id="sw5" style="background:var(--d3)">
+        <input type="color" value="#F5F5F5" onchange="updateColour(5,this.value)">
+      </div>
+      <div class="colour-label">Background</div>
+      <div class="colour-hex" id="hex5">#F5F5F5</div>
+    </div>
+  </div>
+  <div class="used-in">
+    <span class="used-tag">Result Screens</span>
+    <span class="used-tag">QR Code Overlays</span>
+    <span class="used-tag">PDF Reports</span>
+    <span class="used-tag">Email Templates</span>
+  </div>
+</div>
+
+<!-- ═══ FONTS ═══ -->
+<div class="section">
+  <div class="s-head">
+    <div><div class="s-title">Typography</div><div class="s-desc">Heading and body fonts for your result screens and reports</div></div>
+    <span class="s-badge optional">Optional</span>
+  </div>
+  <div class="font-row">
+    <div class="font-field">
+      <div class="ff-label">Heading Font</div>
+      <select class="ff-select" id="headingFont" onchange="updateFontPreview()">
+        <option value="Plus Jakarta Sans" selected>Plus Jakarta Sans (Default)</option>
+        <option value="Sora">Sora</option>
+        <option value="DM Serif Display">DM Serif Display</option>
+        <option value="Playfair Display">Playfair Display</option>
+        <option value="Space Grotesk">Space Grotesk</option>
+        <option value="Inter">Inter</option>
+        <option value="Montserrat">Montserrat</option>
+        <option value="Poppins">Poppins</option>
+      </select>
+      <div class="ff-preview">
+        <div class="heading" id="headingPreview" style="font-family:'Plus Jakarta Sans'">Your Product Name</div>
+        <div class="body" style="font-size:9px;color:var(--text3)">Used in result screen hero, report titles, QR labels</div>
+      </div>
+    </div>
+    <div class="font-field">
+      <div class="ff-label">Body Font</div>
+      <select class="ff-select" id="bodyFont" onchange="updateFontPreview()">
+        <option value="Plus Jakarta Sans" selected>Plus Jakarta Sans (Default)</option>
+        <option value="Sora">Sora</option>
+        <option value="Inter">Inter</option>
+        <option value="DM Sans">DM Sans</option>
+        <option value="Roboto">Roboto</option>
+        <option value="Open Sans">Open Sans</option>
+        <option value="Lato">Lato</option>
+      </select>
+      <div class="ff-preview">
+        <div class="body" id="bodyPreview" style="font-family:'Plus Jakarta Sans'">This is how your body text will appear in reports, descriptions, and result screen content blocks.</div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:10px">
+    <div class="upload-box" style="max-width:300px" onclick="document.getElementById('customFontInput').click()">
+      <input type="file" id="customFontInput" accept=".woff,.woff2,.ttf,.otf">
+      <div class="ub-icon" style="font-size:20px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></div>
+      <div class="ub-label">Upload Custom Font</div>
+      <div class="ub-hint">.woff2, .woff, .ttf, .otf</div>
+    </div>
+  </div>
+  <div class="used-in">
+    <span class="used-tag">Result Screens</span>
+    <span class="used-tag">PDF Reports</span>
+    <span class="used-tag">Email Templates</span>
+  </div>
+</div>
+
+<!-- ═══ BRAND INTELLIGENCE — AI Voice & Content ═══ -->
+<div class="bi-section">
+  <div class="bi-glow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16.01"/><line x1="16" y1="16" x2="16" y2="16.01"/></svg> AI-Powered</div>
+  <div class="s-head">
+    <div>
+      <div class="s-title">Brand Intelligence</div>
+      <div class="s-desc">Upload your brand pack or style guide. AI extracts your brand voice, tone, and logic — then auto-fills product content in your style.</div>
+    </div>
+    <span class="s-badge required">Required</span>
+  </div>
+
+  <!-- Upload: Brand Pack + Style Guide -->
+  <div class="bi-upload-row">
+    <div class="bi-upload" id="biPack" onclick="document.getElementById('biPackInput').click()">
+      <input type="file" id="biPackInput" accept=".pdf,.docx,.doc,.pptx,.ppt,image/*" onchange="biBrandUpload(this,'biPack','Brand Pack')">
+      <div class="bi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
+      <div class="bi-label">Brand Pack</div>
+      <div class="bi-hint">PDF, DOCX, PPTX · Guidelines, values, messaging</div>
+      <div class="bi-file" id="biPackFile"></div>
+    </div>
+    <div class="bi-upload" id="biStyle" onclick="document.getElementById('biStyleInput').click()">
+      <input type="file" id="biStyleInput" accept=".pdf,.docx,.doc,.pptx,.ppt,image/*" onchange="biBrandUpload(this,'biStyle','Style Guide')">
+      <div class="bi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div>
+      <div class="bi-label">Style Guide</div>
+      <div class="bi-hint">PDF, DOCX · Typography, tone, visual rules</div>
+      <div class="bi-file" id="biStyleFile"></div>
+    </div>
+  </div>
+
+  <!-- Website URL for AI to crawl -->
+  <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:6px">Brand Website — AI learns your voice from your content</div>
+  <div class="bi-url">
+    <input type="url" id="biUrl" placeholder="https://yourbrand.com" value="">
+    <button onclick="biScanAll()">Scan & Extract</button>
+  </div>
+
+  <!-- Scanning progress -->
+  <div id="biProgress" style="display:none;padding:12px;text-align:center;color:var(--violet);font-size:12px;font-weight:700">
+    <span class="bi-spinner"></span><span id="biProgressText">Scanning brand pack...</span>
+  </div>
+
+  <!-- Extracted Brand Voice -->
+  <div class="bi-extracted" id="biExtracted">
+    <div class="bi-ext-head">
+      <div class="bi-ext-dot"></div>
+      <div class="bi-ext-title">Brand Voice Extracted</div>
+      <div class="bi-ext-time" id="biExtTime">Just now</div>
+    </div>
+
+    <div class="bi-field">
+      <div class="bi-field-label">Brand Voice Summary</div>
+      <div class="bi-field-value editable" contenteditable="true" id="biVoice">Confident, warm, and purpose-driven. Uses plain language over jargon. Speaks directly to the conscious consumer — not at them. Short sentences. Active voice. Avoids corporate speak. Embraces transparency as a competitive advantage.</div>
+    </div>
+
+    <div class="bi-field">
+      <div class="bi-field-label">Tone Keywords</div>
+      <div class="bi-tags" id="biToneTags">
+        <span class="bi-tag" style="background:rgba(40,183,157,.1);color:var(--green)">Authentic</span>
+        <span class="bi-tag" style="background:rgba(106,20,219,.1);color:var(--violet)">Confident</span>
+        <span class="bi-tag" style="background:rgba(255,159,70,.1);color:var(--orange)">Warm</span>
+        <span class="bi-tag" style="background:rgba(59,130,246,.1);color:var(--blue)">Transparent</span>
+        <span class="bi-tag" style="background:rgba(40,183,157,.1);color:var(--green)">Purpose-driven</span>
+      </div>
+    </div>
+
+    <div class="bi-field">
+      <div class="bi-field-label">Words to Use</div>
+      <div class="bi-field-value editable" contenteditable="true" id="biUse">crafted, traceable, transparent, conscious, purposeful, honest, circular, designed to last, responsibly sourced, verified</div>
+    </div>
+
+    <div class="bi-field">
+      <div class="bi-field-label">Words to Avoid</div>
+      <div class="bi-field-value editable" contenteditable="true" id="biAvoid">cheap, luxury, exclusive, greenwashing, eco-friendly (overused), sustainable (without evidence), premium, revolutionary</div>
+    </div>
+
+    <div class="bi-field">
+      <div class="bi-field-label">Product Description Formula</div>
+      <div class="bi-field-value editable" contenteditable="true" id="biFormula">[What it is] + [What makes it different] + [Where it comes from] + [How it's made] + [Why it matters]. Lead with the product, not the brand. End with impact.</div>
+    </div>
+
+    <div class="bi-field">
+      <div class="bi-field-label">Product Categories Detected</div>
+      <div class="bi-tags" id="biCategories">
+        <span class="bi-tag" style="background:rgba(106,20,219,.1);color:var(--violet)">Textiles</span>
+        <span class="bi-tag" style="background:rgba(40,183,157,.1);color:var(--green)">Skincare</span>
+        <span class="bi-tag" style="background:rgba(255,159,70,.1);color:var(--orange)">Accessories</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Content Preview -->
+  <div class="bi-preview" id="biPreview">
+    <div class="bi-preview-head">
+      Sample AI-Generated Product Content
+      <button class="bi-regen" onclick="biRegenerate()">↻ Regenerate</button>
+    </div>
+    <div class="bi-preview-body">
+      <div class="bi-sample" id="biSample">
+        <div class="bs-brand" id="bsSampleBrand" style="color:var(--orchid)">YOUR BRAND</div>
+        <div class="bs-title">Organic Cotton Tee</div>
+        <div class="bs-sub">ECO-TEE-001 · Made in Portugal</div>
+        <div class="bs-desc" id="bsSampleDesc">
+          A tee that tells the truth. Crafted from 95% GOTS-certified organic cotton, grown without pesticides in Tamil Nadu, India. Knitted and dyed in Porto, Portugal using waterless dyeing technology that saves 95% of water compared to conventional methods. The 5% elastane gives it shape that lasts — designed for years, not seasons. Every thread is traceable. Every process verified. This is what honest fashion looks like.
+        </div>
+        <div class="bs-tags">
+          <span class="bs-tag" style="background: rgba(40, 183, 157, 0.08);color: var(--green)">GOTS Certified</span>
+          <span class="bs-tag" style="background: rgba(40, 183, 157, 0.08);color: var(--green)">Waterless Dyed</span>
+          <span class="bs-tag" style="background: rgba(106, 20, 219, 0.06);color:var(--orchid)">Traceable</span>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:9px;color:var(--text3);line-height:1.6">
+        ↑ This content is auto-generated using your brand voice, product data, and style guide. When you create a new product in the AI DPP Builder, content is pre-filled in this style. You can always edit it.
+      </div>
+    </div>
+  </div>
+
+  <div class="used-in" style="margin-top:12px">
+    <span class="used-tag">AI DPP Builder</span>
+    <span class="used-tag">Product Descriptions</span>
+    <span class="used-tag">Brand Story Blocks</span>
+    <span class="used-tag">DPP Reports</span>
+    <span class="used-tag">Result Screen Content</span>
+    <span class="used-tag">Email Copy</span>
+  </div>
+</div>
+
+<!-- ═══ BRAND MATERIALS ═══ -->
+<div class="section">
+  <div class="s-head">
+    <div><div class="s-title">Brand Materials</div><div class="s-desc">Product photos, brand guidelines, packaging images, and other assets</div></div>
+    <span class="s-badge optional">Optional</span>
+  </div>
+  <div class="upload-large" onclick="document.getElementById('materialsInput').click()">
+    <input type="file" id="materialsInput" accept="image/*,.pdf,.ai,.eps,.svg" multiple>
+    <div class="ul-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+    <div class="ul-label">Drop files here or click to upload</div>
+    <div class="ul-hint">Images, PDFs, brand guidelines, product photos · Max 10MB each</div>
+  </div>
+  <div id="materialsList" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"></div>
+  <div class="used-in">
+    <span class="used-tag">DPP Reports</span>
+    <span class="used-tag">Result Screen Hero</span>
+    <span class="used-tag">Collection Thumbnails</span>
+  </div>
+</div>
+
+<!-- ═══ SOCIAL & CONTACT ═══ -->
+<div class="section">
+  <div class="s-head">
+    <div><div class="s-title">Social & Contact</div><div class="s-desc">Shown on result screens and in the brand story section</div></div>
+    <span class="s-badge optional">Optional</span>
+  </div>
+  <div class="social-grid">
+    <div class="social-field"><div class="sf-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><input class="sf-input" placeholder="https://yourbrand.com"></div>
+    <div class="social-field"><div class="sf-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div><input class="sf-input" placeholder="@instagram_handle"></div>
+    <div class="social-field"><div class="sf-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div><input class="sf-input" placeholder="@x_handle"></div>
+    <div class="social-field"><div class="sf-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div><input class="sf-input" placeholder="facebook.com/brand"></div>
+    <div class="social-field"><div class="sf-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></div><input class="sf-input" placeholder="linkedin.com/company/brand"></div>
+    <div class="social-field"><div class="sf-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.46 6.3 6.3 0 001.88-4.49V8.75a8.26 8.26 0 004.84 1.56V6.83a4.85 4.85 0 01-1.14-.14z"/></svg></div><input class="sf-input" placeholder="@tiktok_handle"></div>
+    <div class="social-field"><div class="sf-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><input class="sf-input" placeholder="hello@yourbrand.com"></div>
+    <div class="social-field"><div class="sf-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div><input class="sf-input" placeholder="youtube.com/@channel"></div>
+  </div>
+  <div class="used-in">
+    <span class="used-tag">Result Screens</span>
+    <span class="used-tag">DPP Reports</span>
+    <span class="used-tag">Email Footer</span>
+  </div>
+</div>
+
+<!-- ═══ LIVE PREVIEW ═══ -->
+<div class="preview-section">
+  <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;text-align:center">Live Preview — How your brand appears to consumers</div>
+  <div class="preview-card" id="previewCard">
+    <div class="pc-logo" id="pcLogo">Logo</div>
+    <div class="pc-brand" id="pcBrand" style="color:var(--orchid)">YOUR BRAND</div>
+    <div class="pc-product" id="pcProduct">Product Name</div>
+    <div class="pc-sub">SKU-001 · Verified DPP</div>
+    <div class="pc-colours" id="pcColours">
+      <div class="pc-colour" style="background:var(--orchid)"></div>
+      <div class="pc-colour" style="background:var(--violet)"></div>
+      <div class="pc-colour" style="background:var(--green)"></div>
+      <div class="pc-colour" style="background: var(--bg)"></div>
+      <div class="pc-colour" style="background:var(--d3)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SAVE ═══ -->
+<div class="btn-row" style="justify-content:flex-end">
+  <button class="btn btn-s">Reset to Defaults</button>
+  <button class="btn btn-p" onclick="alert('Brand assets saved! These will be applied across all your DPP reports, result screens, QR codes, and exports.')">Save Brand Assets</button>
+</div>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+function handleUpload(input, id) {
+  const file = input.files[0];
+  if (!file) return;
+  const box = document.getElementById(id);
+  const preview = document.getElementById(id + 'Preview');
+  const name = document.getElementById(id + 'Name');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    preview.src = e.target.result;
+    name.textContent = file.name;
+    box.classList.add('has-file');
+    // Update live preview if primary logo
+    if (id === 'logoPrimary') {
+      const pcLogo = document.getElementById('pcLogo');
+      pcLogo.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:contain">';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearUpload(id) {
+  const box = document.getElementById(id);
+  box.classList.remove('has-file');
+  const preview = document.getElementById(id + 'Preview');
+  preview.src = '';
+  const name = document.getElementById(id + 'Name');
+  name.textContent = '';
+  if (id === 'logoPrimary') {
+    document.getElementById('pcLogo').innerHTML = 'Logo';
+  }
+}
+
+function updateColour(idx, val) {
+  document.getElementById('sw' + idx).style.background = val;
+  document.getElementById('hex' + idx).textContent = val.toUpperCase();
+  // Update preview
+  const colours = document.querySelectorAll('.pc-colour');
+  if (colours[idx]) colours[idx].style.background = val;
+  if (idx === 0) document.getElementById('pcBrand').style.color = val;
+}
+
+function updateFontPreview() {
+  const hf = document.getElementById('headingFont').value;
+  const bf = document.getElementById('bodyFont').value;
+  document.getElementById('headingPreview').style.fontFamily = "'" + hf + "',sans-serif";
+  document.getElementById('bodyPreview').style.fontFamily = "'" + bf + "',sans-serif";
+  document.getElementById('pcProduct').style.fontFamily = "'" + hf + "',sans-serif";
+}
+
+// Materials multi-upload
+document.getElementById('materialsInput').addEventListener('change', function() {
+  const list = document.getElementById('materialsList');
+  Array.from(this.files).forEach(file => {
+    const tag = document.createElement('div');
+    tag.style.cssText = 'display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:6px;background:var(--d3);border:1px solid var(--border);font-size:10px;color:var(--text2)';
+    const isImage = file.type.startsWith('image/');
+    tag.innerHTML = '<span style="font-size:14px">' + (isImage ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>') + '</span><span style="font-weight:700">' + file.name + '</span><span style="color:var(--text3)">' + (file.size/1024).toFixed(0) + 'KB</span><button style="border:none;background:none;color:var(--red);cursor:pointer;font-size:12px;padding:0 2px" onclick="this.parentElement.remove()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>';
+    list.appendChild(tag);
+  });
+});
+
+// ── Brand Intelligence ──
+function biBrandUpload(input, id, label) {
+  const file = input.files[0];
+  if (!file) return;
+  const box = document.getElementById(id);
+  box.classList.add('has-file');
+  document.getElementById(id + 'File').textContent = '✓ ' + file.name + ' (' + (file.size/1024).toFixed(0) + 'KB)';
+}
+
+function biScanAll() {
+  const url = document.getElementById('biUrl').value;
+  const hasPack = document.getElementById('biPack').classList.contains('has-file');
+  const hasStyle = document.getElementById('biStyle').classList.contains('has-file');
+  
+  if (!hasPack && !hasStyle && !url) {
+    alert('Upload a brand pack, style guide, or enter your website URL for AI to learn your brand voice.');
+    return;
+  }
+
+  const progress = document.getElementById('biProgress');
+  const progressText = document.getElementById('biProgressText');
+  progress.style.display = 'block';
+
+  const steps = [];
+  if (hasPack) steps.push({text: 'Reading brand pack...', delay: 1200});
+  if (hasStyle) steps.push({text: 'Analysing style guide...', delay: 1400});
+  if (url) steps.push({text: 'Crawling ' + new URL(url).hostname + '...', delay: 1800});
+  steps.push({text: 'Extracting brand voice...', delay: 1500});
+  steps.push({text: 'Generating content rules...', delay: 1200});
+  steps.push({text: 'Building product content template...', delay: 1000});
+
+  let i = 0;
+  function nextStep() {
+    if (i >= steps.length) {
+      progress.style.display = 'none';
+      document.getElementById('biExtracted').classList.add('visible');
+      document.getElementById('biPreview').classList.add('visible');
+      document.getElementById('biExtTime').textContent = 'Just now';
+      return;
+    }
+    progressText.textContent = steps[i].text;
+    setTimeout(() => { i++; nextStep(); }, steps[i].delay);
+  }
+  nextStep();
+}
+
+const sampleDescs = [
+  "A tee that tells the truth. Crafted from 95% GOTS-certified organic cotton, grown without pesticides in Tamil Nadu, India. Knitted and dyed in Porto, Portugal using waterless dyeing technology that saves 95% of water compared to conventional methods. The 5% elastane gives it shape that lasts — designed for years, not seasons. Every thread is traceable. Every process verified. This is what honest fashion looks like.",
+  "Built to outlast trends. This tee starts with organic cotton from smallholder farms in India — each bale traceable to the field it grew in. We knit it tight in Portugal so it keeps its shape wash after wash. No toxic dyes. No synthetic shortcuts. Just a straightforward product made the right way, from soil to shelf.",
+  "95% organic cotton. 5% elastane. 100% transparent. Grown in Tamil Nadu, cut and sewn in Porto. We chose waterless dyeing because conventional methods waste 20,000 litres per tonne — ours uses 1,000. The result is a tee that fits well, feels better, and has nothing to hide. Scan the QR for the full story."
+];
+let descIdx = 0;
+
+function biRegenerate() {
+  descIdx = (descIdx + 1) % sampleDescs.length;
+  const el = document.getElementById('bsSampleDesc');
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.textContent = sampleDescs[descIdx];
+    el.style.opacity = '1';
+    el.style.transition = 'opacity .3s';
+  }, 200);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeStore — QR Code Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@property --angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--d3);border-radius:2px}
+:root{--royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;--green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--pink:#FF1B9A;--d0:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;--bdr:#2e2e38;--muted:#6b6b80;--dim:#9999b0}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--d0);color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseHighlight{0%,100%{box-shadow:0 0 0 0 rgba(179,84,241,0)}50%{box-shadow:0 0 0 4px rgba(179,84,241,.35)}}
+@keyframes spin-border{to{--angle:360deg}}
+
+/* ── Header ── */
+.header{background:var(--royal);padding:14px 24px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(179,84,241,.12),transparent 70%);pointer-events:none}
+.header-inner{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.header-divider{width:1px;height:20px;background:rgba(106, 20, 219, 0.15)}
+.header-tool{font-size:12px;font-weight:700;letter-spacing:.06em;color:rgba(240, 240, 245, 0.85)}
+.header-bar{height:3px;background:linear-gradient(90deg,var(--violet),var(--orchid),transparent)}
+
+/* ── Layout ── */
+.app{max-width:1100px;margin:0 auto;padding:32px 24px 60px;display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start}
+@media(max-width:800px){.app{grid-template-columns:1fr;max-width:500px}}
+.page-title{font-size:24px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px;grid-column:1/-1}
+.page-sub{font-size:13px;color:var(--dim);line-height:1.6;margin-bottom:24px;grid-column:1/-1}
+
+/* ── Panel ── */
+.panel{background:var(--d2);border:1px solid var(--bdr);border-radius:16px;padding:22px;animation:fadeUp .4s ease both}
+.panel-title{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.panel.highlight{border-color:var(--violet);animation:pulseHighlight 1.5s ease infinite}
+
+/* ── Fields ── */
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+label{display:block;font-size:11px;font-weight:800;color:var(--dim);margin-bottom:5px;letter-spacing:.02em}
+input[type="text"],input[type="number"],select{width:100%;background:var(--d0);border:1.5px solid var(--bdr);border-radius:10px;padding:10px 14px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:500;outline:none;transition:border-color .18s}
+input:focus,select:focus{border-color:var(--violet)}
+input::placeholder{color:var(--muted)}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%236b6b80' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+
+/* ── Colour ── */
+.color-row{display:flex;gap:10px;align-items:center}
+.color-swatch{width:36px;height:36px;border-radius:8px;border:2px solid var(--bdr);cursor:pointer;flex-shrink:0;position:relative;overflow:hidden}
+.color-swatch input[type="color"]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);cursor:pointer;border:none;opacity:0}
+.color-hex{flex:1}
+
+/* ── Domain ── */
+.domain-row{display:flex;gap:8px}.domain-row input{flex:1}
+.domain-status{font-size:10px;font-weight:700;margin-top:6px;line-height:1.5}
+.domain-status.ok{color:var(--green)}.domain-status.loading{color:var(--violet)}.domain-status.err{color:var(--pink)}
+.palette-preview{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.palette-chip{width:28px;height:28px;border-radius:6px;border:2px solid var(--bdr);cursor:pointer;transition:transform .12s,border-color .15s}
+.palette-chip:hover{transform:scale(1.15);border-color:var(--violet)}
+
+/* ── Style Grid ── */
+.style-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.style-opt{padding:8px 4px;border-radius:8px;border:1.5px solid var(--bdr);background:var(--d3);color:var(--dim);font-size:10px;font-weight:800;text-align:center;cursor:pointer;transition:all .15s}
+.style-opt:hover{border-color:rgba(179,84,241,.3);color:#fff}
+.style-opt.active{background:rgba(179,84,241,.1);border-color:rgba(179,84,241,.4);color:var(--violet)}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:12px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:12px;letter-spacing:.02em;cursor:pointer;transition:all .15s;padding:10px 18px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;box-shadow:0 4px 16px rgba(179,84,241,.3)}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-ghost{background:transparent;color:var(--dim);border:1.5px solid var(--bdr)}
+.btn-ghost:hover{border-color:var(--violet);color:#fff}
+.btn-green{background:linear-gradient(135deg,#1a9a84,var(--green));color:#fff;box-shadow:0 4px 12px rgba(40,183,157,.3)}
+.btn-green:hover{filter:brightness(1.1)}
+.btn-sm{padding:8px 14px;font-size:11px;border-radius:10px}
+.btn-save{width:100%;padding:16px;font-size:15px;border-radius:14px;margin-top:10px}
+
+/* ── Preview ── */
+.preview-panel{position:sticky;top:24px}
+.preview-zone{background: var(--d2);border-radius:14px;display:flex;align-items:center;justify-content:center;min-height:380px;margin-bottom:12px;position:relative;overflow:hidden;padding:16px}
+.preview-zone canvas,.preview-zone img,.preview-zone svg{display:block;max-width:100%;height:auto}
+.quiet-zone-info{font-size:10px;color:var(--muted);text-align:center;margin-bottom:12px;font-weight:600}
+.gs1-badge{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:800;color:var(--green);padding:8px 12px;background:rgba(40,183,157,.08);border:1px solid rgba(40,183,157,.2);border-radius:8px;margin-bottom:16px}
+
+/* ── Templates ── */
+.templates-section{margin-top:16px}
+.template-list{display:flex;flex-direction:column;gap:6px;margin-top:10px;max-height:200px;overflow-y:auto}
+.template-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--d3);border:1px solid var(--bdr);border-radius:10px;font-size:12px;font-weight:700;color:var(--dim);cursor:pointer;transition:all .15s}
+.template-row:hover{border-color:rgba(179,84,241,.3);color:#fff}
+.template-row.active{border-color:var(--violet);color:var(--violet);background:rgba(179,84,241,.05)}
+.template-row .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.template-row .del{color:var(--muted);font-size:14px;cursor:pointer;padding:0 4px;transition:color .15s}
+.template-row .del:hover{color:var(--pink)}
+
+/* ── Logo Upload ── */
+.logo-upload{display:flex;align-items:center;gap:10px}
+.logo-preview{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--bdr);background:var(--d3);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.logo-preview img{width:100%;height:100%;object-fit:contain}
+.logo-placeholder{font-size:16px;color:var(--muted)}
+
+/* ── Save Row ── */
+.save-row{display:flex;gap:8px;margin-top:10px}.save-row input{flex:1}
+
+/* ── Footer ── */
+.gen-footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);letter-spacing:.04em;grid-column:1/-1}
+
+/* ── Product Tour ── */
+.tour-backdrop{position:fixed;inset:0;z-index:3000;pointer-events:none;transition:opacity .3s;display:none}
+.tour-backdrop.active{pointer-events:auto;display:block}
+.tour-backdrop svg{position:absolute;inset:0;width:100%;height:100%}
+.tour-tooltip{
+  position:fixed;z-index:3002;background:var(--d2);border:1px solid var(--violet);
+  border-radius:16px;padding:24px;width:320px;max-width:calc(100vw - 32px);
+  box-shadow:0 8px 40px rgba(10, 10, 13, 0.65),0 0 0 1px rgba(179,84,241,.2);
+  opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s;
+  display:none;
+}
+.tour-tooltip.show{opacity:1;transform:translateY(0)}
+.tour-tooltip::before{
+  content:'';position:absolute;width:12px;height:12px;background:var(--d2);
+  border-left:1px solid var(--violet);border-top:1px solid var(--violet);
+  transform:rotate(45deg);
+}
+.tour-tooltip.arrow-top::before{bottom:-7px;left:28px;border-left:none;border-top:none;border-right:1px solid var(--violet);border-bottom:1px solid var(--violet)}
+.tour-tooltip.arrow-bottom::before{top:-7px;left:28px}
+.tour-tooltip.arrow-left::before{right:-7px;top:20px;border-left:none;border-bottom:none;border-right:1px solid var(--violet);border-top:1px solid var(--violet)}
+.tour-step-counter{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--violet);margin-bottom:10px}
+.tour-title{font-size:16px;font-weight:900;letter-spacing:-.3px;margin-bottom:6px}
+.tour-desc{font-size:12px;color:var(--dim);line-height:1.65;margin-bottom:18px}
+.tour-actions{display:flex;align-items:center;gap:8px}
+.tour-actions .btn{flex:1}
+.tour-skip{font-size:11px;color:var(--muted);cursor:pointer;font-weight:700;background:none;border:none;font-family:'Plus Jakarta Sans',sans-serif;padding:8px 12px;transition:color .15s}
+.tour-skip:hover{color:#fff}
+.tour-dismiss{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--bdr);font-size:11px;color:var(--muted)}
+.tour-dismiss input[type="checkbox"]{accent-color:var(--violet);cursor:pointer}
+.tour-target{position:relative;z-index:3001;border-radius:16px;box-shadow:0 0 0 4px rgba(179,84,241,.4),0 0 24px rgba(179,84,241,.15);transition:box-shadow .3s}
+</style>
+</head>
+<body>
+
+<!-- ══ PRODUCT TOUR ══ -->
+<div class="tour-backdrop" id="tourBackdrop">
+  <svg xmlns="http://www.w3.org/2000/svg"><defs><mask id="tourMask"><rect width="100%" height="100%" fill="white"/><rect id="tourHole" rx="16" ry="16" fill="black"/></mask></defs><rect width="100%" height="100%" fill="rgba(10,10,13,.88)" mask="url(#tourMask)"/></svg>
+</div>
+<div class="tour-tooltip" id="tourTooltip">
+  <div class="tour-step-counter" id="tourCounter">Step 1 of 3</div>
+  <div class="tour-title" id="tourTitle"></div>
+  <div class="tour-desc" id="tourDesc"></div>
+  <div class="tour-actions">
+    <button class="tour-skip" id="tourBack" onclick="tourPrev()">Back</button>
+    <button class="btn btn-primary" id="tourNext" onclick="tourNext()">Next</button>
+  </div>
+  <label class="tour-dismiss" id="tourDismissRow" style="display:none">
+    <input type="checkbox" id="tourDontShow"> Done. Don't show this again.
+  </label>
+</div>
+
+<!-- ══ HEADER — Official DeStore logo, white fill on Royal ══ -->
+<div class="header"><div class="header-inner">
+<svg width="110" height="20.7" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#fff"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#fff"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#fff"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#fff"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#fff"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#fff"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#fff"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#fff"/></svg>
+<div class="header-divider"></div><span class="header-tool">QR Code Designer</span></div></div>
+<div class="header-bar"></div>
+
+<div class="app">
+<h1 class="page-title">QR Code Designer</h1>
+<p class="page-sub">Design branded QR codes and save them as reusable templates. Templates can be selected in the GS1 QR Generator for batch production.</p>
+
+<!-- LEFT -->
+<div>
+<!-- Domain Search — gets .highlight class for 10s -->
+<div class="panel" id="domainPanel" style="animation-delay:.02s"><div class="panel-title">Step 1 · Brand Colour Search</div><div class="field"><label>Enter a domain to extract brand colours</label><div class="domain-row"><input type="text" id="domainInput" placeholder="nike.com" spellcheck="false"><button class="btn btn-green btn-sm" onclick="extractColours()" id="domainBtn">Search</button></div><div class="domain-status" id="domainStatus"></div><div class="palette-preview" id="palettePreview"></div></div></div>
+
+<!-- Colours -->
+<div class="panel" id="stylePanel" style="animation-delay:.06s;margin-top:14px"><div class="panel-title">Step 2 · Colours</div>
+<div class="field"><label>Foreground (dots)</label><div class="color-row"><div class="color-swatch" id="fgSwatch" style="background:var(--royal)"><input type="color" id="fgColor" value="#321B68" oninput="updateSwatch('fg');renderQR()"></div><input type="text" class="color-hex" id="fgHex" value="#321B68" maxlength="7" oninput="syncHex('fg');renderQR()"></div></div>
+<div class="field"><label>Background</label><div class="color-row"><div class="color-swatch" id="bgSwatch" style="background: var(--d2)"><input type="color" id="bgColor" value="#FFFFFF" oninput="updateSwatch('bg');renderQR()"></div><input type="text" class="color-hex" id="bgHex" value="#FFFFFF" maxlength="7" oninput="syncHex('bg');renderQR()"></div></div>
+<div class="field"><label>Corner eyes</label><div class="color-row"><div class="color-swatch" id="eyeSwatch" style="background:var(--orchid)"><input type="color" id="eyeColor" value="#6A14DB" oninput="updateSwatch('eye');renderQR()"></div><input type="text" class="color-hex" id="eyeHex" value="#6A14DB" maxlength="7" oninput="syncHex('eye');renderQR()"></div></div></div>
+
+<!-- Dot Style -->
+<div class="panel" style="animation-delay:.1s;margin-top:14px"><div class="panel-title">Dot Style</div><div class="style-grid" id="dotStyles"><div class="style-opt active" data-val="square" onclick="setOpt('dot',this)">Square</div><div class="style-opt" data-val="rounded" onclick="setOpt('dot',this)">Rounded</div><div class="style-opt" data-val="dots" onclick="setOpt('dot',this)">Circle</div><div class="style-opt" data-val="classy-rounded" onclick="setOpt('dot',this)">Diamond</div></div></div>
+
+<!-- Corner Style -->
+<div class="panel" style="animation-delay:.14s;margin-top:14px"><div class="panel-title">Corner Eye Style</div><div class="style-grid" id="eyeStyles" style="grid-template-columns:repeat(3,1fr)"><div class="style-opt active" data-val="square" onclick="setOpt('eye',this)">Square</div><div class="style-opt" data-val="extra-rounded" onclick="setOpt('eye',this)">Rounded</div><div class="style-opt" data-val="dot" onclick="setOpt('eye',this)">Circle</div></div></div>
+
+<!-- Logo -->
+<div class="panel" style="animation-delay:.18s;margin-top:14px"><div class="panel-title">Centre Logo (optional)</div><div class="logo-upload"><div class="logo-preview" id="logoPreview"><span class="logo-placeholder">+</span></div><div style="flex:1"><input type="file" id="logoFile" accept="image/*" style="display:none" onchange="handleLogo(event)"><button class="btn btn-ghost btn-sm" onclick="document.getElementById('logoFile').click()">Upload logo</button><button class="btn btn-ghost btn-sm" style="margin-left:4px" onclick="clearLogo()">Clear</button></div></div><div class="field" style="margin-top:10px"><label>Logo size (%)</label><input type="number" id="logoSize" value="20" min="5" max="35" oninput="renderQR()"></div></div>
+
+<!-- Settings -->
+<div class="panel" style="animation-delay:.22s;margin-top:14px"><div class="panel-title">Settings</div>
+<div class="field"><label>Error Correction</label><select id="ecLevel" onchange="renderQR()"><option value="H" selected>H — High (30%) — required with logo</option><option value="Q">Q — Quartile (25%)</option><option value="M">M — Medium (15%)</option><option value="L">L — Low (7%) — smallest QR</option></select></div>
+<div class="field"><label>Quiet Zone (modules)</label><select id="quietZone" onchange="renderQR()"><option value="4" selected>4 — GS1 minimum</option><option value="6">6 — comfortable</option><option value="8">8 — generous</option><option value="10">10 — maximum</option></select></div>
+<div class="field"><label>QR Size (px)</label><input type="number" id="qrSize" value="300" min="100" max="1000" step="50" oninput="renderQR()"></div>
+<div class="field"><label>Preview Data (GS1 Digital Link)</label><input type="text" id="previewData" value="https://qr.destore.network/01/09506000130001" oninput="renderQR()"></div></div>
+</div>
+
+<!-- RIGHT -->
+<div class="preview-panel">
+<div class="panel" id="previewPanel" style="animation-delay:.04s"><div class="panel-title">Live Preview</div>
+<div class="gs1-badge">◈ GS1 Digital Link compliant · EU ESPR DPP ready · Quiet zone: <span id="qzLabel">4</span> modules</div>
+<div class="preview-zone" id="previewZone"></div>
+<div class="quiet-zone-info">White border = quiet zone. GS1 requires minimum 4 modules for reliable scanning.</div></div>
+
+<!-- Templates -->
+<div class="panel templates-section" id="savePanel" style="animation-delay:.08s"><div class="panel-title">Step 3 · Save Template</div>
+<div class="save-row"><input type="text" id="templateName" placeholder="Template name..."></div>
+<button class="btn btn-primary btn-save" onclick="saveTemplate()">Save Template</button>
+<div class="template-list" id="templateList"></div>
+</div>
+</div>
+
+<!-- ══ FOOTER — Official DeStore logo, #6b6b80 fill (all 8 paths) ══ -->
+<div class="gen-footer">
+<svg width="100" height="18.9" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 8px"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#6b6b80"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#6b6b80"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#6b6b80"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#6b6b80"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#6b6b80"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#6b6b80"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#6b6b80"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#6b6b80"/></svg>
+Built for Circular Trade · Roam Free</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+let currentLogo=null,qrInstance=null,dotStyle='square',eyeStyle='square';
+
+// ─── INTERACTIVE PRODUCT TOUR ───
+const TOUR_STEPS = [
+  {
+    target: 'domainPanel',
+    title: 'Add your domain',
+    desc: 'Enter your brand\'s website and hit Search. We pull the favicon, extract your brand colours, and auto-apply them to the QR code. One click to match your identity.',
+    position: 'right'
+  },
+  {
+    target: 'stylePanel',
+    title: 'Adjust the style',
+    desc: 'Fine-tune foreground, background, and corner eye colours. Choose dot shapes (square, rounded, circle, diamond), corner styles, and optionally upload your logo to the centre of the QR.',
+    position: 'right'
+  },
+  {
+    target: 'previewPanel',
+    title: 'Live preview',
+    desc: 'Every change renders instantly. The preview shows exact GS1-compliant output with the quiet zone built in. What you see here is what gets generated in batch.',
+    position: 'left'
+  },
+  {
+    target: 'savePanel',
+    title: 'Name and save',
+    desc: 'Give your design a name and save it as a template. Your templates appear in the GS1 QR Generator for batch production. Create as many as you need.',
+    position: 'left'
+  }
+];
+
+let tourStep = 0;
+let tourActive = false;
+
+function startTour() {
+  if (localStorage.getItem('destore-qr-tour-done') === '1') return;
+  tourStep = 0;
+  tourActive = true;
+  const backdrop = document.getElementById('tourBackdrop');
+  const tooltip = document.getElementById('tourTooltip');
+  backdrop.style.display = 'block';
+  tooltip.style.display = 'block';
+  backdrop.classList.add('active');
+  showTourStep();
+}
+
+function showTourStep() {
+  const step = TOUR_STEPS[tourStep];
+  const target = document.getElementById(step.target);
+  const tooltip = document.getElementById('tourTooltip');
+  const backdrop = document.getElementById('tourBackdrop');
+  const hole = document.getElementById('tourHole');
+
+  // Remove previous highlights
+  document.querySelectorAll('.tour-target').forEach(el => el.classList.remove('tour-target'));
+
+  // Scroll target into view
+  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  setTimeout(() => {
+    // Highlight target
+    target.classList.add('tour-target');
+
+    // Position the hole in the SVG mask
+    const rect = target.getBoundingClientRect();
+    const pad = 8;
+    hole.setAttribute('x', rect.left - pad);
+    hole.setAttribute('y', rect.top - pad);
+    hole.setAttribute('width', rect.width + pad * 2);
+    hole.setAttribute('height', rect.height + pad * 2);
+
+    // Update tooltip content
+    document.getElementById('tourCounter').textContent = 'Step ' + (tourStep + 1) + ' of ' + TOUR_STEPS.length;
+    document.getElementById('tourTitle').textContent = step.title;
+    document.getElementById('tourDesc').textContent = step.desc;
+
+    // Button states
+    const backBtn = document.getElementById('tourBack');
+    const nextBtn = document.getElementById('tourNext');
+    const dismissRow = document.getElementById('tourDismissRow');
+
+    backBtn.style.display = tourStep === 0 ? 'none' : '';
+    backBtn.textContent = tourStep === 0 ? '' : 'Back';
+
+    if (tourStep === TOUR_STEPS.length - 1) {
+      nextBtn.textContent = 'Finish';
+      dismissRow.style.display = 'flex';
+    } else {
+      nextBtn.textContent = 'Next';
+      dismissRow.style.display = 'none';
+    }
+
+    // Position tooltip
+    tooltip.classList.remove('show', 'arrow-top', 'arrow-bottom', 'arrow-left');
+    tooltip.style.display = 'block';
+    
+    const ttWidth = 320;
+    let top, left;
+
+    if (step.position === 'right') {
+      top = rect.top + rect.height / 2 - 80;
+      left = rect.right + 20;
+      tooltip.classList.add('arrow-left');
+      // If overflows right, put below
+      if (left + ttWidth > window.innerWidth - 16) {
+        top = rect.bottom + 16;
+        left = rect.left;
+        tooltip.classList.remove('arrow-left');
+        tooltip.classList.add('arrow-bottom');
+      }
+    } else {
+      top = rect.top + rect.height / 2 - 80;
+      left = rect.left - ttWidth - 20;
+      tooltip.classList.add('arrow-left');
+      // If overflows left, put below
+      if (left < 16) {
+        top = rect.bottom + 16;
+        left = Math.max(16, rect.left);
+        tooltip.classList.remove('arrow-left');
+        tooltip.classList.add('arrow-bottom');
+      }
+    }
+
+    // Clamp to viewport
+    top = Math.max(16, Math.min(top, window.innerHeight - 280));
+    left = Math.max(16, Math.min(left, window.innerWidth - ttWidth - 16));
+
+    tooltip.style.top = top + 'px';
+    tooltip.style.left = left + 'px';
+
+    requestAnimationFrame(() => tooltip.classList.add('show'));
+  }, 350);
+}
+
+function tourNext() {
+  if (tourStep >= TOUR_STEPS.length - 1) {
+    endTour();
+    return;
+  }
+  tourStep++;
+  showTourStep();
+}
+
+function tourPrev() {
+  if (tourStep <= 0) return;
+  tourStep--;
+  showTourStep();
+}
+
+function endTour() {
+  if (document.getElementById('tourDontShow').checked) {
+    localStorage.setItem('destore-qr-tour-done', '1');
+  }
+  tourActive = false;
+  
+  // Remove highlight from all targets
+  document.querySelectorAll('.tour-target').forEach(el => el.classList.remove('tour-target'));
+  
+  // Hide tooltip
+  const tooltip = document.getElementById('tourTooltip');
+  tooltip.classList.remove('show');
+  tooltip.style.display = 'none';
+  
+  // Hide backdrop
+  const backdrop = document.getElementById('tourBackdrop');
+  backdrop.classList.remove('active');
+  backdrop.style.display = 'none';
+}
+
+// Handle resize — reposition if tour active
+window.addEventListener('resize', () => { if (tourActive) showTourStep(); });
+
+// Handle Escape
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && tourActive) endTour(); });
+
+// ─── COLOUR SYNC ───
+function updateSwatch(t){const c=document.getElementById(t+'Color').value;document.getElementById(t+'Swatch').style.background=c;document.getElementById(t+'Hex').value=c.toUpperCase()}
+function syncHex(t){const v=document.getElementById(t+'Hex').value;if(/^#[0-9a-fA-F]{6}$/.test(v)){document.getElementById(t+'Color').value=v;document.getElementById(t+'Swatch').style.background=v}}
+function setColor(t,hex){document.getElementById(t+'Hex').value=hex;document.getElementById(t+'Color').value=hex;document.getElementById(t+'Swatch').style.background=hex;renderQR()}
+
+// ─── DOMAIN COLOUR EXTRACTION ───
+async function extractColours(){
+  const domain=document.getElementById('domainInput').value.trim().replace(/^https?:\/\//,'').replace(/\/.*$/,'');
+  if(!domain)return;
+  const status=document.getElementById('domainStatus'),palette=document.getElementById('palettePreview'),btn=document.getElementById('domainBtn');
+  status.className='domain-status loading';status.textContent='Fetching brand colours from '+domain+'...';palette.innerHTML='';btn.textContent='...';btn.disabled=true;
+  try{
+    const faviconUrl='https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=128';
+    const img=new Image();img.crossOrigin='anonymous';
+    await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=faviconUrl});
+    const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;
+    const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
+    const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+    const counts={};
+    for(let i=0;i<data.length;i+=4){
+      const r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
+      if(a<128)continue;
+      const l=0.299*r+0.587*g+0.114*b;
+      if(l>240||l<15)continue;
+      const key=(Math.round(r/16)*16)+','+(Math.round(g/16)*16)+','+(Math.round(b/16)*16);
+      counts[key]=(counts[key]||0)+1;
+    }
+    const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    if(!sorted.length){status.className='domain-status err';status.textContent='Could not extract enough colours. Try a larger brand.';btn.textContent='Search';btn.disabled=false;return}
+    const colours=sorted.map(([rgb])=>{const[r,g,b]=rgb.split(',').map(Number);return'#'+[r,g,b].map(c=>Math.min(255,c).toString(16).padStart(2,'0')).join('')});
+    status.className='domain-status ok';status.textContent='Found '+colours.length+' brand colours. Click to apply as foreground.';
+    palette.innerHTML=colours.map(c=>'<div class="palette-chip" style="background:'+c+'" title="'+c+'" onclick="setColor(\'fg\',\''+c+'\')"></div>').join('');
+    const byDark=[...colours].sort((a,b)=>lum(a)-lum(b));
+    setColor('fg',byDark[0]);
+    if(byDark.length>1)setColor('eye',byDark[1]);
+  }catch(err){status.className='domain-status err';status.textContent='Could not reach '+domain+'. Check the domain and try again.'}
+  btn.textContent='Search';btn.disabled=false;
+}
+function lum(hex){return 0.299*parseInt(hex.slice(1,3),16)+0.587*parseInt(hex.slice(3,5),16)+0.114*parseInt(hex.slice(5,7),16)}
+document.getElementById('domainInput').addEventListener('keydown',function(e){if(e.key==='Enter')extractColours()});
+
+// ─── STYLE SELECTORS ───
+function setOpt(g,el){const p=g==='dot'?'dotStyles':'eyeStyles';document.querySelectorAll('#'+p+' .style-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');if(g==='dot')dotStyle=el.dataset.val;else eyeStyle=el.dataset.val;renderQR()}
+
+// ─── LOGO ───
+function handleLogo(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){currentLogo=ev.target.result;document.getElementById('logoPreview').innerHTML='<img src="'+currentLogo+'">';renderQR()};r.readAsDataURL(f)}
+function clearLogo(){currentLogo=null;document.getElementById('logoPreview').innerHTML='<span class="logo-placeholder">+</span>';document.getElementById('logoFile').value='';renderQR()}
+
+// ─── RENDER QR ───
+function renderQR(){
+  if(typeof QRCodeStyling==='undefined'){setTimeout(renderQR,300);return}
+  const data=document.getElementById('previewData').value||'https://qr.destore.network/01/09506000130001';
+  const size=parseInt(document.getElementById('qrSize').value)||300;
+  const fg=document.getElementById('fgHex').value||'#321B68';
+  const bg=document.getElementById('bgHex').value||'#FFFFFF';
+  const eyeCol=document.getElementById('eyeHex').value||'#6A14DB';
+  const ec=document.getElementById('ecLevel').value||'H';
+  const logoSz=parseInt(document.getElementById('logoSize').value)||20;
+  const qz=parseInt(document.getElementById('quietZone').value)||4;
+  document.getElementById('qzLabel').textContent=qz;
+  const marginPx=Math.round((size/25)*qz);
+  const opts={width:size,height:size,data:data,margin:marginPx,
+    dotsOptions:{color:fg,type:dotStyle},
+    backgroundOptions:{color:bg},
+    cornersSquareOptions:{color:eyeCol,type:eyeStyle},
+    cornersDotOptions:{color:eyeCol,type:eyeStyle==='dot'?'dot':'square'},
+    qrOptions:{errorCorrectionLevel:ec},
+    imageOptions:{crossOrigin:'anonymous',margin:4,imageSize:logoSz/100}
+  };
+  if(currentLogo)opts.image=currentLogo;
+  const zone=document.getElementById('previewZone');zone.innerHTML='';
+  qrInstance=new QRCodeStyling(opts);qrInstance.append(zone);
+}
+
+// ─── TEMPLATES ───
+function getTemplates(){try{return JSON.parse(localStorage.getItem('destore-qr-templates')||'[]')}catch(e){return[]}}
+function saveTemplates(a){localStorage.setItem('destore-qr-templates',JSON.stringify(a))}
+function getCurrentConfig(){return{fgColor:document.getElementById('fgHex').value,bgColor:document.getElementById('bgHex').value,eyeColor:document.getElementById('eyeHex').value,dotStyle,eyeStyle,ecLevel:document.getElementById('ecLevel').value,qrSize:parseInt(document.getElementById('qrSize').value),logoSize:parseInt(document.getElementById('logoSize').value),quietZone:parseInt(document.getElementById('quietZone').value)}}
+function applyConfig(c){setColor('fg',c.fgColor||'#321B68');setColor('bg',c.bgColor||'#FFFFFF');setColor('eye',c.eyeColor||'#6A14DB');dotStyle=c.dotStyle||'square';eyeStyle=c.eyeStyle||'square';document.querySelectorAll('#dotStyles .style-opt').forEach(o=>o.classList.toggle('active',o.dataset.val===dotStyle));document.querySelectorAll('#eyeStyles .style-opt').forEach(o=>o.classList.toggle('active',o.dataset.val===eyeStyle));document.getElementById('ecLevel').value=c.ecLevel||'H';document.getElementById('qrSize').value=c.qrSize||300;document.getElementById('logoSize').value=c.logoSize||20;document.getElementById('quietZone').value=c.quietZone||4;renderQR()}
+function saveTemplate(){const name=document.getElementById('templateName').value.trim();if(!name){document.getElementById('templateName').style.borderColor='var(--pink)';setTimeout(()=>document.getElementById('templateName').style.borderColor='var(--bdr)',1500);return}const ts=getTemplates(),ex=ts.findIndex(t=>t.name===name),entry={name,config:getCurrentConfig(),savedAt:new Date().toISOString()};if(ex>=0)ts[ex]=entry;else ts.push(entry);saveTemplates(ts);document.getElementById('templateName').value='';renderTemplateList()}
+function loadTemplate(n){const t=getTemplates().find(t=>t.name===n);if(t)applyConfig(t.config);renderTemplateList(n)}
+function deleteTemplate(n,e){e.stopPropagation();saveTemplates(getTemplates().filter(t=>t.name!==n));renderTemplateList()}
+function renderTemplateList(active){const ts=getTemplates(),list=document.getElementById('templateList');if(!ts.length){list.innerHTML='<div style="font-size:11px;color:var(--muted);padding:8px 0">No saved templates yet.</div>';return}list.innerHTML=ts.map(t=>{const e=t.name.replace(/'/g,"\\'").replace(/"/g,'&quot;');return'<div class="template-row'+(t.name===active?' active':'')+'" onclick="loadTemplate(\''+e+'\')"><span class="name">'+t.name+'</span><span class="del" onclick="deleteTemplate(\''+e+'\',event)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span></div>'}).join('')}
+
+// ─── SEED DEFAULTS ───
+(function(){if(getTemplates().length>0)return;const d=[
+{name:'DeStore Royal',config:{fgColor:'#321B68',bgColor:'#FFFFFF',eyeColor:'#6A14DB',dotStyle:'square',eyeStyle:'square',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}},
+{name:'DeStore Violet',config:{fgColor:'#6A14DB',bgColor:'#FFFFFF',eyeColor:'#B354F1',dotStyle:'rounded',eyeStyle:'extra-rounded',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}},
+{name:'DeStore Green',config:{fgColor:'#1a9a84',bgColor:'#FFFFFF',eyeColor:'#28B79D',dotStyle:'dots',eyeStyle:'dot',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}},
+{name:'Monochrome',config:{fgColor:'#000000',bgColor:'#FFFFFF',eyeColor:'#000000',dotStyle:'square',eyeStyle:'square',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}}
+];d.forEach(x=>x.savedAt=new Date().toISOString());saveTemplates(d)})();
+renderTemplateList();
+
+// ─── INIT ───
+window.addEventListener('load',function(){
+  setTimeout(renderQR,300);
+  setTimeout(startTour,800);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeStore · Team Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;
+  --green:#28B79D;--greenAlt:#2FB457;--orange:#FF9F46;--pink:#FF1B9A;
+  --d0:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;
+  --bdr:#2e2e38;--muted:#6b6b80;--dim:#9999b0;
+}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--d0);color:var(--d4);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+nav{height:52px;background:var(--d2);display:flex;align-items:center;padding:0 20px;gap:12px;border-bottom:1px solid var(--bdr)}
+nav svg{height:18px}
+nav .sep{width:1px;height:24px;background:var(--bdr)}
+nav .label{font-size:12px;font-weight:700;color:var(--dim)}
+nav .brand-name{font-size:13px;font-weight:900;color:var(--violet);margin-left:auto}
+nav .user-chip{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;background:var(--d3);border:1px solid var(--bdr);margin-left:8px}
+nav .user-chip .uc-avatar{width:24px;height:24px;border-radius:8px;background:var(--orchid);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff}
+nav .user-chip .uc-name{font-size:11px;font-weight:700}
+.grad{height:3px;background:linear-gradient(90deg,var(--orchid),var(--violet),var(--green))}
+
+.page{max-width:960px;margin:0 auto;padding:32px 24px 80px}
+.pg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px}
+.pg-title{font-size:28px;font-weight:900;letter-spacing:-.5px}
+.pg-sub{font-size:13px;color:var(--muted);margin-top:2px}
+
+.btn{padding:10px 20px;border-radius:12px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid var(--bdr);color:var(--dim)}
+.btn-outline:hover{border-color:var(--violet);color:#fff}
+.btn-sm{padding:6px 14px;font-size:10px;border-radius:8px}
+.btn-green{background:linear-gradient(135deg,#1a9a84,var(--green));color:#fff}
+.btn-orange{background:linear-gradient(135deg,#cc7e38,var(--orange));color:#fff}
+.btn-danger{background:rgba(220,0,0,.08);border:1.5px solid rgba(220,0,0,.25);color:var(--red)}
+.btn-danger:hover{background:rgba(220,0,0,.15)}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:4px;margin-bottom:28px;border-bottom:2px solid var(--bdr);padding-bottom:0}
+.tab{padding:10px 20px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab:hover{color:#fff}
+.tab.active{color:var(--violet);border-bottom-color:var(--violet)}
+.tab .tab-count{font-size:10px;font-weight:900;background:var(--d4);padding:2px 7px;border-radius:5px;margin-left:8px}
+.tab.active .tab-count{background:rgba(106,20,219,.15);color:var(--violet)}
+
+/* ── Section ── */
+.section{display:none}
+.section.active{display:block}
+
+/* ── Member Cards ── */
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.member-card{background:var(--d2);border:1.5px solid var(--bdr);border-radius:16px;padding:20px;transition:all .2s}
+.member-card:hover{border-color:rgba(179,84,241,.2);transform:translateY(-1px)}
+.mc-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.mc-avatar{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;flex-shrink:0}
+.mc-name{font-size:14px;font-weight:800}
+.mc-email{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.mc-role{margin-left:auto}
+.role-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:800}
+.role-badge.owner{background:rgba(106,20,219,.1);color:var(--violet);border:1px solid rgba(106,20,219,.2)}
+.role-badge.team{background:rgba(40,183,157,.1);color:var(--green);border:1px solid rgba(40,183,157,.2)}
+.role-badge.officer{background:rgba(255,159,70,.1);color:var(--orange);border:1px solid rgba(255,159,70,.2)}
+
+.mc-details{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.mc-field{font-size:10px}
+.mc-field .mcf-label{color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.mc-field .mcf-val{font-weight:700;margin-top:1px;font-size:11px}
+.mc-actions{display:flex;gap:6px;padding-top:14px;border-top:1px solid var(--bdr)}
+
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:6px}
+.status-pill.active{background:rgba(40,183,157,.08);color:var(--green);border:1px solid rgba(40,183,157,.2)}
+.status-pill.pending{background:rgba(255,159,70,.08);color:var(--orange);border:1px solid rgba(255,159,70,.2)}
+.status-pill .sp-dot{width:6px;height:6px;border-radius:50%}
+.status-pill.active .sp-dot{background:var(--green)}
+.status-pill.pending .sp-dot{background:var(--orange)}
+
+/* ── Pending Reviews ── */
+.review-list{display:flex;flex-direction:column;gap:12px}
+.review-card{background:var(--d2);border:1.5px solid var(--bdr);border-radius:14px;padding:18px;display:flex;align-items:center;gap:16px}
+.review-card:hover{border-color:rgba(255,159,70,.2)}
+.rv-product{flex:1}
+.rv-name{font-size:14px;font-weight:800}
+.rv-sku{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.rv-score{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0}
+.rv-officer{display:flex;align-items:center;gap:8px;font-size:11px}
+.rv-officer .rv-av{width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff;background:var(--orange)}
+.rv-status{padding:4px 10px;border-radius:6px;font-size:10px;font-weight:800;flex-shrink:0}
+.rv-status.approved{background:rgba(40,183,157,.1);color:var(--green);border:1px solid rgba(40,183,157,.2)}
+.rv-status.pending{background:rgba(255,159,70,.1);color:var(--orange);border:1px solid rgba(255,159,70,.2)}
+.rv-status.changes{background:rgba(179,84,241,.1);color:var(--violet);border:1px solid rgba(179,84,241,.2)}
+
+/* ── Empty State ── */
+.empty{text-align:center;padding:48px 24px}
+.empty .em-icon{font-size:40px;margin-bottom:12px}
+.empty .em-title{font-size:16px;font-weight:800;margin-bottom:4px}
+.empty .em-desc{font-size:12px;color:var(--muted);max-width:360px;margin:0 auto 20px;line-height:1.6}
+
+/* ── Modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10, 10, 13, 0.65);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--d2);border:1.5px solid var(--bdr);border-radius:22px;padding:32px;width:480px;max-width:90vw;max-height:85vh;overflow-y:auto;animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal h3{font-size:18px;font-weight:900;letter-spacing:-.3px;margin-bottom:4px}
+.modal .m-sub{font-size:11px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.modal .field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.modal label{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.modal input,.modal select{background:var(--d0);border:1.5px solid var(--bdr);border-radius:10px;padding:10px 14px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none}
+.modal input:focus,.modal select:focus{border-color:var(--violet)}
+.modal .m-actions{display:flex;gap:8px;margin-top:20px}
+.modal .m-actions .btn{flex:1}
+.modal .m-note{font-size:10px;color:var(--dim);line-height:1.6;padding:10px;background:var(--d3);border:1px solid var(--bdr);border-radius:10px;margin-top:12px}
+</style>
+</head>
+<body>
+
+<nav>
+<svg viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#9999b0"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#9999b0"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#9999b0"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#9999b0"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#9999b0"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#9999b0"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#9999b0"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#9999b0"/></svg>
+<div class="sep"></div>
+<span class="label">Team Management</span>
+<span class="brand-name">EcoThreads</span>
+<div class="user-chip">
+  <div class="uc-avatar">LM</div>
+  <div class="uc-name">Lena Müller</div>
+</div>
+</nav>
+<div class="grad"></div>
+
+<div class="page">
+
+  <!-- Brand Identity Bar -->
+  <div style="display:flex;align-items:center;gap:20px;padding:24px;background:var(--d2);border:1.5px solid var(--bdr);border-radius:18px;margin-bottom:28px">
+    <div id="brandLogoWrap" style="position:relative;width:64px;height:64px;border-radius:14px;border:2px dashed var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;overflow:hidden;transition:border-color .15s;background:var(--d3)" onclick="document.getElementById('logoUpload').click()" onmouseenter="this.style.borderColor='var(--violet)'" onmouseleave="this.style.borderColor='var(--bdr)'">
+      <div id="logoPlaceholder" style="text-align:center">
+        <div style="font-size:20px;margin-bottom:2px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+        <div style="font-size:7px;font-weight:800;color:var(--muted);letter-spacing:.04em">UPLOAD<br>LOGO</div>
+      </div>
+      <img id="brandLogoImg" style="display:none;width:100%;height:100%;object-fit:contain;padding:6px" alt="Brand logo">
+      <input type="file" id="logoUpload" accept="image/*" style="display:none" onchange="handleLogoUpload(this)">
+    </div>
+    <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <span style="font-size:22px;font-weight:900;letter-spacing:-.4px" id="brandDisplayName">EcoThreads</span>
+        <span style="font-size:9px;font-weight:900;padding:3px 10px;border-radius:6px;background:rgba(40,183,157,.1);color:var(--green);border:1px solid rgba(40,183,157,.2);letter-spacing:.06em">✦ GROWTH TIER</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">Sustainable textiles · Berlin, Germany · 12 products · 4 team members</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+      <button class="btn btn-outline btn-sm" onclick="alert('Opens brand settings: logo, colour palette, branding pack')">Brand Settings</button>
+      <button class="btn btn-outline btn-sm" style="font-size:9px;color:var(--muted)" onclick="document.getElementById('logoUpload').click()">Change Logo</button>
+    </div>
+  </div>
+
+  <div class="pg-header">
+    <div>
+      <div class="pg-title">Your Team</div>
+      <div class="pg-sub">Manage team members, invite compliance officers, and track DPP reviews.</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-green" onclick="openModal('inviteTeam')">+ Team Member</button>
+      <button class="btn btn-orange" onclick="openModal('inviteOfficer')">+ Compliance Officer</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'team')">Team<span class="tab-count" id="teamCount">3</span></div>
+    <div class="tab" onclick="switchTab(this,'officers')">Compliance Officers<span class="tab-count" id="officerCount">1</span></div>
+    <div class="tab" onclick="switchTab(this,'reviews')">DPP Reviews<span class="tab-count" id="reviewCount">4</span></div>
+  </div>
+
+  <!-- TEAM TAB -->
+  <div class="section active" id="sec-team">
+    <div class="member-grid" id="teamGrid"></div>
+  </div>
+
+  <!-- OFFICERS TAB -->
+  <div class="section" id="sec-officers">
+    <div class="member-grid" id="officerGrid"></div>
+  </div>
+
+  <!-- REVIEWS TAB -->
+  <div class="section" id="sec-reviews">
+    <div class="review-list" id="reviewList"></div>
+  </div>
+</div>
+
+<!-- Invite Team Member Modal -->
+<div class="modal-overlay" id="inviteTeamModal">
+  <div class="modal">
+    <h3>Invite Team Member</h3>
+    <div class="m-sub">Add a team member to EcoThreads. They'll be able to create products, run AI onboarding, and manage DPP workflows.</div>
+    <div class="field"><label>Full Name</label><input type="text" placeholder="Alex Rivera" id="it-name"></div>
+    <div class="field"><label>Email</label><input type="email" placeholder="alex@ecothreads.eu" id="it-email"></div>
+    <div class="m-note">Team members can create products, run AI onboarding, configure DPP workflows, and issue DPPs. They cannot manage billing, invite compliance officers, or change brand settings.</div>
+    <div class="m-actions">
+      <button class="btn btn-outline" onclick="closeModal('inviteTeam')">Cancel</button>
+      <button class="btn btn-green" onclick="sendTeamInvite()">Send Invitation</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invite Compliance Officer Modal -->
+<div class="modal-overlay" id="inviteOfficerModal">
+  <div class="modal">
+    <h3>Invite Compliance Officer</h3>
+    <div class="m-sub">Invite an external reviewer to verify your DPP Preliminary Reports. Their approval is permanently recorded with a digital signature and on-chain event.</div>
+    <div class="field"><label>Full Name</label><input type="text" placeholder="Dr. Sarah Chen" id="io-name"></div>
+    <div class="field"><label>Email</label><input type="email" placeholder="sarah@greenaudit.com.au" id="io-email"></div>
+    <div class="field"><label>Title</label><input type="text" placeholder="Senior Sustainability Consultant" id="io-title"></div>
+    <div class="field"><label>Company</label><input type="text" placeholder="GreenAudit Pty Ltd" id="io-company"></div>
+    <div class="field">
+      <label>Products to Review</label>
+      <select id="io-scope">
+        <option value="all">All pending DPPs</option>
+        <option value="collection">Winter 2026 Collection only</option>
+      </select>
+    </div>
+    <div class="m-note">The officer will receive an email with a review link. They can view reports, add reviewer notes, and approve or request changes. They cannot edit product data, create products, or access billing. Their approval is captured with timestamp, SHA-256 hash, digital signature, and on-chain Soneium event.</div>
+    <div class="m-actions">
+      <button class="btn btn-outline" onclick="closeModal('inviteOfficer')">Cancel</button>
+      <button class="btn btn-orange" onclick="sendOfficerInvite()">Send Invitation</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Role Modal -->
+<div class="modal-overlay" id="editRoleModal">
+  <div class="modal">
+    <h3>Edit Role</h3>
+    <div class="m-sub" id="er-sub">Change the role for this team member.</div>
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--d3);border-radius:12px;margin-bottom:18px">
+      <div id="er-avatar" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff"></div>
+      <div>
+        <div id="er-name" style="font-size:14px;font-weight:800"></div>
+        <div id="er-email" style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace"></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Current Role</label>
+      <div id="er-current" style="padding:10px 14px;background:var(--d0);border-radius:10px;font-size:13px;font-weight:700;border:1.5px solid var(--bdr)"></div>
+    </div>
+    <div class="field">
+      <label>New Role</label>
+      <select id="er-newRole">
+        <option value="owner"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Brand Owner</option>
+        <option value="team"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Team Member</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="er-title" placeholder="e.g. Product Manager">
+    </div>
+    <div class="m-note">Changing a member's role takes effect immediately. Brand Owner role grants full access including billing, invites, and brand settings. Team Member role restricts to product creation and DPP workflow only.</div>
+    <div class="m-actions">
+      <button class="btn btn-outline" onclick="closeModal('editRole')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRoleEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Remove Member Modal -->
+<div class="modal-overlay" id="removeMemberModal">
+  <div class="modal">
+    <h3 style="color:var(--red)">Remove Team Member</h3>
+    <div class="m-sub">This action removes their access to EcoThreads on DeStore.</div>
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(220,0,0,.04);border:1.5px solid rgba(220,0,0,.15);border-radius:12px;margin-bottom:18px">
+      <div id="rm-avatar" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff"></div>
+      <div>
+        <div id="rm-name" style="font-size:14px;font-weight:800"></div>
+        <div id="rm-email" style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace"></div>
+      </div>
+      <span id="rm-role" class="role-badge" style="margin-left:auto"></span>
+    </div>
+    <div style="font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:14px">
+      <strong style="color:var(--red)">What happens:</strong>
+      <ul style="list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:6px">
+        <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;display:inline-flex;color:var(--red)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span> They lose access to all EcoThreads data on DeStore</li>
+        <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;display:inline-flex;color:var(--red)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span> They can no longer create products or generate reports</li>
+        <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;display:inline-flex;color:var(--green)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Products they created remain unchanged</li>
+        <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;display:inline-flex;color:var(--green)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Their DeStore account continues to exist</li>
+      </ul>
+    </div>
+    <div class="field">
+      <label>Type the member's name to confirm</label>
+      <input type="text" id="rm-confirm" placeholder="Type name here..." oninput="checkRemoveConfirm()">
+    </div>
+    <div class="m-actions">
+      <button class="btn btn-outline" onclick="closeModal('removeMember')">Cancel</button>
+      <button class="btn btn-danger" id="rm-btn" style="opacity:.4;pointer-events:none" onclick="confirmRemove()">Remove Member</button>
+    </div>
+  </div>
+</div>
+
+<!-- Revoke Officer Modal -->
+<div class="modal-overlay" id="revokeOfficerModal">
+  <div class="modal">
+    <h3 style="color:var(--red)">Revoke Compliance Officer Access</h3>
+    <div class="m-sub">Remove this officer's ability to review and approve your DPPs.</div>
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(220,0,0,.04);border:1.5px solid rgba(220,0,0,.15);border-radius:12px;margin-bottom:18px">
+      <div id="ro-avatar" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;background:var(--orange)"></div>
+      <div>
+        <div id="ro-name" style="font-size:14px;font-weight:800"></div>
+        <div id="ro-company" style="font-size:11px;color:var(--muted)"></div>
+      </div>
+      <span class="role-badge officer" style="margin-left:auto"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Officer</span>
+    </div>
+    <div style="font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:14px">
+      <strong style="color:var(--red)">What happens:</strong>
+      <ul style="list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:6px">
+        <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;display:inline-flex;color:var(--red)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span> They can no longer review or approve DPPs for EcoThreads</li>
+        <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;display:inline-flex;color:var(--red)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span> Any pending reviews from this officer will be unassigned</li>
+        <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;display:inline-flex;color:var(--green)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Previous approvals remain valid and on-chain</li>
+        <li style="padding-left:16px;position:relative"><span style="position:absolute;left:0;display:inline-flex;color:var(--green)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Their DeStore account continues to exist</li>
+      </ul>
+    </div>
+    <div class="m-actions">
+      <button class="btn btn-outline" onclick="closeModal('revokeOfficer')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmRevoke()">Revoke Access</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+// ─── LOGO UPLOAD ───
+function handleLogoUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.getElementById('brandLogoImg');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+    document.getElementById('brandLogoWrap').style.borderStyle = 'solid';
+    document.getElementById('brandLogoWrap').style.borderColor = 'var(--bdr)';
+    document.getElementById('brandLogoWrap').style.background = 'var(--d0)';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── MOCK DATA ───
+const teamMembers = [
+  { name:'Lena Müller', email:'lena@ecothreads.eu', role:'owner', status:'active', avatar:'LM', bg:'var(--orchid)', title:'CEO', joined:'Mar 2026', lastActive:'1 hr ago', products:12 },
+  { name:'Tom Nguyen', email:'tom@ecothreads.eu', role:'team', status:'active', avatar:'TN', bg:'var(--green)', title:'Product Manager', joined:'Mar 2026', lastActive:'3 hrs ago', products:8 },
+  { name:'Maya Santos', email:'maya@ecothreads.eu', role:'team', status:'active', avatar:'MS', bg:'var(--green)', title:'Operations Lead', joined:'Mar 2026', lastActive:'1 day ago', products:5 },
+];
+
+const officers = [
+  { name:'Sarah Chen', email:'sarah@greenaudit.com.au', role:'officer', status:'active', avatar:'SC', bg:'var(--orange)', title:'Senior Sustainability Consultant', company:'GreenAudit Pty Ltd', joined:'Mar 2026', lastActive:'5 hrs ago', reviewed:4, approved:3 },
+];
+
+const reviews = [
+  { product:'Organic Cotton Tee', sku:'ECO-TEE-001', score:89, scoreColor:'var(--green)', officer:'Sarah Chen', officerAvatar:'SC', status:'approved', date:'12 Mar 2026' },
+  { product:'Recycled Denim Jacket', sku:'ECO-DNM-002', score:62, scoreColor:'var(--violet)', officer:'Sarah Chen', officerAvatar:'SC', status:'changes', date:'11 Mar 2026' },
+  { product:'Hemp Cargo Pants', sku:'ECO-HMP-003', score:74, scoreColor:'var(--violet)', officer:'Sarah Chen', officerAvatar:'SC', status:'pending', date:'13 Mar 2026' },
+  { product:'Bamboo Blend Hoodie', sku:'ECO-BAM-004', score:45, scoreColor:'var(--orange)', officer:'—', officerAvatar:'?', status:'pending', date:'14 Mar 2026' },
+];
+
+// ─── RENDER ───
+function renderTeam() {
+  document.getElementById('teamGrid').innerHTML = teamMembers.map(m => `
+    <div class="member-card">
+      <div class="mc-head">
+        <div class="mc-avatar" style="background:${m.bg}">${m.avatar}</div>
+        <div>
+          <div class="mc-name">${m.name}</div>
+          <div class="mc-email">${m.email}</div>
+        </div>
+        <div class="mc-role"><span class="role-badge ${m.role}">${m.role==='owner'?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Owner':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Team'}</span></div>
+      </div>
+      <div class="mc-details">
+        <div class="mc-field"><div class="mcf-label">Title</div><div class="mcf-val">${m.title}</div></div>
+        <div class="mc-field"><div class="mcf-label">Status</div><div class="mcf-val"><span class="status-pill ${m.status}"><span class="sp-dot"></span>${m.status}</span></div></div>
+        <div class="mc-field"><div class="mcf-label">Joined</div><div class="mcf-val">${m.joined}</div></div>
+        <div class="mc-field"><div class="mcf-label">Products Created</div><div class="mcf-val">${m.products}</div></div>
+      </div>
+      <div class="mc-actions">
+        <button class="btn btn-outline btn-sm" style="flex:1" onclick="openEditRole('${m.name}','${m.email}','${m.role}','${m.avatar}','${m.bg}','${m.title}')">Edit Role</button>
+        ${m.role!=='owner'?`<button class="btn btn-danger btn-sm" onclick="openRemoveMember('${m.name}','${m.email}','${m.role}','${m.avatar}','${m.bg}')">Remove</button>`:''}
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('teamCount').textContent = teamMembers.length;
+}
+
+function renderOfficers() {
+  if (!officers.length) {
+    document.getElementById('officerGrid').innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <div class="em-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="em-title">No compliance officers yet</div>
+        <div class="em-desc">Invite an external reviewer to verify your DPP Preliminary Reports. Their approval adds a verified badge and permanent audit trail to your DPPs.</div>
+        <button class="btn btn-orange" onclick="openModal('inviteOfficer')">+ Invite Compliance Officer</button>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('officerGrid').innerHTML = officers.map(o => `
+    <div class="member-card">
+      <div class="mc-head">
+        <div class="mc-avatar" style="background:${o.bg}">${o.avatar}</div>
+        <div>
+          <div class="mc-name">${o.name}</div>
+          <div class="mc-email">${o.email}</div>
+        </div>
+        <div class="mc-role"><span class="role-badge officer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Officer</span></div>
+      </div>
+      <div class="mc-details">
+        <div class="mc-field"><div class="mcf-label">Title</div><div class="mcf-val">${o.title}</div></div>
+        <div class="mc-field"><div class="mcf-label">Company</div><div class="mcf-val">${o.company}</div></div>
+        <div class="mc-field"><div class="mcf-label">Status</div><div class="mcf-val"><span class="status-pill ${o.status}"><span class="sp-dot"></span>${o.status}</span></div></div>
+        <div class="mc-field"><div class="mcf-label">Joined</div><div class="mcf-val">${o.joined}</div></div>
+        <div class="mc-field"><div class="mcf-label">DPPs Reviewed</div><div class="mcf-val">${o.reviewed}</div></div>
+        <div class="mc-field"><div class="mcf-label">DPPs Approved</div><div class="mcf-val" style="color:var(--green)">${o.approved}</div></div>
+      </div>
+      <div class="mc-actions">
+        <button class="btn btn-outline btn-sm" style="flex:1" onclick="openReviewHistory('${o.name}')">Review History</button>
+        <button class="btn btn-danger btn-sm" onclick="openRevokeOfficer('${o.name}','${o.company}','${o.avatar}')">Revoke</button>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('officerCount').textContent = officers.length;
+}
+
+function renderReviews() {
+  document.getElementById('reviewList').innerHTML = reviews.map(r => `
+    <div class="review-card">
+      <div class="rv-score" style="background:${r.scoreColor}15;color:${r.scoreColor};border:1.5px solid ${r.scoreColor}30">${r.score}%</div>
+      <div class="rv-product">
+        <div class="rv-name">${r.product}</div>
+        <div class="rv-sku">${r.sku} · Sent ${r.date}</div>
+      </div>
+      <div class="rv-officer">
+        <div class="rv-av">${r.officerAvatar}</div>
+        <span style="color:var(--dim)">${r.officer}</span>
+      </div>
+      <span class="rv-status ${r.status}">${r.status==='approved'?'✓ Approved':r.status==='changes'?'◈ Changes Requested':'⏳ Pending'}</span>
+    </div>
+  `).join('');
+  document.getElementById('reviewCount').textContent = reviews.length;
+}
+
+// ─── TABS ───
+function switchTab(el, tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('sec-'+tab).classList.add('active');
+}
+
+// ─── MODALS ───
+function openModal(name) { document.getElementById(name+'Modal').classList.add('open'); }
+function closeModal(name) { document.getElementById(name+'Modal').classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); });
+});
+
+function sendTeamInvite() {
+  const name = document.getElementById('it-name').value;
+  const email = document.getElementById('it-email').value;
+  if (!name || !email) { alert('Please fill all fields'); return; }
+  const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  teamMembers.push({ name, email, role:'team', status:'pending', avatar:initials, bg:'var(--green)', title:'Team Member', joined:'—', lastActive:'Invited just now', products:0 });
+  closeModal('inviteTeam');
+  renderTeam();
+  document.getElementById('it-name').value = '';
+  document.getElementById('it-email').value = '';
+  alert(`Invitation sent to ${email}. They'll receive an email with a link to join your team.`);
+}
+
+function sendOfficerInvite() {
+  const name = document.getElementById('io-name').value;
+  const email = document.getElementById('io-email').value;
+  const title = document.getElementById('io-title').value;
+  const company = document.getElementById('io-company').value;
+  if (!name || !email) { alert('Please fill name and email'); return; }
+  const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  officers.push({ name, email, role:'officer', status:'pending', avatar:initials, bg:'var(--orange)', title:title||'Compliance Officer', company:company||'—', joined:'—', lastActive:'Invited just now', reviewed:0, approved:0 });
+  closeModal('inviteOfficer');
+  renderOfficers();
+  ['io-name','io-email','io-title','io-company'].forEach(id => document.getElementById(id).value='');
+  alert(`Invitation sent to ${email}. They'll receive an email with a link to review your DPP reports.`);
+}
+
+// ─── EDIT ROLE MODAL ───
+let editTarget = null;
+function openEditRole(name, email, role, avatar, bg, title) {
+  editTarget = { name, email, role };
+  document.getElementById('er-avatar').textContent = avatar;
+  document.getElementById('er-avatar').style.background = bg;
+  document.getElementById('er-name').textContent = name;
+  document.getElementById('er-email').textContent = email;
+  document.getElementById('er-current').innerHTML = role==='owner'?'<span class="role-badge owner"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Brand Owner</span>':'<span class="role-badge team"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Team Member</span>';
+  document.getElementById('er-newRole').value = role;
+  document.getElementById('er-title').value = title || '';
+  document.getElementById('er-sub').textContent = `Change the role for ${name}.`;
+  openModal('editRole');
+}
+
+function saveRoleEdit() {
+  if (!editTarget) return;
+  const newRole = document.getElementById('er-newRole').value;
+  const newTitle = document.getElementById('er-title').value;
+  const member = teamMembers.find(m => m.email === editTarget.email);
+  if (member) {
+    member.role = newRole;
+    member.bg = newRole === 'owner' ? 'var(--orchid)' : 'var(--green)';
+    if (newTitle) member.title = newTitle;
+  }
+  closeModal('editRole');
+  renderTeam();
+}
+
+// ─── REMOVE MEMBER MODAL ───
+let removeTarget = null;
+function openRemoveMember(name, email, role, avatar, bg) {
+  removeTarget = { name, email };
+  document.getElementById('rm-avatar').textContent = avatar;
+  document.getElementById('rm-avatar').style.background = bg;
+  document.getElementById('rm-name').textContent = name;
+  document.getElementById('rm-email').textContent = email;
+  document.getElementById('rm-role').innerHTML = role==='team'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Team':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Owner';
+  document.getElementById('rm-role').className = 'role-badge ' + role;
+  document.getElementById('rm-confirm').value = '';
+  document.getElementById('rm-btn').style.opacity = '.4';
+  document.getElementById('rm-btn').style.pointerEvents = 'none';
+  openModal('removeMember');
+}
+
+function checkRemoveConfirm() {
+  if (!removeTarget) return;
+  const val = document.getElementById('rm-confirm').value.trim();
+  const match = val.toLowerCase() === removeTarget.name.toLowerCase();
+  document.getElementById('rm-btn').style.opacity = match ? '1' : '.4';
+  document.getElementById('rm-btn').style.pointerEvents = match ? 'auto' : 'none';
+}
+
+function confirmRemove() {
+  if (!removeTarget) return;
+  const idx = teamMembers.findIndex(m => m.email === removeTarget.email);
+  if (idx > -1) teamMembers.splice(idx, 1);
+  closeModal('removeMember');
+  renderTeam();
+}
+
+// ─── REVOKE OFFICER MODAL ───
+let revokeTarget = null;
+function openRevokeOfficer(name, company, avatar) {
+  revokeTarget = { name };
+  document.getElementById('ro-avatar').textContent = avatar;
+  document.getElementById('ro-name').textContent = name;
+  document.getElementById('ro-company').textContent = company;
+  openModal('revokeOfficer');
+}
+
+function confirmRevoke() {
+  if (!revokeTarget) return;
+  const idx = officers.findIndex(o => o.name === revokeTarget.name);
+  if (idx > -1) officers.splice(idx, 1);
+  closeModal('revokeOfficer');
+  renderOfficers();
+}
+
+// ─── REVIEW HISTORY ───
+function openReviewHistory(name) {
+  // Switch to reviews tab filtered by this officer
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab')[2].classList.add('active');
+  document.getElementById('sec-reviews').classList.add('active');
+}
+
+// Init
+renderTeam();
+renderOfficers();
+renderReviews();
+</script>
+</body>
+</html>

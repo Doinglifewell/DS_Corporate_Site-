@@ -2,1456 +2,734 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DeStore — Digital Product Passport Infrastructure</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Cormorant+Garamond:wght@400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
-<meta name="description" content="DeStore builds Digital Product Passport infrastructure for brands, retailers, and resellers. Circular economy. Currently taking select custom engagements.">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeStore · GS1 DPP Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;
+  --bg:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;
+  --border:#222230;--border2:#2e2f3a;
+  --text:#f0f0f5;--text2:#a0a0b0;--text3:#666678;
+  --green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--red:#e74c3c;--blue:#3b82f6;
+}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased}
 
-:root {
-  --royal:   #321B68;
-  --orchid:  #6A14DB;
-  --violet:  #B354F1;
-  --orange:  #FF9F46;
-  --green:   #28B79D;
-  /* dark mode (default) */
-  --bg:      #0a0a0d;
-  --d0:      #0a0a0d;
-  --d1:      #0d0d10;
-  --d2:      #141418;
-  --d3:      #1c1c22;
-  --bdr:     #2e2e38;
-  --muted:   #6b6b80;
-  --dim:     #9999b0;
-  --txt:     #ffffff;
-  --txt-sub: #9999b0;
-  --nav-bg:  rgba(10,10,13,0.88);
-  --card-bg: #0d0d10;
-  --pillar-bg: #0d0d10;
-  --pillar-hover: #141418;
-  --input-bg: #141418;
-  --strip-bg: #0d0d10;
-  --logo-filter: none;
-  /* fun mode font */
-  --display-font: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --body-font:    'Plus Jakarta Sans', system-ui, sans-serif;
-}
+/* ── Login Gate ── */
+.login-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.login-gate.hidden{opacity:0;pointer-events:none}
+.login-card{width:400px;max-width:92vw;text-align:center}
+.login-logo{margin-bottom:28px}
+.login-title{font-size:21px;font-weight:900;letter-spacing:-.4px;margin-bottom:6px;color:var(--text)}
+.login-sub{font-size:13px;color:var(--text3);margin-bottom:24px;line-height:1.5}
+/* Card wrap with animated conic border */
+@property --la{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes lspin{to{--la:360deg}}
+.login-card-wrap{position:relative;border-radius:21px;padding:1.5px;background:conic-gradient(from var(--la),transparent 60%,var(--orchid) 80%,var(--violet) 90%,transparent 100%);animation:lspin 4s linear infinite}
+.login-box{background:var(--d2);border-radius:20px;padding:28px 24px;position:relative}
+/* Social buttons */
+.login-social-row{display:flex;flex-direction:column;gap:8px;margin-bottom:0}
+.login-alt{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border2);background:var(--d3);color:var(--text2);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:10px}
+.login-alt:hover{border-color:var(--border2);color:var(--text);background:var(--d4)}
+.login-alt span{flex:1;text-align:center}
+/* Divider */
+.login-divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--text3);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--border)}
+/* Email field */
+.login-field-wrap{position:relative;margin-bottom:10px}
+.login-field-wrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.35}
+.login-field{width:100%;padding:12px 14px 12px 38px;border-radius:10px;border:1px solid var(--border2);background:var(--d3);color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border .15s}
+.login-field:focus{border-color:var(--orchid)}
+.login-field::placeholder{color:var(--text3)}
+/* Primary button */
+.login-btn{width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s;letter-spacing:.01em}
+.login-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;filter:none}
+/* OTP step */
+.login-step{display:none}
+.login-step.active{display:block}
+.login-back{font-size:12px;color:var(--text3);cursor:pointer;margin-bottom:16px;display:inline-flex;align-items:center;gap:4px}
+.login-back:hover{color:var(--violet)}
+.login-otp-row{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.login-otp{width:44px;height:52px;border-radius:10px;border:1px solid var(--border2);background:var(--d3);color:var(--text);font-family:"JetBrains Mono",monospace;font-size:20px;font-weight:700;text-align:center;outline:none;transition:border .15s}
+.login-otp:focus{border-color:var(--orchid)}
+.login-email-display{font-size:13px;color:var(--violet);font-weight:600;margin-bottom:16px}
+.login-error{font-size:12px;color:var(--red);margin-top:8px;display:none}
+.login-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(106,20,219,.15);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+/* Footer note */
+.login-note{font-size:10px;color:var(--text3);margin-top:18px;line-height:1.6}
+.login-note a{color:var(--violet);text-decoration:none}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── LIGHT MODE ── */
-html.light {
-  --bg:      #f5f4f0;
-  --d0:      #f5f4f0;
-  --d1:      #eceae4;
-  --d2:      #e2dfd7;
-  --d3:      #d8d4ca;
-  --bdr:     #ccc9be;
-  --muted:   #888070;
-  --dim:     #666056;
-  --txt:     #1a1814;
-  --txt-sub: #666056;
-  --nav-bg:  rgba(245,244,240,0.92);
-  --card-bg: #eceae4;
-  --pillar-bg: #eceae4;
-  --pillar-hover: #e2dfd7;
-  --input-bg: #e2dfd7;
-  --strip-bg: #eceae4;
-  --logo-filter: invert(1) sepia(1) saturate(0) brightness(0.15);
-}
+/* ── Shell Grid ── */
+.shell{display:grid;grid-template-rows:48px 1fr;grid-template-columns:56px 220px 1fr;height:100vh}
 
-/* ── FUN MODE ── */
-html.fun {
-  --display-font: 'Fredoka One', cursive;
-}
-html.pro {
-  --display-font: 'Cormorant Garamond', Georgia, serif;
-}
+/* ── Top Bar ── */
+.topbar{grid-column:1/-1;background:var(--d1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;z-index:100}
+.tb-logo{display:flex;align-items:center;gap:10px}
+.tb-logo svg{height:18px}
+.tb-sep{width:1px;height:20px;background:var(--border2)}
+.tb-page{font-size:12px;font-weight:800;color:var(--text2);letter-spacing:-.1px}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.tb-badge{font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:rgba(40,183,157,.1);color:var(--green);border:1px solid rgba(40,183,157,.2)}
+.tb-user{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--orchid),var(--violet));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;cursor:pointer}
+.tb-theme{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.tb-theme:hover{border-color:var(--orchid);color:var(--violet)}
+.tb-theme .t-sun{display:none}.tb-theme .t-moon{display:inline}
+[data-theme="light"] .tb-theme .t-sun{display:inline}
+[data-theme="light"] .tb-theme .t-moon{display:none}
 
-/* ── LIGHT + FUN ── */
-html.light.fun {
-  --violet: #9B3FD4;
-}
+/* ── Icon Rail (left) ── */
+.rail{background:var(--d1);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;overflow-y:auto}
+.rail-btn{width:40px;height:40px;border-radius:10px;border:none;background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;position:relative}
+.rail-btn:hover{background:var(--d3);color:var(--text2)}
+.rail-btn.active{background:rgba(106,20,219,.15);color:var(--violet)}
+.rail-btn .rail-dot{position:absolute;right:6px;top:6px;width:5px;height:5px;border-radius:50%;background:var(--green);display:none}
+.rail-btn.has-dot .rail-dot{display:block}
+.rail-divider{width:24px;height:1px;background:var(--border);margin:4px 0}
 
-html { scroll-behavior: smooth; }
-body {
-  background: var(--bg);
-  color: var(--txt);
-  font-family: var(--body-font);
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-  transition: background 0.3s, color 0.3s;
-}
+/* ── Sidebar (sub-nav) ── */
+.sidebar{background:var(--d2);border-right:1px solid var(--border);overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.sb-section{font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:12px 10px 6px;user-select:none}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all .12s;user-select:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-item:hover{background:var(--d3);color:var(--text)}
+.sb-item.active{background:rgba(106,20,219,.12);color:var(--violet)}
+.sb-item .sb-icon{flex-shrink:0;width:18px;display:flex;align-items:center;justify-content:center}
+.sb-item .sb-tag{margin-left:auto;font-size:8px;font-weight:800;padding:2px 6px;border-radius:3px;letter-spacing:.04em;flex-shrink:0}
+.sb-item .sb-tag.new{background:rgba(40,183,157,.12);color:var(--green)}
+.sb-item .sb-tag.beta{background:rgba(255,159,70,.12);color:var(--orange)}
+.sb-item .sb-tag.free{background:rgba(106,20,219,.12);color:var(--violet)}
 
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(24px); }
-  to   { opacity:1; transform:none; }
-}
-@keyframes fadeIn {
-  from { opacity:0; }
-  to   { opacity:1; }
-}
-@keyframes pulse {
-  0%,100% { opacity:1; }
-  50%      { opacity:0.4; }
-}
-@keyframes gradShift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+/* ── Content (iframe) ── */
+.content{position:relative;overflow:hidden;background:var(--bg)}
+.content iframe{width:100%;height:100%;border:none;background: var(--d2)}
+.content .loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);z-index:5;transition:opacity .3s}
+.content .loading.hidden{opacity:0;pointer-events:none}
+.content .loading .ld-spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--violet);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.content .loading .ld-text{font-size:11px;color:var(--text3);margin-top:12px;font-weight:600}
 
-/* ── NAV ── */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 40px;
-  background: var(--nav-bg);
-  backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--bdr);
-  transition: background 0.3s;
-}
-.nav-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--muted);
-  letter-spacing: 0.04em;
-}
-.nav-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  animation: pulse 2.5s ease-in-out infinite;
-}
-.nav-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 22px;
-  background: linear-gradient(135deg, var(--orchid), var(--violet));
-  color: #fff;
-  font-size: 13px;
-  font-weight: 800;
-  border-radius: 100px;
-  text-decoration: none;
-  letter-spacing: 0.03em;
-  transition: transform 0.15s, box-shadow 0.2s;
-  box-shadow: 0 0 0 0 rgba(179,84,241,0.5);
-  animation: navPulse 2.5s ease-in-out infinite;
-  position: relative;
-}
-.nav-cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 32px rgba(179,84,241,0.6);
-  animation: none;
-}
-@keyframes navPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(179,84,241,0.5); }
-  50%  { box-shadow: 0 0 0 8px rgba(179,84,241,0); }
-  100% { box-shadow: 0 0 0 0 rgba(179,84,241,0); }
-}
+/* ── Collapsed sidebar ── */
+.shell.collapsed{grid-template-columns:56px 0px 1fr}
+.shell.collapsed .sidebar{display:none}
 
-/* ── HERO ── */
-/* ── DPP FLOAT ANIMATION ── */
-@property --dpp-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-@keyframes dpp-spin   { to { --dpp-angle: 360deg; } }
-@keyframes dpp-float  {
-  0%, 100% { transform: translateY(0px) rotate(-1.5deg); }
-  50%       { transform: translateY(-14px) rotate(1deg); }
-}
-@keyframes dpp-glow-pulse {
-  0%, 100% { opacity: 0.5; }
-  50%       { opacity: 1; }
-}
+/* ── Mobile View ── */
+.mobile-app{display:none}
 
-.hero {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 60px;
-  align-items: center;
-  padding: 140px 40px 80px;
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-}
-.hero-content { display: flex; flex-direction: column; align-items: flex-start; }
-.hero-dpp-col { display: flex; align-items: center; justify-content: center; perspective: 900px; }
+@media(max-width:768px){
+  .shell{display:none !important}
+  .mobile-app{display:flex;flex-direction:column;height:100vh;height:100dvh;background:var(--bg)}
 
-/* Radial glow behind hero */
-.hero::before {
-  content: '';
-  position: fixed;
-  top: -200px; right: -200px;
-  width: 700px; height: 700px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(106,20,219,0.12) 0%, transparent 65%);
-  pointer-events: none;
+  /* Mobile header */
+  .m-header{display:flex;align-items:center;padding:12px 16px;gap:10px;border-bottom:1px solid var(--border);background:var(--d1);flex-shrink:0}
+  .m-header svg{height:16px}
+  .m-header-title{font-size:13px;font-weight:800;color:var(--text)}
+  .m-header-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .m-user{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--orchid),var(--violet));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff}
+
+  /* Chat area */
+  .m-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+  .m-msg{max-width:85%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.6;animation:msgIn .3s ease}
+  @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .m-msg.bot{background:var(--d2);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px;align-self:flex-start}
+  .m-msg.user{background:var(--orchid);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+  .m-msg .m-sender{font-size:10px;font-weight:800;margin-bottom:4px;opacity:.6}
+  .m-msg .m-sender.clippy{color:var(--violet)}
+  .m-msg .m-time{font-size:9px;opacity:.4;margin-top:4px;text-align:right}
+
+  /* Typing indicator */
+  .m-typing{display:flex;align-items:center;gap:4px;padding:10px 14px;align-self:flex-start}
+  .m-typing-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:typePulse 1.2s ease infinite}
+  .m-typing-dot:nth-child(2){animation-delay:.2s}
+  .m-typing-dot:nth-child(3){animation-delay:.4s}
+  @keyframes typePulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+  /* Quick actions */
+  .m-actions{display:flex;gap:6px;overflow-x:auto;padding:0 16px 8px;flex-shrink:0;-webkit-overflow-scrolling:touch}
+  .m-actions::-webkit-scrollbar{display:none}
+  .m-action{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--d2);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+  .m-action:active{background:var(--orchid);color:#fff;border-color:var(--orchid);transform:scale(.96)}
+
+  /* Input bar */
+  .m-input-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--d1);flex-shrink:0}
+  .m-input-bar .m-attach{width:36px;height:36px;border-radius:10px;border:none;background:var(--d3);color:var(--text3);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .m-input-bar .m-voice{width:36px;height:36px;border-radius:10px;border:none;background:var(--d3);color:var(--text3);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .m-input-bar input{flex:1;padding:10px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--d3);color:var(--text);font-family:inherit;font-size:14px;outline:none}
+  .m-input-bar input:focus{border-color:var(--orchid)}
+  .m-input-bar input::placeholder{color:var(--text3)}
+  .m-input-bar .m-send{width:36px;height:36px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s}
+  .m-input-bar .m-send:active{transform:scale(.9)}
+
+  /* Safe area for notch phones */
+  .m-header{padding-top:max(12px,env(safe-area-inset-top))}
+  .m-input-bar{padding-bottom:max(10px,env(safe-area-inset-bottom))}
 }
 
-/* ── DPP CARD ── */
-.dpp-wrapper {
-  animation: dpp-float 5s ease-in-out infinite;
-  filter: drop-shadow(0 24px 48px rgba(106,20,219,0.35)) drop-shadow(0 4px 12px rgba(0,0,0,0.5));
-  position: relative;
-}
-.dpp-wrapper::before {
-  content: '';
-  position: absolute; inset: -2px;
-  border-radius: 22px;
-  background: conic-gradient(from var(--dpp-angle), #6A14DB, #B354F1, #FF9F46, #28B79D, #6A14DB);
-  animation: dpp-spin 3s linear infinite;
-  z-index: 0;
-}
-.dpp-card {
-  position: relative; z-index: 1;
-  width: 320px;
-  background: linear-gradient(160deg, #0e0c1a 0%, #141020 40%, #0d0d14 100%);
-  border-radius: 20px;
-  overflow: hidden;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-}
-
-/* card header band */
-.dpp-header {
-  background: linear-gradient(135deg, #321B68 0%, #6A14DB 100%);
-  padding: 14px 18px 12px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.dpp-header-left { display: flex; flex-direction: column; gap: 2px; }
-.dpp-label {
-  font-size: 8px; font-weight: 900; letter-spacing: 0.18em;
-  text-transform: uppercase; color: rgba(255,255,255,0.7);
-}
-.dpp-title { font-size: 13px; font-weight: 800; color: #fff; letter-spacing: 0.01em; }
-.dpp-chain-badge {
-  font-size: 8px; font-weight: 800; letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 100px; padding: 3px 9px; color: #fff;
-  display: flex; align-items: center; gap: 5px;
-}
-.dpp-chain-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: #28B79D;
-  box-shadow: 0 0 6px #28B79D;
-  animation: dpp-glow-pulse 2s ease-in-out infinite;
-}
-
-/* product identity */
-.dpp-product {
-  padding: 16px 18px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  display: flex; gap: 12px; align-items: flex-start;
-}
-.dpp-product-icon {
-  width: 44px; height: 44px; border-radius: 10px;
-  background: linear-gradient(135deg, rgba(106,20,219,0.3), rgba(179,84,241,0.15));
-  border: 1px solid rgba(179,84,241,0.25);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; flex-shrink: 0;
-}
-.dpp-product-name { font-size: 14px; font-weight: 800; color: #e8e8f4; margin-bottom: 2px; }
-.dpp-product-brand { font-size: 11px; font-weight: 700; color: #B354F1; }
-.dpp-product-origin { font-size: 10px; color: #6b6b80; margin-top: 2px; }
-
-/* data rows */
-.dpp-rows { padding: 12px 18px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
-.dpp-row { display: flex; flex-direction: column; gap: 4px; }
-.dpp-row-label { font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #6b6b80; }
-.dpp-row-val { font-size: 11px; font-weight: 700; color: #9999b0; }
-.dpp-mat-bar { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
-.dpp-mat-track { height: 4px; border-radius: 2px; flex: 1; background: rgba(255,255,255,0.08); overflow: hidden; }
-.dpp-mat-fill { height: 100%; border-radius: 2px; }
-.dpp-mat-label { font-size: 10px; color: #9999b0; white-space: nowrap; min-width: 100px; }
-
-/* bottom row: carbon + QR */
-.dpp-bottom {
-  padding: 14px 18px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 14px;
-  align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-.dpp-carbon-label { font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #6b6b80; margin-bottom: 4px; }
-.dpp-carbon-val { font-size: 20px; font-weight: 900; color: #28B79D; line-height: 1; }
-.dpp-carbon-unit { font-size: 10px; color: #6b6b80; margin-top: 2px; }
-.dpp-qr {
-  width: 56px; height: 56px;
-  background: #fff; border-radius: 6px;
-  padding: 4px;
-  display: grid; grid-template-columns: repeat(7,1fr); gap: 1px;
-}
-.dpp-qr-cell { border-radius: 1px; }
-
-/* footer */
-.dpp-footer {
-  padding: 10px 18px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.dpp-verified {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 10px; font-weight: 800; color: #28B79D;
-}
-.dpp-verified-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #28B79D;
-  box-shadow: 0 0 8px rgba(40,183,157,0.8);
-}
-.dpp-hash { font-size: 9px; font-family: 'JetBrains Mono', monospace; color: #6b6b80; letter-spacing: 0.03em; }
-
-.hero-eyebrow {
-  font-family: var(--display-font);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--violet);
-  margin-bottom: 28px;
-  animation: fadeUp 0.7s ease both;
-}
-.eyebrow-line {
-  width: 32px; height: 1px;
-  background: var(--violet);
-  opacity: 0.6;
-}
-
-.hero-logo {
-  margin-bottom: 36px;
-  animation: fadeUp 0.7s 0.1s ease both;
-  opacity: 0;
-}
-
-.hero-headline {
-  font-size: clamp(42px, 6vw, 80px);
-  font-weight: 900;
-  letter-spacing: -2px;
-  line-height: 1.06;
-  max-width: 780px;
-  margin-bottom: 28px;
-  animation: fadeUp 0.7s 0.2s ease both;
-  opacity: 0;
-}
-.hero-headline em {
-  font-style: normal;
-  background: linear-gradient(90deg, var(--violet), var(--orange), var(--violet));
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradShift 4s linear infinite;
-}
-
-.hero-sub {
-  font-size: 18px;
-  color: var(--dim);
-  line-height: 1.7;
-  max-width: 560px;
-  margin-bottom: 48px;
-  font-weight: 400;
-  animation: fadeUp 0.7s 0.3s ease both;
-  opacity: 0;
-}
-
-.hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  animation: fadeUp 0.7s 0.4s ease both;
-  opacity: 0;
-}
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 32px;
-  background: linear-gradient(135deg, var(--orchid), var(--violet));
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  border-radius: 14px;
-  text-decoration: none;
-  letter-spacing: 0.02em;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 0 32px rgba(179,84,241,0.25);
-}
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 48px rgba(179,84,241,0.4); }
-.btn-ghost {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--muted);
-  text-decoration: none;
-  letter-spacing: 0.03em;
-  transition: color 0.15s;
-}
-.btn-ghost:hover { color: #fff; }
-
-/* ── WHAT WE BUILD ── */
-.section {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 100px 40px;
-}
-.section-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--violet);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.section-label::before {
-  content: '';
-  display: inline-block;
-  width: 24px; height: 1px;
-  background: var(--violet);
-}
-.section-title {
-  font-family: var(--display-font);
-  font-size: clamp(30px, 4vw, 50px);
-  font-weight: 900;
-  letter-spacing: -1px;
-  line-height: 1.1;
-  margin-bottom: 60px;
-  max-width: 600px;
-}
-
-.pillars {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--bdr);
-  border: 1px solid var(--bdr);
-  border-radius: 20px;
-  overflow: hidden;
-}
-.pillar {
-  background: var(--pillar-bg);
-  padding: 36px 30px;
-  position: relative;
-  transition: background 0.2s;
-}
-.pillar:hover { background: var(--pillar-hover); }
-.pillar-n {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--violet);
-  letter-spacing: 0.1em;
-  margin-bottom: 20px;
-  opacity: 0.6;
-}
-.pillar-icon { font-size: 28px; margin-bottom: 16px; }
-.pillar-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--txt);
-  margin-bottom: 10px;
-  letter-spacing: -0.2px;
-}
-.pillar-body {
-  font-size: 13px;
-  color: var(--dim);
-  line-height: 1.7;
-}
-
-/* ── CUSTOM ONLY ── */
-.custom-band {
-  border-top: 1px solid var(--bdr);
-  border-bottom: 1px solid var(--bdr);
-  background: linear-gradient(135deg, rgba(50,27,104,0.15) 0%, rgba(106,20,219,0.08) 100%);
-}
-.custom-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 80px 40px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: center;
-}
-.custom-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border: 1px solid rgba(179,84,241,0.4);
-  border-radius: 100px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--violet);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 24px;
-}
-.custom-title {
-  font-size: clamp(26px, 3.5vw, 42px);
-  font-weight: 900;
-  letter-spacing: -0.8px;
-  line-height: 1.15;
-  margin-bottom: 20px;
-}
-.custom-body {
-  font-size: 15px;
-  color: var(--dim);
-  line-height: 1.8;
-}
-.custom-points {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.custom-point {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 0 16px;
-  align-items: start;
-  padding: 20px 22px 20px 22px;
-  border-left: 3px solid var(--violet);
-  background: rgba(106,20,219,0.06);
-  border-radius: 0 12px 12px 0;
-}
-.cp-icon {
-  font-size: 22px;
-  line-height: 1;
-  padding-top: 2px;
-  grid-row: 1 / 3;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  width: 44px;
-}
-.cp-heading {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--txt);
-  letter-spacing: -0.01em;
-  margin-bottom: 5px;
-  line-height: 1.3;
-}
-.cp-body {
-  font-size: 13px;
-  color: var(--dim);
-  line-height: 1.65;
-}
-.cp-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 8px;
-}
-.cp-tag {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--violet);
-  background: rgba(106,20,219,0.12);
-  border: 1px solid rgba(106,20,219,0.25);
-  border-radius: 4px;
-  padding: 2px 7px;
-}
-
-/* ── INQUIRY FORM ── */
-#inquiry {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 100px 40px;
-}
-.form-header { text-align: center; margin-bottom: 48px; }
-.form-header .section-label { justify-content: center; }
-.form-header .section-label::before { display: none; }
-.form-title {
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 900;
-  letter-spacing: -1px;
-  margin-top: 16px;
-  margin-bottom: 12px;
-}
-.form-sub {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 14px;
-}
-.form-field { display: flex; flex-direction: column; gap: 7px; }
-.form-field.full { grid-column: 1 / -1; }
-.form-field label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.form-field input,
-.form-field select,
-.form-field textarea {
-  background: var(--input-bg);
-  border: 1px solid var(--bdr);
-  border-radius: 12px;
-  padding: 14px 16px;
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--txt);
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  width: 100%;
-}
-.form-field input::placeholder,
-.form-field textarea::placeholder { color: var(--muted); }
-.form-field input:focus,
-.form-field select:focus,
-.form-field textarea:focus {
-  border-color: var(--violet);
-  box-shadow: 0 0 0 3px rgba(179,84,241,0.12);
-}
-.form-field select { cursor: pointer; }
-.form-field select option { background: #1c1c22; }
-.form-field textarea { resize: vertical; min-height: 120px; }
-
-.form-submit {
-  width: 100%;
-  padding: 17px;
-  background: linear-gradient(135deg, var(--orchid), var(--violet));
-  color: #fff;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 800;
-  border: none;
-  border-radius: 14px;
-  cursor: pointer;
-  letter-spacing: 0.02em;
-  margin-top: 6px;
-  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-  box-shadow: 0 0 32px rgba(179,84,241,0.2);
-}
-.form-submit:hover { transform: translateY(-2px); box-shadow: 0 0 48px rgba(179,84,241,0.4); }
-.form-submit:active { transform: none; opacity: 0.85; }
-
-.form-note {
-  text-align: center;
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 16px;
-  line-height: 1.6;
-}
-
-/* Success state */
-.form-success {
-  display: none;
-  text-align: center;
-  padding: 48px 24px;
-  background: var(--d2);
-  border: 1px solid rgba(40,183,157,0.3);
-  border-radius: 20px;
-}
-.form-success.show { display: block; }
-.success-icon { font-size: 40px; margin-bottom: 16px; }
-.success-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-.success-body { font-size: 14px; color: var(--muted); line-height: 1.7; }
-
-/* ── FOOTER ── */
-footer {
-  border-top: 1px solid var(--bdr);
-  padding: 40px;
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.footer-left { font-size: 12px; color: var(--muted); line-height: 1.8; }
-.footer-right { display: flex; gap: 24px; }
-.footer-link {
-  font-size: 12px;
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-.footer-link:hover { color: #fff; }
-
-/* ── RESPONSIVE ── */
-/* ── MODE TOGGLES ── */
-.mode-toggles {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
-}
-.toggle-group {
-  display: flex;
-  background: var(--d2);
-  border: 1px solid var(--bdr);
-  border-radius: 100px;
-  padding: 3px;
-  gap: 2px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-  transition: background 0.3s, border-color 0.3s;
-}
-.tgl-btn {
-  padding: 6px 14px;
-  border-radius: 100px;
-  border: none;
-  font-family: var(--body-font);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: transparent;
-  color: var(--muted);
-}
-.tgl-btn.active {
-  background: var(--violet);
-  color: #fff;
-  box-shadow: 0 0 12px rgba(179,84,241,0.4);
-}
-.tgl-label {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-align: center;
-  margin-bottom: 2px;
-  padding-right: 4px;
-  font-family: var(--body-font);
-}
-
-/* ── HERO CANVAS BG ── */
-#heroCanvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.55;
-}
-.hero > *:not(#heroCanvas) { position: relative; z-index: 1; }
-
-/* ── COUNTDOWN ── */
-.countdown-bar {
-  display: inline-flex;
-  align-items: center;
-  gap: 16px;
-  background: rgba(255,60,60,0.08);
-  border: 1px solid rgba(255,80,80,0.3);
-  border-radius: 100px;
-  padding: 8px 20px;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-}
-.countdown-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #ff5a5a;
-}
-.countdown-units {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.cd-unit {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 36px;
-}
-.cd-num {
-  font-size: 18px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-  letter-spacing: -0.5px;
-  font-variant-numeric: tabular-nums;
-}
-.cd-lbl {
-  font-size: 8px;
-  font-weight: 700;
-  color: rgba(255,90,90,0.7);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-top: 2px;
-}
-.cd-sep {
-  font-size: 16px;
-  font-weight: 900;
-  color: rgba(255,90,90,0.4);
-  margin-bottom: 8px;
-}
-
-@media (max-width: 768px) {
-  nav { padding: 16px 20px; }
-  .nav-badge { display: none; }
-  .hero { padding: 120px 20px 60px; grid-template-columns: 1fr; gap: 40px; }
-  .hero-dpp-col { display: none; }
-  .section { padding: 60px 20px; }
-  .pillars { grid-template-columns: 1fr; }
-  .custom-inner { grid-template-columns: 1fr; gap: 40px; padding: 60px 20px; }
-  #inquiry { padding: 60px 20px; }
-  .form-grid { grid-template-columns: 1fr; }
-  footer { padding: 32px 20px; }
-}
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 </style>
+<!-- Thirdweb Connect v5 — real auth -->
+<script type="importmap">
+{
+  "imports": {
+    "thirdweb": "https://esm.sh/thirdweb@5",
+    "thirdweb/": "https://esm.sh/thirdweb@5/"
+  }
+}
+</script>
 </head>
 <body>
 
-<!-- ── NAV ── -->
-<nav>
-  <svg width="120" height="22" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 405.4 76.5" xml:space="preserve"> <g> <g> <path fill="#FFFFFF" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/> </g> <g> <path fill="#FFFFFF" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6 c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/> <path fill="#FFFFFF" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2 c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6 c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/> <path fill="#FFFFFF" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22 c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5 c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/> <path fill="#FFFFFF" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3 l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/> <path fill="#FFFFFF" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9 C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5 C266.3,60.3,270.3,54.7,270.3,47.9z"/> <path fill="#FFFFFF" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3 V22.3z"/> <path fill="#FFFFFF" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2 c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1 c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/> </g> </g> </svg>
-  <div class="nav-badge">
-    <div class="nav-dot"></div>
-    EU ESPR Deadline · July 2027
-  </div>
-  <a href="#inquiry" class="nav-cta">Free ESPR Check →</a>
-</nav>
+<!-- ═══ LOGIN GATE ═══ -->
+<div class="login-gate" id="loginGate">
+  <div class="login-card">
 
-<!-- ── HERO ── -->
-<section style="background: var(--d0);">
-  <div class="hero">
-    <canvas id="heroCanvas"></canvas>
-    <div class="hero-content">
-    <div class="countdown-bar">
-      <span class="countdown-label">⚠ EU ESPR Deadline</span>
-      <div class="countdown-units">
-        <div class="cd-unit"><span class="cd-num" id="cdDays">000</span><span class="cd-lbl">days</span></div>
-        <span class="cd-sep">:</span>
-        <div class="cd-unit"><span class="cd-num" id="cdHours">00</span><span class="cd-lbl">hrs</span></div>
-        <span class="cd-sep">:</span>
-        <div class="cd-unit"><span class="cd-num" id="cdMins">00</span><span class="cd-lbl">min</span></div>
-        <span class="cd-sep">:</span>
-        <div class="cd-unit"><span class="cd-num" id="cdSecs">00</span><span class="cd-lbl">sec</span></div>
+    <div class="login-logo" style="margin-bottom:24px">
+      <svg height="28" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#B354F1"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#f0f0f5"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#f0f0f5"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#f0f0f5"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#f0f0f5"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#f0f0f5"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#f0f0f5"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#f0f0f5"/></svg>
+    </div>
+    <div class="login-title">GS1 DPP Platform</div>
+    <div class="login-sub">Sign in to manage your Digital Product Passports</div>
+
+    <div class="login-card-wrap">
+    <div class="login-box">
+
+      <!-- Step 1: Choose method -->
+      <div class="login-step active" id="stepEmail">
+        <div class="login-social-row">
+          <button class="login-alt" onclick="appleLogin(this)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <span>Continue with Apple</span>
+          </button>
+          <button class="login-alt" onclick="googleLogin(this)">
+            <svg width="15" height="15" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            <span>Continue with Google</span>
+          </button>
+          <button class="login-alt" onclick="walletLogin(this)">
+            <svg width="15" height="15" viewBox="0 0 300 185" fill="none"><path d="M61.4 36.3C107.9-10.7 183.1-10.7 229.5 36.3L235.1 41.9c2.3 2.4 2.3 6.2 0 8.6l-19.8 20.1c-1.2 1.2-3.1 1.2-4.2 0l-7.8-7.9c-32.7-33.1-85.9-33.1-118.6 0l-8.3 8.4c-1.2 1.2-3.1 1.2-4.2 0L52.3 51c-2.3-2.4-2.3-6.2 0-8.6l9.1-6.1zm207.7 40.2 17.6 17.8c2.3 2.4 2.3 6.2 0 8.6l-79.6 80.7c-2.3 2.4-7 2.4-9.4 0l-57.6-58.3c-.6-.6-1.5-.6-2.1 0L80.6 183.7c-2.3 2.4-7 2.4-9.4 0L-8.4 102.9c-2.3-2.4-2.3-6.2 0-8.6l17.6-17.8c2.3-2.4 7-2.4 9.4 0l57.6 58.3c.6.6 1.5.6 2.1 0l57.6-58.3c2.3-2.4 7-2.4 9.4 0l57.5 58.3c.6.6 1.5.6 2.1 0l57.6-58.3c2.4-2.4 7.1-2.4 9.5 0z" fill="#3B99FC"/></svg>
+            <span>Connect Wallet</span>
+          </button>
+        </div>
+        <div class="login-divider">or use email</div>
+        <div class="login-field-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          <input class="login-field" type="email" id="loginEmail" placeholder="you@company.com" onkeydown="if(event.key==='Enter')sendOTP()">
+        </div>
+        <button class="login-btn" id="btnSendOTP" onclick="sendOTP()">Continue with email</button>
+        <div class="login-error" id="emailError">Please enter a valid email address</div>
       </div>
-      <span class="countdown-label">until 1 July 2027</span>
-    </div>
-    <div class="hero-eyebrow">
-      <span class="eyebrow-line"></span>
-      EU ESPR · Digital Product Passports · July 2027
-    </div>
-    <div class="hero-logo"><svg width="180" height="33" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 405.4 76.5" xml:space="preserve"> <g> <g> <path fill="#FFFFFF" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/> </g> <g> <path fill="#FFFFFF" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6 c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/> <path fill="#FFFFFF" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2 c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6 c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/> <path fill="#FFFFFF" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22 c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5 c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/> <path fill="#FFFFFF" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3 l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/> <path fill="#FFFFFF" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9 C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5 C266.3,60.3,270.3,54.7,270.3,47.9z"/> <path fill="#FFFFFF" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3 V22.3z"/> <path fill="#FFFFFF" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2 c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1 c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/> </g> </g> </svg></div>
-    <h1 class="hero-headline">
-      The EU is about to<br>ban products without<br>
-      a passport. <em>Is yours ready?</em>
-    </h1>
-    <p class="hero-sub">
-      From July 2027, the EU's Ecodesign for Sustainable Products Regulation requires a Digital Product Passport on every physical product sold into Europe. No passport — no market access. Full stop. Australian brands selling into the EU, or planning to, need to move now. DeStore builds the DPP infrastructure that gets you compliant — with every product record anchored to the blockchain, every scan a verified touchpoint back to your brand, and every owner connected to you for the life of the product.
-    </p>
-    <div class="hero-actions">
-      <a href="#inquiry" class="btn-primary">Get your free ESPR check →</a>
-      <a href="#what-we-build" class="btn-ghost">What is a DPP? ↓</a>
-    </div>
-    </div><!-- /.hero-content -->
 
-    <!-- DPP CARD -->
-    <div class="hero-dpp-col">
-      <div class="dpp-wrapper">
-        <div class="dpp-card">
-
-          <!-- Header -->
-          <div class="dpp-header">
-            <div class="dpp-header-left">
-              <div class="dpp-label">Digital Product Passport</div>
-              <div class="dpp-title">◈ EU ESPR · EPRG-2027</div>
-            </div>
-            <div class="dpp-chain-badge">
-              <span class="dpp-chain-dot"></span>Base
-            </div>
-          </div>
-
-          <!-- Product Identity -->
-          <div class="dpp-product">
-            <div class="dpp-product-icon">👟</div>
-            <div>
-              <div class="dpp-product-name">Coast Runner Mid</div>
-              <div class="dpp-product-brand">Surfa &amp; Soul Co.</div>
-              <div class="dpp-product-origin">Byron Bay, Australia · SKU SR-2024-CRM-09</div>
-            </div>
-          </div>
-
-          <!-- Materials -->
-          <div class="dpp-rows">
-            <div class="dpp-row">
-              <div class="dpp-row-label">Material Composition</div>
-              <div class="dpp-mat-bar">
-                <div class="dpp-mat-track" style="max-width:70%"><div class="dpp-mat-fill" style="width:78%;background:linear-gradient(90deg,#6A14DB,#B354F1)"></div></div>
-                <div class="dpp-mat-label" style="font-size:10px;color:#9999b0;">78% Recycled Polyester</div>
-              </div>
-              <div class="dpp-mat-bar">
-                <div class="dpp-mat-track" style="max-width:70%"><div class="dpp-mat-fill" style="width:22%;background:linear-gradient(90deg,#28B79D,#2FB457)"></div></div>
-                <div class="dpp-mat-label" style="font-size:10px;color:#9999b0;">22% Organic Cotton</div>
-              </div>
-            </div>
-            <div class="dpp-row">
-              <div class="dpp-row-label">Repairability Score</div>
-              <div class="dpp-row-val">8.4 / 10 &nbsp;·&nbsp; <span style="color:#2FB457">Highly Repairable</span></div>
-            </div>
-          </div>
-
-          <!-- Carbon + QR -->
-          <div class="dpp-bottom">
-            <div>
-              <div class="dpp-carbon-label">Carbon Footprint</div>
-              <div class="dpp-carbon-val">2.4</div>
-              <div class="dpp-carbon-unit">kg CO₂e per unit · -62% vs industry avg</div>
-            </div>
-            <!-- Minimal SVG QR pattern -->
-            <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style="border-radius:6px;background:#fff;padding:4px;">
-              <!-- Top-left finder -->
-              <rect x="4" y="4" width="14" height="14" rx="2" fill="#0a0a0d"/>
-              <rect x="6" y="6" width="10" height="10" rx="1" fill="#fff"/>
-              <rect x="8" y="8" width="6" height="6" rx="1" fill="#0a0a0d"/>
-              <!-- Top-right finder -->
-              <rect x="38" y="4" width="14" height="14" rx="2" fill="#0a0a0d"/>
-              <rect x="40" y="6" width="10" height="10" rx="1" fill="#fff"/>
-              <rect x="42" y="8" width="6" height="6" rx="1" fill="#0a0a0d"/>
-              <!-- Bottom-left finder -->
-              <rect x="4" y="38" width="14" height="14" rx="2" fill="#0a0a0d"/>
-              <rect x="6" y="40" width="10" height="10" rx="1" fill="#fff"/>
-              <rect x="8" y="42" width="6" height="6" rx="1" fill="#0a0a0d"/>
-              <!-- Data modules (random-ish pattern) -->
-              <rect x="22" y="4" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="26" y="4" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="30" y="4" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="22" y="8" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="30" y="8" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="26" y="12" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="4" y="22" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="8" y="22" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="4" y="26" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="12" y="26" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="8" y="30" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="22" y="22" width="3" height="3" fill="#6A14DB"/>
-              <rect x="28" y="22" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="34" y="22" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="22" y="28" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="28" y="28" width="3" height="3" fill="#6A14DB"/>
-              <rect x="34" y="28" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="22" y="34" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="28" y="34" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="38" y="22" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="44" y="22" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="38" y="28" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="44" y="26" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="40" y="32" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="22" y="40" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="28" y="40" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="34" y="38" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="22" y="46" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="30" y="44" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="38" y="44" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="44" y="40" width="3" height="3" fill="#0a0a0d"/>
-              <rect x="48" y="46" width="3" height="3" fill="#0a0a0d"/>
-            </svg>
-          </div>
-
-          <!-- Footer -->
-          <div class="dpp-footer">
-            <div class="dpp-verified">
-              <span class="dpp-verified-dot"></span>
-              Verified On-Chain
-            </div>
-            <div class="dpp-hash">0x4f2a…8c3d</div>
-          </div>
-
-        </div><!-- /.dpp-card -->
-      </div><!-- /.dpp-wrapper -->
-    </div><!-- /.hero-dpp-col -->
-
-  </div><!-- /.hero -->
-</section>
-
-<!-- ── WHAT WE BUILD ── -->
-<section id="what-we-build" class="section">
-  <div class="section-label">What a DPP actually does</div>
-  <h2 class="section-title">A Digital Product Passport is not a PDF or a certificate. It's a living on-chain record that travels with your product — forever.</h2>
-  <div class="pillars">
-    <div class="pillar">
-      <div class="pillar-n">01</div>
-      <div class="pillar-icon">⚖️</div>
-      <div class="pillar-title">EU Market Access — Gone Without It</div>
-      <div class="pillar-body">The ESPR regulation is already law. From July 2027, every product category entering the EU requires a machine-readable Digital Product Passport containing materials, origin, carbon footprint, repairability, and end-of-life data. No DPP — no sale. Australian brands who move now build a competitive advantage. Everyone else scrambles.</div>
-    </div>
-    <div class="pillar">
-      <div class="pillar-n">02</div>
-      <div class="pillar-icon">🔍</div>
-      <div class="pillar-title">Counterfeits Die at the Scan</div>
-      <div class="pillar-body">Every DeStore DPP pairs with a GS1 Digital Link QR code and Laava Smart Fingerprint™ — a physical authentication layer that can't be copied. Customers scan before they buy. Fakes fail instantly. Your brand is protected at first sale, resale, and every transfer in between.</div>
-    </div>
-    <div class="pillar">
-      <div class="pillar-n">03</div>
-      <div class="pillar-icon">♻️</div>
-      <div class="pillar-title">Own the Full Product Lifecycle</div>
-      <div class="pillar-body">Sell, resell, gift, return, recycle — every event recorded on-chain and anchored to Ethereum. The DPP follows the product forever. And every time someone scans your QR code — at purchase, at resale, at a market stall — they land on your domain. Your brand. Your story. Not a third-party page. That's what separates a compliant DPP from a competitive one.</div>
-    </div>
-  </div>
-</section>
-
-<!-- ── CUSTOM ONLY BAND ── -->
-<!-- ── HOW IT WORKS STRIP ── -->
-<div style="border-top:1px solid var(--bdr); background:var(--strip-bg); transition:background 0.3s;">
-  <div style="max-width:1100px;margin:0 auto;padding:80px 40px;">
-    <div class="section-label" style="margin-bottom:20px;">How it works</div>
-    <h2 style="font-size:clamp(26px,3.5vw,42px);font-weight:900;letter-spacing:-0.8px;line-height:1.15;margin-bottom:48px;max-width:580px;">Every scan is a direct conversation between your product and your customer.</h2>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bdr);border:1px solid var(--bdr);border-radius:16px;overflow:hidden;">
-      <div style="background:var(--d0);padding:28px 24px;">
-        <div style="font-size:11px;font-weight:800;color:var(--violet);letter-spacing:0.1em;margin-bottom:16px;">01</div>
-        <div style="font-size:22px;margin-bottom:12px;">🏷</div>
-        <div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:8px;">DPP Issued</div>
-        <div style="font-size:12px;color:var(--dim);line-height:1.7;">Your product gets a unique Digital Product Passport — minted on Base blockchain, anchored to Ethereum. Materials, origin, carbon, ownership. Immutable. Permanent.</div>
+      <!-- Step 2: OTP -->
+      <div class="login-step" id="stepOTP">
+        <div class="login-back" onclick="showStep('email')">← Back</div>
+        <div class="login-email-display" id="otpEmailDisplay">Code sent</div>
+        <div class="login-otp-row">
+          <input class="login-otp" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,0)" onkeydown="otpBack(event,0)">
+          <input class="login-otp" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,1)" onkeydown="otpBack(event,1)">
+          <input class="login-otp" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,2)" onkeydown="otpBack(event,2)">
+          <input class="login-otp" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,3)" onkeydown="otpBack(event,3)">
+          <input class="login-otp" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,4)" onkeydown="otpBack(event,4)">
+          <input class="login-otp" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,5)" onkeydown="otpBack(event,5)">
+        </div>
+        <button class="login-btn" id="btnVerify" onclick="verifyOTP()">Verify</button>
+        <div style="margin-top:12px;font-size:11px;color:var(--text3)">Didn't get the code? <span style="color:var(--violet);cursor:pointer" onclick="sendOTP()">Resend</span></div>
+        <div class="login-error" id="otpError">Invalid verification code</div>
       </div>
-      <div style="background:var(--d0);padding:28px 24px;">
-        <div style="font-size:11px;font-weight:800;color:var(--orange);letter-spacing:0.1em;margin-bottom:16px;">02</div>
-        <div style="font-size:22px;margin-bottom:12px;">📱</div>
-        <div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:8px;">Customer Scans</div>
-        <div style="font-size:12px;color:var(--dim);line-height:1.7;">A GS1 Digital Link QR on the product or tag. No app required — just a phone camera. The scan instantly verifies authenticity and resolves to <em style="color:#e0e0f0;">your domain</em>. Not a third-party platform.</div>
+
+      <!-- Step 3: Loading -->
+      <div class="login-step" id="stepLoading">
+        <div style="padding:32px 0;text-align:center">
+          <div class="login-spinner" style="width:28px;height:28px;border-width:3px;margin:0 auto 16px;display:block"></div>
+          <div style="font-size:13px;color:var(--text2)">Setting up your workspace...</div>
+        </div>
       </div>
-      <div style="background:var(--d0);padding:28px 24px;">
-        <div style="font-size:11px;font-weight:800;color:var(--green);letter-spacing:0.1em;margin-bottom:16px;">03</div>
-        <div style="font-size:22px;margin-bottom:12px;">🔗</div>
-        <div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:8px;">Blockchain Trace</div>
-        <div style="font-size:12px;color:var(--dim);line-height:1.7;">Every scan, every ownership transfer, every lifecycle event is written to the blockchain. A complete, tamper-proof chain of custody — visible to regulators, customers, and resellers. Forever.</div>
-      </div>
-      <div style="background:var(--d0);padding:28px 24px;">
-        <div style="font-size:11px;font-weight:800;color:var(--violet);letter-spacing:0.1em;margin-bottom:16px;">04</div>
-        <div style="font-size:22px;margin-bottom:12px;">📊</div>
-        <div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:8px;">You Own the Data</div>
-        <div style="font-size:12px;color:var(--dim);line-height:1.7;">Who scanned. Where. When. First owner, second owner, third. Every resale, every return. Your dashboard. Your customers. Your product story — told on your terms, not Amazon's or Facebook's.</div>
-      </div>
+
+    </div>
     </div>
 
-    <!-- Blockchain callout bar -->
-    <div style="margin-top:16px;display:flex;align-items:center;gap:20px;background:rgba(40,183,157,0.06);border:1px solid rgba(40,183,157,0.2);border-radius:12px;padding:18px 24px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-        <div style="width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(40,183,157,0.6);"></div>
-        <span style="font-size:12px;font-weight:800;color:var(--green);letter-spacing:0.06em;">BLOCKCHAIN VERIFIED</span>
-      </div>
-      <div style="font-size:13px;color:var(--dim);line-height:1.6;flex:1;min-width:240px;">
-        Every DPP is minted on <strong style="color:#e0e0f0;">Base</strong> (Coinbase's L2) and the record is anchored to <strong style="color:#e0e0f0;">Ethereum mainnet</strong> — the most battle-tested blockchain on earth. Your product data is not stored in a database someone can delete. It lives on a public ledger that no company, government, or bad actor can alter or erase.
-      </div>
+    <div class="login-note">
+      Powered by <a href="https://thirdweb.com" target="_blank">Thirdweb Connect</a> · No wallet required<br>
+      By signing in you agree to DeStore's <a href="#">Terms of Service</a>
     </div>
   </div>
 </div>
 
-<div class="custom-band">
-  <div class="custom-inner">
-    <div>
-      <div class="custom-tag">◈ EU ESPR Deadline · July 2027</div>
-      <h2 class="custom-title">Australian SMEs are the most exposed — and the least prepared.</h2>
-      <p class="custom-body">
-        The big brands have compliance teams and enterprise vendors. Australian SMEs doing under $1M have neither — and the deadline is the same for everyone. DeStore was built specifically for brands at this scale: done-for-you DPP infrastructure that doesn't require a blockchain developer, a six-month integration, or a budget you don't have.
-      </p>
+<div class="shell" id="shell">
+
+  <!-- ═══ TOP BAR ═══ -->
+  <div class="topbar">
+    <div class="tb-logo">
+      <svg height="18" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#B354F1"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#f0f0f5"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#f0f0f5"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#f0f0f5"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#f0f0f5"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#f0f0f5"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#f0f0f5"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#f0f0f5"/></svg>
     </div>
-    <div class="custom-points">
-      <div class="custom-point">
-        <div class="cp-icon">🏷</div>
-        <div class="cp-heading">Australian product brands under $1M turnover</div>
-        <div>
-          <p class="cp-body">Selling — or planning to sell — into the EU and need a compliant Digital Product Passport before the deadline. The regulation is the same for everyone. Your timeline isn't.</p>
-          <div class="cp-tags">
-            <span class="cp-tag">Apparel</span>
-            <span class="cp-tag">Footwear</span>
-            <span class="cp-tag">Skincare</span>
-            <span class="cp-tag">Homewares</span>
-            <span class="cp-tag">Supplements</span>
-            <span class="cp-tag">Food &amp; Bev</span>
-          </div>
-        </div>
-      </div>
-      <div class="custom-point">
-        <div class="cp-icon">🛍</div>
-        <div class="cp-heading">DTC brands losing sales to grey market fakes</div>
-        <div>
-          <p class="cp-body">Every product you ship carries irrefutable, on-chain proof of authenticity — at a price point that makes sense for your volume. No enterprise contract required.</p>
-        </div>
-      </div>
-      <div class="custom-point">
-        <div class="cp-icon">🌿</div>
-        <div class="cp-heading">Founders who think 20 years ahead</div>
-        <div>
-          <p class="cp-body">ESPR isn't a compliance checkbox — it's the infrastructure layer that will define brand trust, resale markets, and sustainability credentials for the next two decades. Get there first.</p>
-        </div>
-      </div>
+    <div class="tb-sep"></div>
+    <div class="tb-page" id="tbPage">GS1 Smart Label</div>
+    <div class="tb-right">
+      <div class="tb-badge">GS1 DPP Platform</div>
+      <button class="tb-theme" onclick="toggleTheme()" title="Toggle light/dark mode">
+        <svg class="t-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="t-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <div class="tb-user">JK</div>
     </div>
+  </div>
+
+  <!-- ═══ ICON RAIL ═══ -->
+  <div class="rail">
+    <button class="rail-btn active has-dot" data-section="dpp" title="DPP Pipeline" onclick="showSection('dpp',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg></button>
+    <button class="rail-btn" data-section="toolbox" title="Toolbox & Templates" onclick="showSection('toolbox',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></button>
+    <button class="rail-btn" data-section="library" title="Product Library" onclick="showSection('library',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></button>
+    <button class="rail-btn" data-section="analytics" title="Analytics" onclick="showSection('analytics',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>
+    <div class="rail-divider"></div>
+    <button class="rail-btn" data-section="admin" title="Platform Admin" onclick="showSection('admin',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <div class="rail-divider"></div>
+    <button class="rail-btn" data-section="extras" title="Extras" onclick="showSection('extras',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></button>
+  </div>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <div class="sidebar" id="sidebar">
+    <!-- DPP Pipeline -->
+    <div data-nav="dpp">
+      <div class="sb-section">DPP Pipeline</div>
+      <div class="sb-item active" onclick="load('DS_DPP_Foundation.html','GS1 Smart Label',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>GS1 Smart Label<span class="sb-tag free">FREE</span></div>
+      <div class="sb-item" onclick="load('DS_DPP_Workflow_ESPR.html','ESPR DPP',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>ESPR DPP</div>
+      <div class="sb-item" onclick="load('DS_DPP_Assistant.html','AI DPP Builder',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>AI DPP Builder<span class="sb-tag new">NEW</span></div>
+      <div class="sb-section">Management</div>
+      <div class="sb-item" onclick="load('DS_DraftDPPs.html','Draft DPPs',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>Draft DPPs<span class="sb-tag new">NEW</span></div>
+    </div>
+    <!-- Toolbox & Templates -->
+    <div data-nav="toolbox" style="display:none">
+      <div class="sb-section">Toolbox & Templates</div>
+      <div class="sb-item" onclick="load('DeStore_Collection_Creator_v0.4.html','Collection Creator',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></span>Collection Creator</div>
+      <div class="sb-item" onclick="load('DeStore_QR_Designer.html','QR Designer',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="4" height="4"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="21" y1="21" x2="21" y2="21.01"/></svg></span>QR Designer</div>
+      <div class="sb-item" onclick="load('DS_LabelExporter.html','Label Template Exporter',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Label Exporter<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_ResultScreenBuilder.html','Result Screen Builder',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>Result Screen Builder<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_ResultScreenTemplates.html','Result Screen Templates',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></span>Screen Templates<span class="sb-tag new">NEW</span></div>
+    </div>
+    <!-- Product Library -->
+    <div data-nav="library" style="display:none">
+      <div class="sb-section">Product Library</div>
+      <div class="sb-item" onclick="load('DS_ProductLibrary.html','Collections',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span>Collections</div>
+      <div class="sb-item" onclick="load('DeStore_Product_Page_Interactive.html','Product Page',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></span>Product Page</div>
+    </div>
+    <!-- Analytics -->
+    <div data-nav="analytics" style="display:none">
+      <div class="sb-section">Analytics</div>
+      <div class="sb-item" onclick="load('DS_ScanDashboard.html','QR Scan Intelligence',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>Scan Dashboard<span class="sb-tag new">NEW</span></div>
+    </div>
+    <!-- Platform Admin -->
+    <div data-nav="admin" style="display:none">
+      <div class="sb-section">Platform</div>
+      <div class="sb-item" onclick="load('DeStore_Connect_Domain.html','Connect Domain',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>Connect Domain</div>
+      <div class="sb-item" onclick="load('DS_BrandAssets.html','Brand Assets',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></span>Brand Assets<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_RolesPermissions.html','Roles & Permissions',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Roles & Permissions<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_BrandTeam.html','Brand Team',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Brand Team<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_WebmasterRoles.html','Webmaster Admin',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Webmaster Admin<span class="sb-tag new">NEW</span></div>
+      <div class="sb-section">Strategy</div>
+      <div class="sb-item" onclick="load('DS_Roadmap.html','Roadmap',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></span>Roadmap<span class="sb-tag new">NEW</span></div>
+    </div>
+    <!-- Extras -->
+    <div data-nav="extras" style="display:none">
+      <div class="sb-section">Tools</div>
+      <div class="sb-item" onclick="load('DS_Clippy.html','Clippy · AI Mascot',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></span>Clippy<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_DPP_Foundation_Program.html','Webinar Series',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>Webinar Series<span class="sb-tag new">NEW</span></div>
+    </div>
+  </div>
+
+  <!-- ═══ CONTENT (IFRAME) ═══ -->
+  <div class="content" id="content">
+    <div class="loading" id="loading">
+      <div class="ld-spinner"></div>
+      <div class="ld-text">Loading...</div>
+    </div>
+    <iframe id="frame" src="about:blank"></iframe>
   </div>
 </div>
 
-<!-- ── INQUIRY FORM ── -->
-<section id="inquiry">
-  <div style="display:flex;align-items:center;justify-content:center;margin-bottom:32px;">
-    <div style="display:inline-flex;align-items:center;gap:12px;background:rgba(179,84,241,0.08);border:1px solid rgba(179,84,241,0.3);border-radius:100px;padding:10px 20px;">
-      <div style="width:8px;height:8px;border-radius:50%;background:var(--violet);box-shadow:0 0 8px rgba(179,84,241,0.8);flex-shrink:0;"></div>
-      <span style="font-size:12px;font-weight:800;color:var(--violet);letter-spacing:0.06em;text-transform:uppercase;">Free ESPR Readiness Check — Valued at $500</span>
-    </div>
-  </div>
-<div class="form-header">
-    <div class="section-label">Work with us</div>
-    <h2 class="form-title">Get your free ESPR Readiness Check — worth $500.</h2>
-    <p class="form-sub">Fill in the form below. We'll personally review your product category against the ESPR regulation and come back with: which deadline applies to you, exactly what your DPP needs to contain, and whether you're at risk of losing EU market access. No charge. No obligation. Just the information you need to make a smart decision.</p>
-  </div>
-
-  <form id="enquiryForm" onsubmit="handleSubmit(event)">
-    <div class="form-grid">
-      <div class="form-field">
-        <label for="f-name">Your name</label>
-        <input id="f-name" name="name" type="text" placeholder="Jane Smith" required />
-      </div>
-      <div class="form-field">
-        <label for="f-brand">Brand / company</label>
-        <input id="f-brand" name="brand" type="text" placeholder="Acme Co." required />
-      </div>
-      <div class="form-field">
-        <label for="f-email">Email</label>
-        <input id="f-email" name="email" type="email" placeholder="jane@acme.com" required />
-      </div>
-      <div class="form-field">
-        <label for="f-role">I am a…</label>
-        <select id="f-role" name="role" required>
-          <option value="" disabled selected>Select one</option>
-          <option>Product founder / brand owner</option>
-          <option>Maker or manufacturer</option>
-          <option>Retailer or stockist</option>
-          <option>Ecommerce / DTC business</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-field full">
-        <label for="f-message">What are you building?</label>
-        <textarea id="f-message" name="message" placeholder="What do you make? Where do you sell — Australia, EU, global? Are you dealing with counterfeits, planning EU expansion, or just getting ahead of the regulation? Approximate annual turnover helps us scope the right solution." required></textarea>
-      </div>
-    </div>
-    <button type="submit" class="form-submit" id="formSubmitBtn">Claim your free ESPR check →</button>
-    <p class="form-note" id="formError" style="display:none;color:#ff6b6b;font-weight:700;"></p>
-    <p class="form-note">Free assessment. No obligation. We'll tell you exactly where you stand with ESPR and what a DPP build looks like for your product.</p>
-  </form>
-
-  <div class="form-success" id="formSuccess">
-    <div class="success-icon">✓</div>
-    <div class="success-title">Got it — thank you.</div>
-    <div class="success-body">We'll come back to you within 48 hours with a straight read on your ESPR exposure, your DPP requirements, and whether we're the right fit to build it. You can also reach Josiah directly at <a href="/cdn-cgi/l/email-protection#713b1e0218101931151402051e03145f1f1405061e031a" style="color:var(--violet);text-decoration:none;"><span class="__cf_email__" data-cfemail="6822071b010900280c0d1b1c071a0d46060d1c1f071a03">[email&#160;protected]</span></a></div>
-  </div>
-</section>
-
-<!-- ── FOOTER ── -->
-<footer>
-  <div>
-    <svg width="100" height="18" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 405.4 76.5" xml:space="preserve"> <g> <g> <path fill="#FFFFFF" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/> </g> <g> <path fill="#FFFFFF" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6 c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/> <path fill="#FFFFFF" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2 c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6 c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/> <path fill="#FFFFFF" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22 c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5 c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/> <path fill="#FFFFFF" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3 l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/> <path fill="#FFFFFF" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9 C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5 C266.3,60.3,270.3,54.7,270.3,47.9z"/> <path fill="#FFFFFF" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3 V22.3z"/> <path fill="#FFFFFF" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2 c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1 c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/> </g> </g> </svg>
-    <div class="footer-left" style="margin-top:10px;">
-      © 2026 DeStore Network · Byron Bay, Australia · Digital Product Passport Infrastructure<br>
-      <a href="/cdn-cgi/l/email-protection#8ec4e1fde7efe6ceeaebfdfae1fceba0e0ebfaf9e1fce5" style="color:var(--violet);text-decoration:none;font-size:12px;"><span class="__cf_email__" data-cfemail="c08aafb3a9a1a880a4a5b3b4afb2a5eeaea5b4b7afb2ab">[email&#160;protected]</span></a>
+<!-- ═══ MOBILE APP — AI Chat Only ═══ -->
+<div class="mobile-app" id="mobileApp">
+  <!-- Mobile Header -->
+  <div class="m-header">
+    <svg height="16" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#B354F1"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#f0f0f5"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#f0f0f5"/></svg>
+    <div class="m-header-title">DPP Assistant</div>
+    <div class="m-header-right">
+      <div class="m-user">JK</div>
     </div>
   </div>
 
-</footer>
-
-<!-- ── MODE TOGGLES ── -->
-<div class="mode-toggles">
-  <div class="tgl-label">Appearance</div>
-  <div class="toggle-group">
-    <button class="tgl-btn active" id="btnDark">◐ Dark</button>
-    <button class="tgl-btn"        id="btnLight">☀ Light</button>
+  <!-- Chat Messages -->
+  <div class="m-chat" id="mChat">
+    <div class="m-msg bot">
+      <div class="m-sender clippy">Clippy</div>
+      Hi! I'm your DPP Assistant. I'll help you build a Digital Product Passport for your product. Let's start — what product are you creating a DPP for?
+      <div class="m-time">Just now</div>
+    </div>
   </div>
-  <div class="tgl-label" style="margin-top:4px;">Style</div>
-  <div class="toggle-group">
-    <button class="tgl-btn active" id="btnPro">◈ Pro</button>
-    <button class="tgl-btn"        id="btnFun">✦ Fun</button>
+
+  <!-- Quick Action Chips -->
+  <div class="m-actions" id="mActions">
+    <div class="m-action" onclick="mQuick('Start a new DPP')">New DPP</div>
+    <div class="m-action" onclick="mQuick('Continue my last DPP')">Continue DPP</div>
+    <div class="m-action" onclick="mQuick('Show my products')">My Products</div>
+    <div class="m-action" onclick="mQuick('What is a DPP?')">What is a DPP?</div>
+    <div class="m-action" onclick="mQuick('Check compliance score')">Check Score</div>
+  </div>
+
+  <!-- Input Bar -->
+  <div class="m-input-bar">
+    <button class="m-attach" title="Attach document"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+    <input type="text" id="mInput" placeholder="Tell me about your product..." onkeydown="if(event.key==='Enter')mSend()">
+    <button class="m-voice" title="Voice input"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+    <button class="m-send" onclick="mSend()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
   </div>
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-/* ── Theme & mode toggles ── */
-function setTheme(t) {
-  document.documentElement.classList.toggle('light', t === 'light');
-  document.getElementById('btnDark').classList.toggle('active',  t === 'dark');
-  document.getElementById('btnLight').classList.toggle('active', t === 'light');
-  var logoFill = t === 'light' ? '#1a1814' : '#FFFFFF';
-  document.querySelectorAll('svg path[fill="#FFFFFF"], svg path[fill="#1a1814"]').forEach(function(p) {
-    p.setAttribute('fill', logoFill);
-  });
-}
-function setMode(m) {
-  var html = document.documentElement;
-  html.classList.toggle('fun', m === 'fun');
-  html.classList.toggle('pro', m === 'pro');
-  document.getElementById('btnPro').classList.toggle('active', m === 'pro');
-  document.getElementById('btnFun').classList.toggle('active', m === 'fun');
-  const hl = document.querySelector('.hero-headline');
-  if (m === 'fun') {
-    hl.dataset.pro = hl.dataset.pro || hl.innerHTML;
-    hl.innerHTML = "Every product<br>deserves its own<br><em>digital passport.</em> ✦";
+// ── Thirdweb Config ──
+const TW_CLIENT_ID = '297d2e6f640ff49d93a7ec4c1bfe2015';
+
+// ── Theme ──
+const savedTheme = localStorage.getItem('ds_theme');
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+
+function toggleTheme() {
+  const next = document.documentElement.dataset.theme === 'light' ? '' : 'light';
+  if (next) {
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('ds_theme', next);
   } else {
-    if (hl.dataset.pro) hl.innerHTML = hl.dataset.pro;
+    delete document.documentElement.dataset.theme;
+    localStorage.removeItem('ds_theme');
+  }
+  // Propagate to iframe
+  const f = document.getElementById('frame');
+  if (f && f.contentWindow) {
+    f.contentWindow.postMessage({type: 'ds-theme', theme: next || 'dark'}, '*');
   }
 }
-function wireToggles() {
-  var bd = document.getElementById('btnDark');
-  var bl = document.getElementById('btnLight');
-  var bp = document.getElementById('btnPro');
-  var bf = document.getElementById('btnFun');
-  if (!bd) return;
-  bd.addEventListener('click', function() { setTheme('dark'); });
-  bl.addEventListener('click', function() { setTheme('light'); });
-  bp.addEventListener('click', function() { setMode('pro'); });
-  bf.addEventListener('click', function() { setMode('fun'); });
-}
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', wireToggles);
-} else {
-  wireToggles();
-}
 
-/* ── Countdown to 1 July 2027 ── */
-function updateCountdown() {
-  const deadline = new Date('2027-07-01T00:00:00Z').getTime();
-  const now = Date.now();
-  const diff = deadline - now;
-  if (diff <= 0) return;
-  const days  = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins  = Math.floor((diff % 3600000)  / 60000);
-  const secs  = Math.floor((diff % 60000)    / 1000);
-  document.getElementById('cdDays').textContent  = String(days).padStart(3,'0');
-  document.getElementById('cdHours').textContent = String(hours).padStart(2,'0');
-  document.getElementById('cdMins').textContent  = String(mins).padStart(2,'0');
-  document.getElementById('cdSecs').textContent  = String(secs).padStart(2,'0');
-}
-updateCountdown();
-setInterval(updateCountdown, 1000);
+// ── Thirdweb Auth ──────────────────────────────────────────────────────
+// Replace YOUR_CLIENT_ID with your Thirdweb Client ID from dashboard.thirdweb.com
+const THIRDWEB_CLIENT_ID = '297d2e6f640ff49d93a7ec4c1bfe2015';
 
-/* ── Particle canvas ── */
-(function() {
-  const canvas = document.getElementById('heroCanvas');
-  const ctx    = canvas.getContext('2d');
-  let W, H, particles;
+let twClient, twWallet, loginEmailVal = '';
+const loginGate = document.getElementById('loginGate');
+const otpInputs  = document.querySelectorAll('.login-otp');
 
-  const COLORS = ['#B354F1','#6A14DB','#FF9F46','#321B68','#28B79D'];
-
-  function resize() {
-    W = canvas.width  = canvas.offsetWidth;
-    H = canvas.height = canvas.offsetHeight;
-  }
-
-  function rand(a, b) { return a + Math.random() * (b - a); }
-
-  function initParticles() {
-    const count = Math.floor(W * H / 9000);
-    particles = Array.from({ length: count }, () => ({
-      x:  rand(0, W), y:  rand(0, H),
-      vx: rand(-0.25, 0.25), vy: rand(-0.18, 0.18),
-      r:  rand(0.8, 2.4),
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      alpha: rand(0.25, 0.7),
-    }));
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-
-    /* Grid lines */
-    ctx.strokeStyle = 'rgba(179,84,241,0.04)';
-    ctx.lineWidth = 1;
-    const gsize = 60;
-    for (let x = 0; x < W; x += gsize) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-    }
-    for (let y = 0; y < H; y += gsize) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-    }
-
-    /* Connection lines between nearby particles */
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < 120) {
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(179,84,241,${0.07 * (1 - dist/120)})`;
-          ctx.lineWidth = 0.5;
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-        }
+// Boot: check existing session
+(async () => {
+  const saved = sessionStorage.getItem('ds_auth');
+  if (saved) {
+    try {
+      const s = JSON.parse(saved);
+      if (s.email && s.address) {
+        setUserAvatar(s.email);
+        loginGate.classList.add('hidden');
+        onAuthComplete();
+        return;
       }
-    }
-
-    /* Particles */
-    particles.forEach(p => {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = p.color + Math.round(p.alpha * 255).toString(16).padStart(2,'0');
-      ctx.fill();
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0) p.x = W;
-      if (p.x > W) p.x = 0;
-      if (p.y < 0) p.y = H;
-      if (p.y > H) p.y = 0;
-    });
-
-    requestAnimationFrame(draw);
+    } catch(e) {}
   }
 
-  resize();
-  initParticles();
-  draw();
-  window.addEventListener('resize', () => { resize(); initParticles(); });
+  // Init Thirdweb client once
+  try {
+    const { createThirdwebClient } = await import('thirdweb');
+    const { inAppWallet }          = await import('thirdweb/wallets');
+    twClient = createThirdwebClient({ clientId: THIRDWEB_CLIENT_ID });
+    twWallet = inAppWallet();
+
+    // Try to restore an existing Thirdweb session silently
+    const { autoConnect } = await import('thirdweb/wallets');
+    const restored = await autoConnect({ client: twClient, wallets: [twWallet] }).catch(() => null);
+    if (restored) {
+      const addr = restored.getAccount()?.address || '';
+      const email = sessionStorage.getItem('ds_last_email') || addr.slice(0,6) + '…' + addr.slice(-4);
+      sessionStorage.setItem('ds_auth', JSON.stringify({ email, address: addr, timestamp: Date.now() }));
+      setUserAvatar(email);
+      loginGate.classList.add('hidden');
+      onAuthComplete();
+    }
+  } catch(e) {
+    console.warn('Thirdweb init failed — falling back to demo mode', e);
+  }
 })();
 
-async function handleSubmit(e) {
-  e.preventDefault();
-  const btn = document.getElementById('formSubmitBtn');
-  const errEl = document.getElementById('formError');
-  const form = document.getElementById('enquiryForm');
+function showStep(step) {
+  document.querySelectorAll('.login-step').forEach(s => s.classList.remove('active'));
+  const map = { email: 'stepEmail', otp: 'stepOTP', loading: 'stepLoading' };
+  if (map[step]) document.getElementById(map[step]).classList.add('active');
+}
 
-  // Loading state
+function setUserAvatar(email) {
+  const initials = email.split('@')[0].substring(0, 2).toUpperCase();
+  document.querySelectorAll('.tb-user, .m-user').forEach(el => el.textContent = initials);
+}
+
+// ── Email OTP ──────────────────────────────────────────────────────────
+async function sendOTP() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email || !email.includes('@') || !email.includes('.')) {
+    document.getElementById('emailError').style.display = 'block';
+    return;
+  }
+  document.getElementById('emailError').style.display = 'none';
+  loginEmailVal = email;
+  sessionStorage.setItem('ds_last_email', email);
+
+  const btn = document.getElementById('btnSendOTP');
+  btn.innerHTML = '<span class="login-spinner"></span>Sending code...';
   btn.disabled = true;
-  btn.textContent = 'Sending…';
-  errEl.style.display = 'none';
-
-  const payload = {
-    name:    document.getElementById('f-name').value.trim(),
-    brand:   document.getElementById('f-brand').value.trim(),
-    email:   document.getElementById('f-email').value.trim(),
-    role:    document.getElementById('f-role').value,
-    message: document.getElementById('f-message').value.trim(),
-    source:  'destore-landing-espr-check',
-    submitted_at: new Date().toISOString(),
-  };
 
   try {
-    const res = await fetch('https://n8n.flowberry.org/webhook/destore-espr-lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) throw new Error('Server error ' + res.status);
-
-    // Success
-    form.style.display = 'none';
-    document.getElementById('formSuccess').classList.add('show');
-    window.scrollTo({ top: document.getElementById('inquiry').offsetTop - 80, behavior: 'smooth' });
-  } catch (err) {
+    if (!twWallet) throw new Error('no wallet');
+    const { sendVerificationEmail } = await import('thirdweb/wallets');
+    await sendVerificationEmail({ wallet: twWallet, client: twClient, email });
+    document.getElementById('otpEmailDisplay').textContent = 'Code sent to ' + email;
+    showStep('otp');
+    otpInputs[0].focus();
+  } catch(e) {
+    showLoginError('emailError', 'Failed to send code — check your Client ID');
+    console.error(e);
+  } finally {
+    btn.innerHTML = 'Continue with email';
     btn.disabled = false;
-    btn.textContent = 'Claim your free ESPR check →';
-    errEl.textContent = 'Something went wrong — please email Josiah@destore.network directly.';
-    errEl.style.display = 'block';
   }
 }
 
-// ── Analytics Tracking ──
-(function() {
-  const WEBHOOK = 'https://n8n.flowberry.org/webhook/destore-analytics';
-  const SESSION = (sessionStorage.getItem('ds_sid') || (() => {
-    const id = 'ds_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-    sessionStorage.setItem('ds_sid', id);
-    return id;
-  })());
-
-  function fire(event_type, label, extra) {
-    var payload = Object.assign({
-      session_id: SESSION,
-      event_type: event_type,
-      label: label,
-      path: location.pathname,
-      referrer: document.referrer || '',
-      ts: new Date().toISOString(),
-    }, extra || {});
-    navigator.sendBeacon ? navigator.sendBeacon(WEBHOOK, JSON.stringify(payload))
-      : fetch(WEBHOOK, { method:'POST', body: JSON.stringify(payload), keepalive:true }).catch(function(){});
+// ── Social login helper ────────────────────────────────────────────────
+async function socialLogin(btn, strategy, label, iconHtml) {
+  const origInner = btn.innerHTML;
+  btn.innerHTML = '<span class="login-spinner"></span>Connecting...';
+  btn.disabled = true;
+  try {
+    if (!twWallet) throw new Error('no wallet');
+    const account = await twWallet.connect({ client: twClient, strategy });
+    await finishLogin(account);
+  } catch(e) {
+    btn.innerHTML = origInner;
+    btn.disabled = false;
+    showLoginError('emailError', label + ' sign-in failed — try again');
+    console.error(e);
   }
+}
 
-  // Page view
-  fire('pageview', 'landing', { ua: navigator.userAgent });
+// ── Apple ──────────────────────────────────────────────────────────────
+function appleLogin(btn) {
+  socialLogin(btn, 'apple', 'Apple', '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>');
+}
 
-  // Scroll depth milestones
-  var fired = {};
-  var milestones = [25, 50, 75, 90, 100];
-  window.addEventListener('scroll', function() {
-    var pct = Math.round((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100);
-    milestones.forEach(function(m) {
-      if (pct >= m && !fired[m]) {
-        fired[m] = true;
-        fire('scroll_depth', m + '%', { pct: m });
-      }
-    });
-  }, { passive: true });
+// ── Google OAuth ───────────────────────────────────────────────────────
+function googleLogin(btn) {
+  socialLogin(btn, 'google', 'Google', '<svg width="15" height="15" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>');
+}
 
-  // Section visibility tracking
-  var sections = [
-    { id:'what-we-build', label:'Section: What We Build' },
-    { id:'inquiry',       label:'Section: ESPR Form' },
-  ];
-  if (window.IntersectionObserver) {
-    sections.forEach(function(s) {
-      var el = document.getElementById(s.id);
-      if (!el) return;
-      var obs = new IntersectionObserver(function(entries) {
-        entries.forEach(function(en) {
-          if (en.isIntersecting) { fire('section_view', s.label); obs.unobserve(el); }
-        });
-      }, { threshold: 0.3 });
-      obs.observe(el);
-    });
+// ── WalletConnect ──────────────────────────────────────────────────────
+async function walletLogin(btn) {
+  const origInner = btn.innerHTML;
+  btn.innerHTML = '<span class="login-spinner"></span>Connecting...';
+  btn.disabled = true;
+  try {
+    const { createWallet } = await import('thirdweb/wallets');
+    const wcWallet = createWallet('walletConnect');
+    const account = await wcWallet.connect({ client: twClient });
+    await finishLogin(account);
+  } catch(e) {
+    btn.innerHTML = origInner;
+    btn.disabled = false;
+    showLoginError('emailError', 'Wallet connection cancelled');
+    console.error(e);
   }
+}
 
-  // Click tracking — CTAs, nav, toggles, form submit
-  var clickTargets = [
-    { sel: '.nav-cta',       label: 'CTA: Nav — Free ESPR Check' },
-    { sel: '.hero-cta',      label: 'CTA: Hero — Free ESPR Check' },
-    { sel: '#formSubmitBtn', label: 'CTA: Form Submit' },
-    { sel: '#btnDark',       label: 'Toggle: Dark mode' },
-    { sel: '#btnLight',      label: 'Toggle: Light mode' },
-    { sel: '#btnPro',        label: 'Toggle: Pro mode' },
-    { sel: '#btnFun',        label: 'Toggle: Fun mode' },
-  ];
-  clickTargets.forEach(function(t) {
-    var el = document.querySelector(t.sel);
-    if (el) el.addEventListener('click', function() { fire('click', t.label); });
+// ── OTP Input Helpers ──────────────────────────────────────────────────
+function otpNext(el, idx) {
+  el.value = el.value.replace(/\D/g, '');
+  if (el.value && idx < 5) otpInputs[idx + 1].focus();
+  if (Array.from(otpInputs).map(i => i.value).join('').length === 6) verifyOTP();
+}
+
+function otpBack(e, idx) {
+  if (e.key === 'Backspace' && !otpInputs[idx].value && idx > 0) otpInputs[idx - 1].focus();
+}
+
+// ── Verify OTP ─────────────────────────────────────────────────────────
+async function verifyOTP() {
+  const code = Array.from(otpInputs).map(i => i.value).join('');
+  if (code.length < 6) return;
+
+  const btn = document.getElementById('btnVerify');
+  btn.innerHTML = '<span class="login-spinner"></span>Verifying...';
+  btn.disabled = true;
+
+  try {
+    if (!twWallet) throw new Error('no wallet');
+    const account = await twWallet.connect({
+      client: twClient,
+      strategy: 'email',
+      email: loginEmailVal,
+      verificationCode: code,
+    });
+    document.getElementById('otpError').style.display = 'none';
+    await finishLogin(account);
+  } catch(e) {
+    document.getElementById('otpError').style.display = 'block';
+    btn.innerHTML = 'Verify';
+    btn.disabled = false;
+    otpInputs.forEach(i => i.value = '');
+    otpInputs[0].focus();
+    console.error(e);
+  }
+}
+
+// ── Finish login — store session & enter platform ─────────────────────
+async function finishLogin(account) {
+  showStep('loading');
+  const address = account?.address || '';
+  const email   = loginEmailVal || (address.slice(0,6) + '…' + address.slice(-4));
+  sessionStorage.setItem('ds_auth', JSON.stringify({
+    email, address, timestamp: Date.now()
+  }));
+  setUserAvatar(email);
+  await new Promise(r => setTimeout(r, 900));
+  loginGate.classList.add('hidden');
+  onAuthComplete();
+}
+
+function showLoginError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+// ── Platform Code ──
+const frame = document.getElementById('frame');
+const loading = document.getElementById('loading');
+const tbPage = document.getElementById('tbPage');
+
+frame.addEventListener('load', () => {
+  loading.classList.add('hidden');
+  // Propagate theme to loaded iframe
+  const t = document.documentElement.dataset.theme;
+  if (t && frame.contentWindow) {
+    frame.contentWindow.postMessage({type: 'ds-theme', theme: t}, '*');
+  }
+});
+
+function load(file, title, el) {
+  // Update active state in sidebar
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  // Show loading
+  loading.classList.remove('hidden');
+  // Update topbar title
+  tbPage.textContent = title;
+  // Load iframe
+  frame.src = file;
+}
+
+function showSection(section, railBtn) {
+  // Update rail active
+  document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
+  railBtn.classList.add('active');
+  // Show/hide sidebar sections
+  document.querySelectorAll('[data-nav]').forEach(n => {
+    n.style.display = n.dataset.nav === section ? 'block' : 'none';
   });
-})();
+  // Auto-click first item in the section
+  const firstItem = document.querySelector(`[data-nav="${section}"] .sb-item`);
+  if (firstItem) firstItem.click();
+}
 
-// Scroll-triggered fade-ins
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(en => {
-    if (en.isIntersecting) {
-      en.target.classList.add('visible');
-      observer.unobserve(en.target);
-    }
-  });
-}, { threshold: 0.12 });
-document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+// Keyboard shortcut: Cmd/Ctrl+B to toggle sidebar
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+    e.preventDefault();
+    document.getElementById('shell').classList.toggle('collapsed');
+  }
+});
 
-</script>
-</body>
-</html>
+// Initial load — only if already authenticated
+if (session) {
+  frame.src = 'DS_DPP_Foundation.html';
+  setTimeout(() => loading.classList.add('hidden'), 500);
+}
+
+// After login completes, load the default page
+function onAuthComplete() {
+  frame.src = 'DS_DPP_Foundation.html';
+}
+
+// ── Mobile Chat ──
+const mChat = document.getElementById('mChat');
+const mInput = document.getElementById('mInput');
+
+const clippy_responses = {
+  'Start a new DPP': "Great! Let's create a new DPP. First, what's the product name? For example: \"Organic Cotton Tee\" or \"Stainless Steel Water Bottle\".",
+  'Continue my last DPP': "You were working on **Organic Cotton Tee** (ECO-TEE-001). You're at 74% completion — 5 fields still need review. Want to pick up where you left off?",
+  'Show my products': "You have 3 products:\n\n1. Organic Cotton Tee — 74% complete\n2. Winter Jacket — 45% complete\n3. Face Serum — Draft\n\nWhich one would you like to work on?",
+  'What is a DPP?': "A Digital Product Passport is a digital record of your product's identity — what it's made of, where it comes from, and how to recycle it. The EU requires DPPs under ESPR starting 2027. I'll help you build one step by step.",
+  'Check compliance score': "Your **Organic Cotton Tee** scores **74%** on ESPR compliance.\n\n✓ Product identity: 90%\n! Materials: 60%\n! Supply chain: 50%\n✓ End of life: 71%\n\n2 critical items need attention: REACH/SVHC assessment and Declaration of Conformity.",
+};
+
+const default_responses = [
+  "Got it! I've captured that information. What else can you tell me about this product?",
+  "That's helpful. Let me add that to your DPP. Do you have any certifications for this product?",
+  "I've noted that down. What materials is this product made from?",
+  "Thanks! I'll include that in the DPP. Where is this product manufactured?",
+  "Understood. Now let's talk about the end-of-life — can this product be recycled?",
+  "Good. I've updated your compliance score. Would you like to see the DPP Preliminary Report?",
+];
+
+function addMsg(text, isUser) {
+  const div = document.createElement('div');
+  div.className = 'm-msg ' + (isUser ? 'user' : 'bot');
+  const now = new Date();
+  const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  if (!isUser) {
+    div.innerHTML = `<div class="m-sender clippy">Clippy</div>${text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}<div class="m-time">${time}</div>`;
+  } else {
+    div.innerHTML = `${text}<div class="m-time">${time}</div>`;
+  }
+  mChat.appendChild(div);
+  mChat.scrollTop = mChat.scrollHeight;
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'm-typing';
+  div.id = 'mTyping';
+  div.innerHTML = '<div class="m-typing-dot"></div><div class="m-typing-dot"></div><div class="m-typing-dot"></div>';
+  mChat.appendChild(div);
+  mChat.scrollTop = mChat.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('mTyping');
+  if (t) t.remove();
+}
+
+function mSend() {
+  const text = mInput.value.trim();
+  if (!text) return;
+  addMsg(text, true);
+  mInput.value = '';
+
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    const response = default_responses[Math.floor(Math.random() * default_responses.length)];
+    addMsg(response, false);
+  }, 1000 + Math.random() * 1000);
+}
+
+function mQuick(text) {
+  addMsg(text, true);
+  showTyping();
+  setTimeout(() => {
+    

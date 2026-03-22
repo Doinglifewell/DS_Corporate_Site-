@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DPP Preliminary Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#202128;
+  --border:#222230;--border2:#2e2f3a;
+  --text:#f0f0f5;--text2:#a0a0b0;--text3:#666678;
+  --royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;
+  --green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--red:#e74c3c;--blue:#3b82f6;
+}
+[data-theme="light"] {
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+
+@page{size:A4;margin:20mm 18mm 20mm 18mm}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--d3);background: var(--d2);font-size:10.5px;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* ── Print Controls ── */
+.no-print{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 24px;background:var(--royal);position:sticky;top:0;z-index:100}
+@media print{.no-print{display:none !important}}
+.no-print button{padding:10px 24px;border-radius:10px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:800;cursor:pointer}
+.no-print .pr-btn{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff}
+.no-print .pr-label{color:rgba(240, 240, 245, 0.85);font-size:11px;font-weight:600}
+
+/* ── Page Break ── */
+.page-break{page-break-before:always}
+
+/* ── Cover Page ── */
+.cover{height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 40px;page-break-after:always}
+.cover-logo{margin-bottom:48px}
+.cover-logo svg{height:32px}
+.cover-brand-bar{display:flex;align-items:center;gap:16px;margin-bottom:40px;padding-bottom:20px;border-bottom:2px solid var(--d4)}
+.cover-brand-logo{width:60px;height:60px;border-radius:14px;border:2px dashed var(--border2);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:var(--text3);text-align:center}
+.cover-brand-name{font-size:16px;font-weight:800}
+.cover-brand-sub{font-size:11px;color:var(--text3)}
+.cover h1{font-size:38px;font-weight:900;letter-spacing:-1.5px;color:var(--royal);margin-bottom:8px}
+.cover h2{font-size:18px;font-weight:700;color:var(--orchid);margin-bottom:32px}
+.cover-meta{font-size:11px;color:var(--text3);line-height:1.8}
+.cover-meta strong{color:var(--d3)}
+.cover-score-block{margin-top:40px;display:flex;align-items:center;gap:24px;padding:20px;background: rgba(106, 20, 219, 0.05);border: 1.5px solid rgba(106, 20, 219, 0.15);border-radius:16px}
+.cover-score-ring{width:80px;height:80px;position:relative;flex-shrink:0}
+.cover-score-ring svg{transform:rotate(-90deg)}
+.cover-score-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:var(--royal)}
+.cover-score-detail{flex:1}
+.cover-score-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.cover-score-text{font-size:13px;font-weight:700;color:var(--d3);line-height:1.6}
+
+/* ── Section ── */
+.section{margin-bottom:24px}
+.sec-head{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:2px solid var(--royal);margin-bottom:14px}
+.sec-num{width:24px;height:24px;border-radius:7px;background:var(--royal);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff}
+.sec-title{font-size:15px;font-weight:900;letter-spacing:-.2px;color:var(--royal)}
+.sec-score{margin-left:auto;display:flex;align-items:center;gap:6px}
+.sec-score-bar{width:60px;height:6px;border-radius:3px;background:var(--d4);overflow:hidden}
+.sec-score-fill{height:100%;border-radius:3px}
+.sec-score-pct{font-size:10px;font-weight:800}
+
+/* ── Data Row ── */
+.data-table{width:100%;border-collapse:collapse;margin-bottom:4px}
+.data-table th{text-align:left;padding:6px 10px;font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);background:var(--d3);border-bottom:1px solid var(--d4)}
+.data-table td{padding:7px 10px;border-bottom:1px solid var(--d3);font-size:10.5px;vertical-align:top}
+.data-table tr:last-child td{border-bottom:none}
+
+/* Status badges */
+.status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:800}
+.status.complete{background: rgba(40, 183, 157, 0.1);color: var(--green)}
+.status.review{background: rgba(255, 159, 70, 0.1);color: var(--orange)}
+.status.missing{background: rgba(231, 76, 60, 0.1);color: var(--red)}
+.status.na{background:var(--d3);color:var(--text3)}
+
+/* Evidence links */
+.ev{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:var(--orchid);text-decoration:none;padding:2px 7px;border-radius:4px;background: rgba(106, 20, 219, 0.05);border: 1px solid rgba(106, 20, 219, 0.15);transition:all .15s;white-space:nowrap}
+.ev:hover{background: rgba(106, 20, 219, 0.06);border-color:var(--orchid)}
+.ev .ev-icon{font-size:10px}
+.ev-none{font-size:9px;color: var(--red);font-weight:700;font-style:italic}
+.ev-stack{display:flex;flex-wrap:wrap;gap:3px}
+
+/* ── Materials Table ── */
+.mat-table{width:100%;border-collapse:collapse;margin:8px 0}
+.mat-table th{text-align:left;padding:5px 8px;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--royal);border:none}
+.mat-table th:first-child{border-radius:6px 0 0 0}
+.mat-table th:last-child{border-radius:0 6px 0 0}
+.mat-table td{padding:5px 8px;font-size:10px;border-bottom:1px solid var(--d3)}
+.mat-table tr:last-child td{border-bottom:none}
+
+/* ── Score Ring (inline small) ── */
+.ring-sm{width:40px;height:40px;position:relative;display:inline-block;vertical-align:middle}
+.ring-sm svg{transform:rotate(-90deg)}
+.ring-sm .rv{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900}
+
+/* ── Gap Analysis ── */
+.gap-list{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.gap-item{display:flex;gap:8px;padding:8px 12px;border-radius:8px;font-size:10.5px}
+.gap-item.critical{background: rgba(231, 76, 60, 0.1);border:1px solid #FFCCCC}
+.gap-item.warning{background: rgba(255, 159, 70, 0.08);border: 1px solid rgba(255, 159, 70, 0.30)}
+.gap-item.info{background: rgba(106, 20, 219, 0.04);border: 1px solid var(--border)}
+.gap-item .gi-icon{font-size:14px;flex-shrink:0}
+.gap-item .gi-text{flex:1;line-height:1.5}
+.gap-item .gi-text strong{display:block;font-size:10px}
+
+/* ── Reviewer Section ── */
+.reviewer-block{border:2px solid var(--royal);border-radius:14px;padding:24px;margin-top:24px;page-break-inside:avoid}
+.reviewer-block h3{font-size:14px;font-weight:900;color:var(--royal);margin-bottom:4px}
+.reviewer-sub{font-size:10px;color:var(--text3);margin-bottom:16px}
+.reviewer-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.rv-field{border-bottom:1.5px solid var(--d4);padding-bottom:4px}
+.rv-field label{display:block;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:18px}
+.rv-notes{border:1.5px solid var(--d4);border-radius:8px;min-height:80px;padding:8px 10px;margin-bottom:16px}
+.rv-notes-label{font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.rv-sig{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px}
+.rv-sig-box{border-bottom:1.5px solid var(--d3);padding-bottom:4px;min-height:50px}
+.rv-sig-box label{display:block;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:4px}
+
+/* ── Footer ── */
+.report-footer{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--d4);margin-top:24px;font-size:9px;color:var(--text3)}
+.report-footer svg{height:12px}
+
+/* ── Utility ── */
+.mono{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3)}
+.text-green{color: var(--green)}
+.text-orange{color: var(--orange)}
+.text-red{color: var(--red)}
+.text-violet{color:var(--orchid)}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+.leaflet-container{background:var(--bg) !important}
+.leaflet-tile-pane{filter:brightness(0.455) saturate(0.4) hue-rotate(200deg)}
+[data-theme="light"] .leaflet-tile-pane{filter:brightness(0.92) saturate(0.5) hue-rotate(200deg)}
+.prov-marker{display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid;font-size:10px;font-weight:900}
+</style>
+</head>
+<body>
+
+<!-- Print bar -->
+<div class="no-print">
+  <span class="pr-label">DPP Preliminary Report · Preview</span>
+  <button class="pr-btn" onclick="window.print()">Download as PDF</button>
+</div>
+
+<!-- ═══════════════ COVER PAGE ═══════════════ -->
+<div class="cover">
+  <div class="cover-logo">
+    <svg viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#321B68"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#321B68"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#321B68"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#321B68"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#321B68"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#321B68"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#321B68"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#321B68"/></svg>
+  </div>
+
+  <div class="cover-brand-bar">
+    <div class="cover-brand-logo">BRAND<br>LOGO</div>
+    <div>
+      <div class="cover-brand-name">EcoThreads GmbH</div>
+      <div class="cover-brand-sub">Sustainable Textiles · Berlin, Germany · Growth Tier</div>
+    </div>
+  </div>
+
+  <h1>DPP Preliminary Report</h1>
+  <h2>Organic Cotton Tee — ECO-TEE-001</h2>
+
+  <div class="cover-meta">
+    <strong>Report ID:</strong> RPT-2026-0042<br>
+    <strong>Generated:</strong> 14 March 2026, 16:32 AEDT<br>
+    <strong>Category:</strong> Textiles — Clothing<br>
+    <strong>EU Market:</strong> Yes<br>
+    <strong>Data Source:</strong> DPP Assistant (AI-captured)<br>
+    <strong>Status:</strong> Pending Review
+  </div>
+
+  <div class="cover-score-block">
+    <div class="cover-score-ring">
+      <svg width="80" height="80"><circle cx="40" cy="40" r="34" fill="none" stroke="#E8E0F8" stroke-width="6"/><circle cx="40" cy="40" r="34" fill="none" stroke="#6A14DB" stroke-width="6" stroke-dasharray="213.6" stroke-dashoffset="55.5" stroke-linecap="round"/></svg>
+      <div class="cover-score-pct">74%</div>
+    </div>
+    <div class="cover-score-detail">
+      <div class="cover-score-label">ESPR Compliance Score</div>
+      <div class="cover-score-text">18 of 25 key fields captured. 5 fields need specialist review. 2 fields missing. This report is ready for a compliance officer to review and complete.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE 2: PRODUCT OVERVIEW + MAP ═══════════════ -->
+<div class="page-break"></div>
+
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-num">◈</div>
+    <div class="sec-title">Product Overview & Provenance</div>
+  </div>
+
+  <!-- Product Image + Key Details -->
+  <div style="display:flex;gap:24px;margin-bottom:24px;align-items:flex-start">
+    <!-- Product Image -->
+    <div style="width:160px;flex-shrink:0">
+      <div id="productImgWrap" style="width:160px;height:200px;border-radius:12px;border:2px dashed var(--border2);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--d3);cursor:pointer;position:relative" onclick="document.getElementById('prodImgUpload').click()">
+        <div id="prodImgPlaceholder" style="text-align:center"><div style="font-size:32px;margin-bottom:4px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></div><div style="font-size:8px;font-weight:800;color:var(--text3);letter-spacing:.04em">PRODUCT<br>IMAGE</div></div>
+        <img id="prodImg" style="display:none;width:100%;height:100%;object-fit:cover" alt="Product image">
+        <input type="file" id="prodImgUpload" accept="image/*" style="display:none" onchange="loadProdImg(this)">
+      </div>
+      <div style="font-size:8px;color:var(--text3);text-align:center;margin-top:4px">Click to upload</div>
+    </div>
+
+    <!-- Key Details -->
+    <div style="flex:1">
+      <div style="font-size:22px;font-weight:900;letter-spacing:-.4px;color:var(--royal);margin-bottom:2px">Organic Cotton Tee</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:12px">ECO-TEE-001 · €49.00 · 180g · GOTS Certified</div>
+      <div style="font-size:11px;color:var(--d3);line-height:1.7;margin-bottom:12px">Lightweight organic cotton t-shirt. Breathable, pre-shrunk, GOTS certified cotton. 95% organic cotton, 5% elastane. Manufactured in Portugal from Turkish-sourced cotton.</div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="background: rgba(106, 20, 219, 0.05);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:18px;font-weight:900;color:var(--orchid)">95%</div>
+          <div style="font-size:8px;font-weight:800;color:var(--text3);letter-spacing:.06em;text-transform:uppercase">Organic</div>
+        </div>
+        <div style="background: rgba(40, 183, 157, 0.1);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:18px;font-weight:900;color: var(--green)">7/10</div>
+          <div style="font-size:8px;font-weight:800;color:var(--text3);letter-spacing:.06em;text-transform:uppercase">Durability</div>
+        </div>
+        <div style="background: rgba(255, 159, 70, 0.08);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:18px;font-weight:900;color: var(--orange)">~5.2</div>
+          <div style="font-size:8px;font-weight:800;color:var(--text3);letter-spacing:.06em;text-transform:uppercase">kg CO₂e</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supply Chain Provenance Map -->
+  <div style="background: var(--d2);border: 1.5px solid rgba(106, 20, 219, 0.15);border-radius:14px;padding:16px;position:relative;overflow:hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)">Supply Chain Provenance</div>
+      <div style="font-size:8px;font-weight:700;color:var(--orchid)">3 countries · 2 raw material sources · ~12,400 km total shipping</div>
+    </div>
+    
+    <div id="provMap" style="height:300px;border-radius:10px;overflow:hidden;position:relative;margin-bottom:12px"></div>
+    
+    <!-- Legend -->
+    <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:9px;font-weight:700;color:var(--text2)">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#FF9F46;flex-shrink:0"></span>Raw Material · Australia</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#B354F1;flex-shrink:0"></span>Raw Material · India</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#28B79D;flex-shrink:0"></span>Assembly · China</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#321B68;flex-shrink:0"></span>Market · Germany</span>
+    </div>
+  </div>
+</div>
+
+<script>
+
+function gcArc(lat1,lng1,lat2,lng2,n){
+  const r=Math.PI/180;
+  const a=lat1*r,b=lng1*r,c=lat2*r,d=lng2*r;
+  const pts=[];
+  for(let i=0;i<=n;i++){
+    const t=i/n;
+    const A=Math.sin((1-t)*Math.acos(Math.sin(a)*Math.sin(c)+Math.cos(a)*Math.cos(c)*Math.cos(d-b)))/Math.sin(Math.acos(Math.sin(a)*Math.sin(c)+Math.cos(a)*Math.cos(c)*Math.cos(d-b)));
+    const B=Math.sin(t*Math.acos(Math.sin(a)*Math.sin(c)+Math.cos(a)*Math.cos(c)*Math.cos(d-b)))/Math.sin(Math.acos(Math.sin(a)*Math.sin(c)+Math.cos(a)*Math.cos(c)*Math.cos(d-b)));
+    const x=A*Math.cos(a)*Math.cos(b)+B*Math.cos(c)*Math.cos(d);
+    const y=A*Math.cos(a)*Math.sin(b)+B*Math.cos(c)*Math.sin(d);
+    const z=A*Math.sin(a)+B*Math.sin(c);
+    pts.push([Math.atan2(z,Math.sqrt(x*x+y*y))/r, Math.atan2(y,x)/r]);
+  }
+  return pts;
+}
+(function(){
+  const provMap = L.map('provMap', {
+    center:[30, 80],
+    zoom:2,
+    zoomControl:false,
+    attributionControl:false,
+    scrollWheelZoom:false,
+    dragging:false,
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',{
+    maxZoom:19,attribution:'© CartoDB'
+  }).addTo(provMap);
+
+  // Supply chain nodes: [lat, lng, label, sublabel, colour, role]
+  const nodes = [
+    [-33.87, 151.21, 'RAW MATERIAL', 'Australia · Merino Wool',     '#FF9F46'],
+    [ 20.59,  78.96, 'RAW MATERIAL', 'India · Organic Cotton',       '#B354F1'],
+    [ 23.13, 113.26, 'ASSEMBLY',     'China · Guangzhou Factory',    '#28B79D'],
+    [ 51.16,  10.45, 'EU MARKET',    'Germany · Point of Sale',      '#321B68'],
+  ];
+
+  // Routes: [from-idx, to-idx]
+  const routes = [[0,2],[1,2],[2,3]];
+  const routeCols = ['#FF9F46','#B354F1','#28B79D'];
+
+  // Draw great-circle arcs
+  routes.forEach(([a,b],i) => {
+    const pts = gcArc(nodes[a][0],nodes[a][1],nodes[b][0],nodes[b][1],60);
+    // Glow
+    L.polyline(pts,{color:routeCols[i],weight:6,opacity:0.08,smoothFactor:1}).addTo(provMap);
+    // Main line
+    L.polyline(pts,{color:routeCols[i],weight:2,opacity:0.85,dashArray:'8 5',smoothFactor:1}).addTo(provMap);
+  });
+
+  // Draw markers with custom divIcons
+  nodes.forEach(([lat,lng,role,sub,col]) => {
+    const icon = L.divIcon({
+      className:'',
+      html:`<div style="width:14px;height:14px;border-radius:50%;background:${col};border:2px solid rgba(255,255,255,0.9);box-shadow:0 0 10px ${col}80"></div>`,
+      iconSize:[14,14],iconAnchor:[7,7],
+    });
+    const marker = L.marker([lat,lng],{icon}).addTo(provMap);
+    marker.bindTooltip(
+      `<div style="font-family:inherit;font-size:10px;line-height:1.5;padding:2px 4px"><strong style="font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:${col}">${role}</strong><br>${sub}</div>`,
+      {permanent:false,direction:'top',offset:[0,-8],opacity:1}
+    );
+  });
+})();
+</script>
+
+<!-- ═══════════════ PAGE 3: SCORE SUMMARY ═══════════════ -->
+<div class="page-break"></div>
+
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-num">◈</div>
+    <div class="sec-title">Compliance Score Breakdown</div>
+  </div>
+
+  <table class="data-table">
+    <thead><tr><th style="width:30%">Section</th><th style="width:12%">Weight</th><th style="width:12%">Score</th><th style="width:30%">Status</th><th>Fields</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Product Identity</strong></td><td>15%</td><td class="text-green"><strong>90%</strong></td><td><div class="sec-score-bar"><div class="sec-score-fill" style="width:90%;background:var(--green)"></div></div></td><td>9/10</td></tr>
+      <tr><td><strong>Materials & Sustainability</strong></td><td>30%</td><td class="text-orange"><strong>60%</strong></td><td><div class="sec-score-bar"><div class="sec-score-fill" style="width:60%;background:var(--orange)"></div></div></td><td>6/10</td></tr>
+      <tr><td><strong>Supply Chain & Compliance</strong></td><td>20%</td><td class="text-orange"><strong>50%</strong></td><td><div class="sec-score-bar"><div class="sec-score-fill" style="width:50%;background:var(--orange)"></div></div></td><td>3/6</td></tr>
+      <tr><td><strong>End of Life & Circularity</strong></td><td>15%</td><td class="text-violet"><strong>71%</strong></td><td><div class="sec-score-bar"><div class="sec-score-fill" style="width:71%;background:var(--orchid)"></div></div></td><td>5/7</td></tr>
+      <tr><td><strong>QR Code</strong></td><td>5%</td><td class="text-green"><strong>100%</strong></td><td><div class="sec-score-bar"><div class="sec-score-fill" style="width:100%;background:var(--green)"></div></div></td><td>3/3</td></tr>
+      <tr><td><strong>Result Screen</strong></td><td>5%</td><td class="text-green"><strong>100%</strong></td><td><div class="sec-score-bar"><div class="sec-score-fill" style="width:100%;background:var(--green)"></div></div></td><td>3/3</td></tr>
+      <tr><td><strong>Marketing & SEO</strong></td><td>5%</td><td class="text-green"><strong>80%</strong></td><td><div class="sec-score-bar"><div class="sec-score-fill" style="width:80%;background:var(--green)"></div></div></td><td>4/5</td></tr>
+      <tr><td><strong>Circular Settings</strong></td><td>5%</td><td class="text-green"><strong>100%</strong></td><td><div class="sec-score-bar"><div class="sec-score-fill" style="width:100%;background:var(--green)"></div></div></td><td>5/5</td></tr>
+      <tr style="background: rgba(106, 20, 219, 0.05)"><td><strong style="color:var(--royal)">Overall</strong></td><td><strong>100%</strong></td><td class="text-violet"><strong style="font-size:13px">74%</strong></td><td><div class="sec-score-bar" style="height:8px"><div class="sec-score-fill" style="width:74%;background:linear-gradient(90deg,var(--orchid),var(--violet))"></div></div></td><td><strong>38/49</strong></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════ SECTION 1: PRODUCT IDENTITY ═══════════════ -->
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-num">1</div>
+    <div class="sec-title">Product Identity</div>
+    <div class="sec-score"><div class="sec-score-bar"><div class="sec-score-fill" style="width:90%;background:var(--green)"></div></div><span class="sec-score-pct text-green">90%</span></div>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Field</th><th>Value</th><th>Evidence</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Product Name</td><td><strong>Organic Cotton Tee</strong></td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>Tech Pack</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>SKU</td><td class="mono">ECO-TEE-001</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>Product Registry</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>GTIN-14</td><td class="mono">09501234567890</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>GS1 Certificate</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Manufacturer</td><td>EcoThreads GmbH</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/></svg></span>Business Registration</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Country of Manufacture</td><td>Portugal</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg></span>Factory Audit</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Date of Manufacture</td><td>February 2026</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span>Production Log</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Price</td><td>€49.00 EUR</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Price List</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Weight</td><td>180g</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>Tech Pack</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Description</td><td>Lightweight organic cotton t-shirt. Breathable, pre-shrunk, GOTS certified cotton.</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>AI Captured</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Batch / Serial Number</td><td>—</td><td><span class="ev-none">No evidence</span></td><td><span class="status missing">✗ Missing</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════ SECTION 2: MATERIALS ═══════════════ -->
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-num">2</div>
+    <div class="sec-title">Materials & Sustainability</div>
+    <div class="sec-score"><div class="sec-score-bar"><div class="sec-score-fill" style="width:60%;background:var(--orange)"></div></div><span class="sec-score-pct text-orange">60%</span></div>
+  </div>
+
+  <table class="mat-table">
+    <thead><tr><th>Material</th><th>%</th><th>Recycled</th><th>Certification</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Organic Cotton</td><td>95%</td><td>No</td><td>GOTS</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/></svg></span>GOTS Cert</a></td></tr>
+      <tr><td>Elastane</td><td>5%</td><td>No</td><td>—</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>Supplier Spec</a></td></tr>
+    </tbody>
+  </table>
+
+  <table class="data-table" style="margin-top:12px">
+    <thead><tr><th>Field</th><th>Value</th><th>Evidence</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Recycled Content</td><td>0%</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>AI Captured</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Substances of Concern</td><td>None declared by brand</td><td><span class="ev-none">No evidence — needs lab report or SVHC declaration</span></td><td><span class="status review">⚠ Needs Review</span></td></tr>
+      <tr><td>REACH / SVHC Status</td><td>—</td><td><span class="ev-none">No evidence — needs REACH compliance certificate</span></td><td><span class="status review">⚠ Needs Review</span></td></tr>
+      <tr><td>Carbon Footprint</td><td>~5.2 kg CO₂e <span style="color:var(--text3)">(AI estimate)</span></td><td><div class="ev-stack"><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16.01"/><line x1="16" y1="16" x2="16" y2="16.01"/></svg></span>AI Estimate</a><span class="ev-none">Needs LCA or PEF report</span></div></td><td><span class="status review">⚠ Needs Review</span></td></tr>
+      <tr><td>Carbon Methodology</td><td>—</td><td><span class="ev-none">No evidence</span></td><td><span class="status missing">✗ Missing</span></td></tr>
+      <tr><td>Energy Class</td><td>—</td><td>—</td><td><span class="status na">N/A Textiles</span></td></tr>
+      <tr><td>Durability Rating</td><td>7/10</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg></span>Wear Test Report</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Expected Lifetime</td><td>3-5 years with normal wear</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>AI Captured</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Repairability Score</td><td>—</td><td><span class="ev-none">No evidence — needs assessment</span></td><td><span class="status review">⚠ Needs Review</span></td></tr>
+      <tr><td>Warranty Period</td><td>12 months manufacturing defects</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>Warranty Policy</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════ SECTION 3: SUPPLY CHAIN ═══════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-num">3</div>
+    <div class="sec-title">Supply Chain & Compliance</div>
+    <div class="sec-score"><div class="sec-score-bar"><div class="sec-score-fill" style="width:50%;background:var(--orange)"></div></div><span class="sec-score-pct text-orange">50%</span></div>
+  </div>
+
+  <table class="mat-table" style="margin-bottom:12px">
+    <thead><tr><th>Stage</th><th>Country</th><th>Supplier</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Raw Material (Cotton)</td><td>Turkey</td><td>—</td><td><span class="ev-none">Supplier not disclosed</span></td></tr>
+      <tr><td>Processing (Spinning/Weaving)</td><td>Portugal</td><td>—</td><td><span class="ev-none">Supplier not disclosed</span></td></tr>
+      <tr><td>Assembly (Cut & Sew)</td><td>Portugal</td><td>EcoThreads Factory Lisbon</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg></span>Factory Audit</a></td></tr>
+    </tbody>
+  </table>
+
+  <table class="data-table">
+    <thead><tr><th>Field</th><th>Value</th><th>Evidence</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>REACH Compliance</td><td>—</td><td><span class="ev-none">No evidence — needs REACH certificate or declaration</span></td><td><span class="status review">⚠ Needs Review</span></td></tr>
+      <tr><td>Certifications</td><td>GOTS, OEKO-TEX Standard 100</td><td><div class="ev-stack"><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/></svg></span>GOTS Cert</a><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/></svg></span>OEKO-TEX Cert</a></div></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Declaration of Conformity</td><td>—</td><td><span class="ev-none">No evidence — DoC must be created and signed</span></td><td><span class="status missing">✗ Missing</span></td></tr>
+      <tr><td>EU DPP Registry</td><td>Queued for submission</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg></span>Registry Queue</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>RBAC Tier Display</td><td>Tier 1: Public, Tier 2: Trade, Tier 3: Regulator</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Platform Config</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════ SECTION 4: END OF LIFE ═══════════════ -->
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-num">4</div>
+    <div class="sec-title">End of Life & Circularity</div>
+    <div class="sec-score"><div class="sec-score-bar"><div class="sec-score-fill" style="width:71%;background:var(--orchid)"></div></div><span class="sec-score-pct text-violet">71%</span></div>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Field</th><th>Value</th><th>Evidence</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Disassembly Instructions</td><td>Not applicable (single garment, no components to separate)</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>AI Captured</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Recycling Instructions</td><td>Return to EcoThreads take-back program or recycle as textile at local facility. Remove labels before recycling.</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Take-back Page</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Disposal Guidance</td><td>Do not dispose in general waste. Textile recycling or donation preferred.</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>AI Captured</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Spare Parts</td><td>—</td><td>—</td><td><span class="status na">N/A Textiles</span></td></tr>
+      <tr><td>Repair Services</td><td>—</td><td><span class="ev-none">No evidence — needs repair partner or URL</span></td><td><span class="status missing">✗ Missing</span></td></tr>
+      <tr><td>Packaging Materials</td><td>Recycled cardboard sleeve, compostable poly bag</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>Packaging Spec</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+      <tr><td>Packaging Recyclable</td><td>Yes — 100% recyclable</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>Packaging Spec</a></td><td><span class="status complete">✓ Complete</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════ SECTION 5: CIRCULAR SETTINGS ═══════════════ -->
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-num">5</div>
+    <div class="sec-title">Circular Economy Actions</div>
+    <div class="sec-score"><div class="sec-score-bar"><div class="sec-score-fill" style="width:100%;background:var(--green)"></div></div><span class="sec-score-pct text-green">100%</span></div>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Action</th><th>Enabled</th><th>Chain</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Trade (Secondary Sale)</td><td class="text-green"><strong>Yes</strong></td><td class="mono">Base</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="8" cy="12" r="3"/><circle cx="16" cy="12" r="3"/></svg></span>Smart Contract</a></td></tr>
+      <tr><td>Gift (Ownership Transfer)</td><td class="text-green"><strong>Yes</strong></td><td class="mono">Base</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="8" cy="12" r="3"/><circle cx="16" cy="12" r="3"/></svg></span>Smart Contract</a></td></tr>
+      <tr><td>Recycle</td><td class="text-green"><strong>Yes</strong></td><td class="mono">Base</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>Take-back Page</a></td></tr>
+      <tr><td>Return</td><td class="text-green"><strong>Yes</strong></td><td class="mono">Base</td><td><a class="ev" href="#"><span class="ev-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>Returns Policy</a></td></tr>
+      <tr><td>Repair</td><td class="text-red"><strong>No</strong></td><td class="mono">—</td><td><span class="ev-none">Not enabled</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════ GAP ANALYSIS ═══════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-num">!</div>
+    <div class="sec-title">Gap Analysis & Recommendations</div>
+  </div>
+
+  <div class="gap-list">
+    <div class="gap-item critical">
+      <div class="gi-icon" style="display:flex;align-items:center;justify-content:center"><span style="display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--red);flex-shrink:0"></span></div>
+      <div class="gi-text"><strong>Declaration of Conformity — Missing</strong>Required for EU market access. The brand must prepare and sign a DoC before the DPP can be published. Template available in the DPP workflow.</div>
+    </div>
+    <div class="gap-item critical">
+      <div class="gi-icon" style="display:flex;align-items:center;justify-content:center"><span style="display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--red);flex-shrink:0"></span></div>
+      <div class="gi-text"><strong>REACH / SVHC Assessment — Needs Review</strong>Brand declared "no substances of concern" but this has not been verified. A qualified reviewer should confirm REACH compliance status based on material composition and supplier certificates.</div>
+    </div>
+    <div class="gap-item warning">
+      <div class="gi-icon" style="display:flex;align-items:center;justify-content:center"><span style="display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--orange);flex-shrink:0"></span></div>
+      <div class="gi-text"><strong>Carbon Footprint — AI Estimate Only</strong>The AI estimated ~5.2 kg CO₂e based on textile category averages. For EU compliance, this should be validated by a carbon calculation methodology (PEF or ISO 14067). Consider screening LCA.</div>
+    </div>
+    <div class="gap-item warning">
+      <div class="gi-icon" style="display:flex;align-items:center;justify-content:center"><span style="display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--orange);flex-shrink:0"></span></div>
+      <div class="gi-text"><strong>Repairability Score — Not Assessed</strong>A repairability score has not been provided. For textiles, this typically covers: ease of repair, availability of replacement parts (buttons, zips), and access to repair services.</div>
+    </div>
+    <div class="gap-item warning">
+      <div class="gi-icon" style="display:flex;align-items:center;justify-content:center"><span style="display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--orange);flex-shrink:0"></span></div>
+      <div class="gi-text"><strong>Repair Services URL — Missing</strong>No repair services link provided. Consider partnering with a local repair network or directing customers to care and repair instructions.</div>
+    </div>
+    <div class="gap-item info">
+      <div class="gi-icon" style="display:flex;align-items:center;justify-content:center"><span style="display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--blue);flex-shrink:0"></span></div>
+      <div class="gi-text"><strong>Batch / Serial Number — Optional</strong>Not provided. If this product is manufactured in batches, adding a batch number improves traceability. Not strictly required for textiles under current delegated act drafts.</div>
+    </div>
+    <div class="gap-item info">
+      <div class="gi-icon" style="display:flex;align-items:center;justify-content:center"><span style="display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--blue);flex-shrink:0"></span></div>
+      <div class="gi-text"><strong>Supplier Names — Partially Disclosed</strong>Assembly supplier identified. Raw material and processing suppliers not named. Full supply chain disclosure improves Tier 2 trade access and regulatory confidence.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ REVIEWER SECTION ═══════════════ -->
+<div class="section">
+  <div class="reviewer-block">
+    <h3>Compliance Officer Review</h3>
+    <div class="reviewer-sub">This section is for the compliance officer reviewing this report. Complete the fields below, add notes, and sign to approve.</div>
+
+    <div class="reviewer-grid">
+      <div class="rv-field"><label>Reviewer Full Name</label></div>
+      <div class="rv-field"><label>Title</label></div>
+      <div class="rv-field"><label>Company</label></div>
+      <div class="rv-field"><label>Date of Review</label></div>
+    </div>
+
+    <div class="rv-notes-label">Reviewer Notes</div>
+    <div class="rv-notes"></div>
+
+    <div class="rv-notes-label">Decision</div>
+    <div style="display:flex;gap:20px;margin:8px 0 20px">
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:16px;height:16px;border:2px solid var(--d3);border-radius:4px"></div><span style="font-size:11px;font-weight:700">Approved</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:16px;height:16px;border:2px solid var(--d3);border-radius:4px"></div><span style="font-size:11px;font-weight:700">Changes Required</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:16px;height:16px;border:2px solid var(--d3);border-radius:4px"></div><span style="font-size:11px;font-weight:700">Rejected</span></div>
+    </div>
+
+    <div class="rv-sig">
+      <div>
+        <div style="position:relative">
+          <canvas id="sigCanvas" width="340" height="100" style="border:1.5px solid var(--d4);border-radius:8px;cursor:crosshair;display:block;width:100%;touch-action:none;background: var(--d2)"></canvas>
+          <button onclick="clearSig()" style="position:absolute;top:6px;right:6px;padding:3px 10px;border-radius:5px;border:1px solid var(--d4);background: var(--d2);font-family:'Plus Jakarta Sans',sans-serif;font-size:8px;font-weight:800;color:var(--text3);cursor:pointer" class="no-print">Clear</button>
+        </div>
+        <label style="font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:4px;display:block">Signature (draw with mouse or finger)</label>
+      </div>
+      <div><div class="rv-sig-box"></div><label style="font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:4px;display:block">Date</label></div>
+    </div>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+// ─── SIGNATURE PAD ───
+const canvas = document.getElementById('sigCanvas');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+let lastX = 0, lastY = 0;
+
+// Scale canvas for crisp rendering
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  // Save current drawing
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.putImageData(imgData, 0, 0);
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#1c1c22';
+}
+resizeCanvas();
+
+function getPos(e){
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+}
+
+function startDraw(e){
+  e.preventDefault();
+  drawing = true;
+  const p = getPos(e);
+  lastX = p.x;
+  lastY = p.y;
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+}
+
+function draw(e){
+  if(!drawing) return;
+  e.preventDefault();
+  const p = getPos(e);
+  // Smooth line with quadratic curve
+  const midX = (lastX + p.x) / 2;
+  const midY = (lastY + p.y) / 2;
+  ctx.quadraticCurveTo(lastX, lastY, midX, midY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(midX, midY);
+  lastX = p.x;
+  lastY = p.y;
+}
+
+function stopDraw(e){
+  if(!drawing) return;
+  drawing = false;
+  ctx.stroke();
+}
+
+// Mouse events
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDraw);
+canvas.addEventListener('mouseleave', stopDraw);
+
+// Touch events (mobile)
+canvas.addEventListener('touchstart', startDraw, {passive:false});
+canvas.addEventListener('touchmove', draw, {passive:false});
+canvas.addEventListener('touchend', stopDraw);
+
+function clearSig(){
+  const dpr = window.devicePixelRatio || 1;
+  ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+}
+</script>
+
+    <div style="margin-top:16px;padding:10px;background: rgba(106, 20, 219, 0.05);border-radius:8px;font-size:9px;color:var(--text3);line-height:1.6">
+      <strong style="color:var(--royal)">Note:</strong> By signing this report, the reviewer confirms they have reviewed the data presented and that, to the best of their knowledge, the information is accurate and complete as of the review date. This review does not constitute a legal certification of compliance. The manufacturer (EcoThreads GmbH) retains full responsibility for product compliance under EU ESPR.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<div class="report-footer">
+  <div>
+    <svg viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg" style="height:10px;vertical-align:middle;margin-right:4px"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#999"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#999"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#999"/></svg>
+    DeStore Network · Built for Circular Trade · Roam Free
+  </div>
+  <div>
+    RPT-2026-0042 · Generated 14 Mar 2026
+  </div>
+</div>
+
+<script>
+function loadProdImg(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const img = document.getElementById('prodImg');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('prodImgPlaceholder').style.display = 'none';
+    document.getElementById('productImgWrap').style.borderStyle = 'solid';
+    document.getElementById('productImgWrap').style.borderColor = '#E8E0F8';
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+</body>
+</html>

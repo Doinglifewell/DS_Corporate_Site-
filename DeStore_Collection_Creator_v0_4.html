@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeStore — Collection Creator v0.4 · DPP Ready</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg: #141418; --bg-sidebar: #0d0d10; --bg-surface: #1c1c22; --bg-elevated: #26262e; --bg-input: #141418;
+            --border: rgba(179,84,241,0.08); --border-hover: rgba(179,84,241,0.2);
+            --royal-base: #321b68; --digital-orchid: #6a14db; --violet: #B354F1;
+            --accent-green: #28B79D; --accent-orange: #FF9F46; --accent-blue: #3B82F6;
+            --white: #ffffff; --text: #e5e5e5; --text-secondary: #999; --text-dim: #666;
+            --danger: #ef4444; --dpp-green: #22c55e; --dpp-yellow: #eab308; --dpp-red: #ef4444;
+        }
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar { width: 280px; min-width: 280px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; height: 100vh; }
+        .sidebar-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+        .sidebar-logo svg { height: 22px; width: auto; opacity: 0.9; }
+        .sidebar-subtitle { font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--violet); margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+        .dpp-badge-sm { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; background: rgba(34,197,94,0.12); color: var(--dpp-green); font-size: 9px; font-weight: 800; letter-spacing: 1px; }
+        .sidebar-section-title { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); padding: 16px 20px 8px; }
+        .sidebar-list { flex: 1; overflow-y: auto; padding: 0 8px; }
+        .sidebar-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.15s; margin-bottom: 2px; display: flex; align-items: center; gap: 10px; }
+        .sidebar-item:hover { background: var(--bg-surface); }
+        .sidebar-item.active { background: rgba(106,20,219,0.15); }
+        .sidebar-item .item-icon { width: 32px; height: 32px; border-radius: 6px; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .sidebar-item.active .item-icon { background: rgba(106,20,219,0.3); }
+        .sidebar-item .item-info { flex: 1; min-width: 0; }
+        .sidebar-item .item-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar-item .item-count { font-size: 11px; color: var(--text-dim); }
+        .sidebar-add { margin: 12px 8px; padding: 10px; border-radius: 8px; border: 1px dashed var(--border-hover); text-align: center; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--violet); transition: all 0.2s; }
+        .sidebar-add:hover { background: rgba(106,20,219,0.08); border-style: solid; }
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; text-align: center; }
+
+        /* ─── MAIN ─── */
+        .main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .toolbar { padding: 16px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg); }
+        .toolbar-left { display: flex; align-items: center; gap: 16px; }
+        .toolbar-left h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+        .toolbar-left h2 span { color: var(--violet); }
+        .product-count { font-size: 12px; color: var(--text-dim); }
+        .toolbar-right { display: flex; align-items: center; gap: 8px; }
+        .btn { padding: 7px 16px; border-radius: 7px; border: 1px solid var(--border-hover); background: transparent; color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn:hover { background: var(--bg-elevated); border-color: var(--violet); }
+        .btn-primary { background: var(--digital-orchid); border-color: transparent; color: var(--white); }
+        .btn-primary:hover { background: var(--violet); }
+        .btn-dpp { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.2); color: var(--dpp-green); }
+        .btn-dpp:hover { background: rgba(34,197,94,0.2); }
+        .btn-ghost { border-color: var(--border); }
+
+        /* META ROW */
+        .meta-row { padding: 12px 28px; border-bottom: 1px solid var(--border); display: flex; gap: 16px; align-items: flex-end; background: rgba(10,10,10,0.4); }
+        .meta-field { flex: 1; }
+        .meta-field label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
+        .meta-field input, .meta-field select { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: var(--text); font-family: inherit; font-size: 12px; transition: border-color 0.2s; }
+        .meta-field input:focus, .meta-field select:focus { outline: none; border-color: var(--violet); }
+        .meta-field select { cursor: pointer; }
+        .meta-field select option { background: var(--bg-surface); }
+        .meta-advanced-toggle { padding: 0; border: none; background: none; color: var(--text-dim); font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: color 0.2s; margin-bottom: 7px; }
+        .meta-advanced-toggle:hover { color: var(--violet); }
+        .meta-advanced-toggle .arrow { transition: transform 0.2s; display: inline-block; font-size: 9px; }
+        .meta-advanced-toggle.open .arrow { transform: rotate(90deg); }
+        .meta-advanced { display: none; padding: 0 28px 10px; background: rgba(10,10,10,0.4); border-bottom: 1px solid var(--border); gap: 16px; align-items: flex-end; }
+        .meta-advanced.open { display: flex; }
+
+        /* CONTENT AREA */
+        .content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+
+        /* DPP DASHBOARD */
+        .dpp-dashboard { margin-bottom: 20px; }
+        .dpp-dash-grid { display: grid; grid-template-columns: 200px 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .dpp-ring-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transition: border-color 0.3s; }
+        .dpp-ring-card.ready { border-color: rgba(34,197,94,0.25); }
+        .dpp-ring-card.partial { border-color: rgba(234,179,8,0.2); }
+        .dpp-ring-card.missing { border-color: rgba(239,68,68,0.15); }
+        .dpp-ring-svg { width: 96px; height: 96px; margin-bottom: 10px; }
+        .dpp-ring-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+        .dpp-ring-sublabel { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+        .dpp-stats-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+        .dpp-stats-title { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 2px; }
+        .dpp-stat-row { display: flex; align-items: center; gap: 10px; }
+        .dpp-stat-bar-wrap { flex: 1; height: 7px; background: var(--bg-elevated); border-radius: 4px; overflow: hidden; }
+        .dpp-stat-bar-inner { height: 100%; border-radius: 4px; transition: width 0.4s; }
+        .dpp-stat-name { font-size: 11px; color: var(--text-secondary); width: 110px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dpp-stat-pct { font-size: 11px; font-weight: 800; width: 36px; text-align: right; flex-shrink: 0; }
+        .dpp-breakdown-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; }
+        .dpp-breakdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .dpp-bk-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+        .dpp-bk-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dpp-bk-dot.yes { background: var(--dpp-green); }
+        .dpp-bk-dot.no { background: var(--bg-elevated); border: 1.5px solid var(--text-dim); }
+        .dpp-bk-label { font-size: 11px; color: var(--text-secondary); }
+        .dpp-espr-note { background: rgba(34,197,94,0.04); border: 1px solid rgba(34,197,94,0.1); border-radius: 10px; padding: 12px 16px; font-size: 11px; color: var(--text-dim); line-height: 1.6; display: flex; align-items: flex-start; gap: 10px; }
+        .dpp-espr-note strong { color: var(--dpp-green); }
+        .dpp-espr-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+        .product-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; overflow: hidden; position: relative; }
+        .product-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(50,27,104,0.12); }
+        .product-card-image { height: 120px; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 28px; overflow: hidden; }
+        .product-card-image img { width: 100%; height: 100%; object-fit: cover; }
+        .product-card-body { padding: 12px; }
+        .product-card-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .product-card-desc { font-size: 11px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
+        .product-card-footer { display: flex; justify-content: space-between; align-items: center; }
+        .product-price { font-size: 14px; font-weight: 800; color: var(--violet); }
+        .product-qty { font-size: 11px; color: var(--text-dim); }
+        .product-gtin { font-size: 10px; color: var(--text-dim); margin-top: 6px; font-family: 'Courier New', monospace; letter-spacing: 0.3px; }
+        /* DPP BADGE on card */
+        .dpp-card-badge { position: absolute; top: 8px; right: 8px; padding: 3px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(8px); }
+        .dpp-complete { background: rgba(34,197,94,0.15); color: var(--dpp-green); border: 1px solid rgba(34,197,94,0.25); }
+        .dpp-partial { background: rgba(234,179,8,0.15); color: var(--dpp-yellow); border: 1px solid rgba(234,179,8,0.25); }
+        .dpp-missing { background: rgba(239,68,68,0.12); color: var(--dpp-red); border: 1px solid rgba(239,68,68,0.2); }
+        .add-product-card { background: transparent; border: 1px dashed var(--border-hover); border-radius: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; transition: all 0.2s; }
+        .add-product-card:hover { background: rgba(106,20,219,0.05); border-style: solid; }
+        .add-product-card .plus { font-size: 28px; color: var(--violet); margin-bottom: 8px; }
+        .add-product-card .label { font-size: 12px; color: var(--text-dim); font-weight: 600; }
+
+        /* EMPTY STATE */
+        .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--text-dim); }
+        .empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+        .empty-state h3 { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+        .empty-state p { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; }
+
+        /* STATUS BAR */
+        .status-bar { padding: 8px 28px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; background: var(--bg); }
+        .dpp-overall { display: flex; align-items: center; gap: 8px; }
+        .dpp-bar-bg { width: 100px; height: 6px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; }
+        .dpp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s, background 0.4s; }
+
+        /* ─── MODAL OVERLAY ─── */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10, 10, 13, 0.65); backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-surface); border: 1px solid var(--border-hover); border-radius: 16px; width: 100%; max-width: 680px; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 16px; font-weight: 800; }
+        .modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--bg-elevated); color: var(--text-dim); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .modal-close:hover { background: var(--danger); color: var(--text); }
+        .modal-body { flex: 1; overflow-y: auto; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+        /* ─── TABS ─── */
+        .modal-tabs { display: flex; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.3); }
+        .modal-tab { padding: 12px 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .modal-tab:hover { color: var(--text); }
+        .modal-tab.active { color: var(--violet); border-bottom-color: var(--violet); }
+        .modal-tab .tab-badge { padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; }
+        .tab-panel { display: none; padding: 24px; }
+        .tab-panel.active { display: block; }
+
+        /* FORM FIELDS */
+        .form-field { margin-bottom: 16px; }
+        .form-field:last-child { margin-bottom: 0; }
+        .form-field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 5px; }
+        .form-field label .required { color: var(--danger); }
+        .form-field label .dpp-label { color: var(--dpp-green); font-size: 9px; font-weight: 800; margin-left: 4px; }
+        .form-field input, .form-field textarea, .form-field select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-input); color: var(--text); font-family: inherit; font-size: 13px; transition: border-color 0.2s; }
+        .form-field input:focus, .form-field textarea:focus, .form-field select:focus { outline: none; border-color: var(--violet); }
+        .form-field textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
+        .form-field select option { background: var(--bg-surface); }
+        .form-field .hint { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+        .form-row { display: flex; gap: 12px; }
+        .form-row .form-field { flex: 1; }
+        .form-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+        .form-section-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .form-section-label .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+        /* IMAGE UPLOAD */
+        .image-upload { width: 100%; height: 100px; border: 1px dashed var(--border-hover); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; color: var(--text-dim); transition: all 0.2s; }
+        .image-upload:hover { background: rgba(106,20,219,0.05); border-style: solid; }
+        .image-upload.has-image { border-style: solid; padding: 4px; }
+        .image-upload img { max-height: 100%; max-width: 100%; border-radius: 6px; object-fit: contain; }
+
+        /* MATERIALS TABLE */
+        .materials-list { display: flex; flex-direction: column; gap: 6px; }
+        .material-row { display: flex; gap: 8px; align-items: center; }
+        .material-row input { flex: 1; }
+        .material-row input.pct { width: 70px; flex: none; text-align: center; }
+        .material-row .remove-mat { width: 28px; height: 28px; border-radius: 6px; border: none; background: rgba(239,68,68,0.1); color: var(--danger); cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+        .material-row .remove-mat:hover { background: var(--danger); color: var(--text); }
+        .add-material { padding: 6px 12px; border-radius: 6px; border: 1px dashed var(--border-hover); background: transparent; color: var(--violet); font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 6px; transition: all 0.2s; }
+        .add-material:hover { background: rgba(106,20,219,0.05); }
+
+        /* CERTIFICATIONS */
+        .cert-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .cert-chip { padding: 4px 10px; border-radius: 12px; background: rgba(179,84,241,0.08); border: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+        .cert-chip .remove-cert { cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
+        .cert-chip .remove-cert:hover { opacity: 1; }
+
+        /* DPP SCORE RING */
+        .dpp-score-ring { display: flex; align-items: center; gap: 10px; }
+        .score-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+        .score-label { font-size: 11px; color: var(--text-dim); }
+
+        /* COLLECTION MODAL */
+        .collection-modal { display: none; position: fixed; inset: 0; background: rgba(10, 10, 13, 0.65); z-index: 300; align-items: center; justify-content: center; }
+        .collection-modal.active { display: flex; }
+        .collection-modal .modal { max-width: 400px; }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <svg viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><g><path fill="#fff" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/><path fill="#fff" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/><path fill="#fff" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/><path fill="#fff" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/><path fill="#fff" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/><path fill="#fff" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z"/><path fill="#fff" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z"/><path fill="#fff" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/></g></svg>
+            </div>
+            <div class="sidebar-subtitle">
+                Collection Creator
+                <span class="dpp-badge-sm">EU DPP</span>
+            </div>
+        </div>
+        <div class="sidebar-section-title">Collections</div>
+        <div class="sidebar-list" id="sidebarList"></div>
+        <div class="sidebar-add" onclick="createCollection()">+ New Collection</div>
+        <div class="sidebar-footer">DeStore.network v0.4 · ESPR Ready</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <div class="icon">◇</div>
+            <h3>Create a Collection</h3>
+            <p>Click "+ New Collection" to start adding<br>DPP-compliant products</p>
+            <button class="btn btn-primary" onclick="createCollection()">+ New Collection</button>
+        </div>
+
+        <!-- Collection View -->
+        <div id="collectionView" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <h2 id="collectionTitle"></h2>
+                    <span class="product-count" id="productCount"></span>
+                </div>
+                <div class="toolbar-right">
+                    <button class="btn btn-dpp" onclick="exportJSONLD()">↓ JSON-LD</button>
+                    <button class="btn btn-ghost" onclick="exportJSON()">↓ JSON</button>
+                    <button class="btn btn-ghost" onclick="exportCSV()">↓ CSV</button>
+
+                </div>
+            </div>
+
+            <!-- Collection Meta -->
+            <div class="meta-row">
+                <div class="meta-field">
+                    <label>Brand Name</label>
+                    <input type="text" id="metaBrand" placeholder="Your brand or company name" oninput="updateCollectionMeta()">
+                </div>
+                <div class="meta-field">
+                    <label>Your Domain <a href="DeStore_Connect_Domain.html" style="color:var(--violet);font-size:10px;font-weight:600;text-decoration:none;margin-left:6px;">Setup guide ↗</a></label>
+                    <input type="text" id="metaDomain" placeholder="qr.yourbrand.com" value="qr.destore.network" oninput="updateCollectionMeta()">
+                </div>
+                <div class="meta-field" style="flex:0 0 auto;">
+                    <button class="meta-advanced-toggle" id="advancedToggle" onclick="toggleAdvanced()">
+                        <span class="arrow">▶</span> Identifiers &amp; IDs
+                    </button>
+                </div>
+            </div>
+            <div class="meta-advanced" id="metaAdvanced">
+                <div class="meta-field">
+                    <label>GS1 Company Prefix</label>
+                    <input type="text" id="metaPrefix" placeholder="950600013" value="950600013" maxlength="12" oninput="updateCollectionMeta()">
+                </div>
+                <div class="meta-field">
+                    <label>Operator ID (GLN / DUNS)</label>
+                    <input type="text" id="metaOperatorId" placeholder="Assigned by GS1 or D&B" oninput="updateCollectionMeta()">
+                </div>
+                <div class="meta-field">
+                    <label>Facility ID (GLN)</label>
+                    <input type="text" id="metaFacilityId" placeholder="Manufacturing site ID" oninput="updateCollectionMeta()">
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- DPP DASHBOARD -->
+                <div class="dpp-dashboard" id="dppDashboard" style="display:none;">
+                    <div class="dpp-dash-grid">
+                        <div class="dpp-ring-card" id="dppRingCard">
+                            <svg class="dpp-ring-svg" viewBox="0 0 96 96" id="dppRingSvg"></svg>
+                            <div class="dpp-ring-label" id="dppRingLabel">—</div>
+                            <div class="dpp-ring-sublabel">EU ESPR 2024/1781</div>
+                        </div>
+                        <div class="dpp-stats-card">
+                            <div class="dpp-stats-title">Per-Product Scores</div>
+                            <div id="dppPerProduct"></div>
+                        </div>
+                        <div class="dpp-breakdown-card">
+                            <div class="dpp-stats-title">Collection Data Coverage</div>
+                            <div class="dpp-breakdown-grid" id="dppBreakdown"></div>
+                        </div>
+                    </div>
+                    <div class="dpp-espr-note">
+                        <span class="dpp-espr-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span>
+                        <span><strong>EU Digital Product Passport</strong> — Products scoring 75%+ contain sufficient data fields for ESPR compliance. Export as JSON-LD for machine-readable passports that customs and regulators can verify. Delegated acts define mandatory fields per category — textiles &amp; furniture from 2027, batteries already live.</span>
+                    </div>
+                </div>
+
+                <div class="product-grid" id="productGrid"></div>
+            </div>
+            <div class="status-bar">
+                <span id="statusText">No products</span>
+                <div class="dpp-overall">
+                    <span>DPP Readiness:</span>
+                    <div class="dpp-bar-bg"><div class="dpp-bar-fill" id="dppBarFill"></div></div>
+                    <span id="dppScore">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ PRODUCT MODAL ═══ -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Product</h3>
+                <button class="modal-close" onclick="closeModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+            </div>
+            <div class="modal-tabs">
+                <div class="modal-tab active" data-tab="basic" onclick="switchTab('basic')">Product Info</div>
+                <div class="modal-tab" data-tab="dpp" onclick="switchTab('dpp')">
+                    DPP Data
+                    <span class="tab-badge" id="dppTabBadge" style="background:rgba(234,179,8,0.15);color:var(--dpp-yellow);">0%</span>
+                </div>
+                <div class="modal-tab" data-tab="supply" onclick="switchTab('supply')">Supply Chain</div>
+            </div>
+            <div class="modal-body">
+
+                <!-- TAB: BASIC INFO -->
+                <div class="tab-panel active" id="tab-basic">
+                    <div class="form-field">
+                        <label>Product Image</label>
+                        <div class="image-upload" id="imageUpload" onclick="document.getElementById('imageInput').click()">Click to upload image</div>
+                        <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+                    </div>
+                    <div class="form-field">
+                        <label>Product Name <span class="required">*</span></label>
+                        <input type="text" id="prodName" placeholder="e.g. Boulder Opal Pendant #47">
+                    </div>
+                    <div class="form-field">
+                        <label>Description</label>
+                        <textarea id="prodDesc" placeholder="Product description..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Category</label>
+                            <select id="prodCategory">
+                                <option>General</option><option>Gemstones</option><option>Wine & Spirits</option><option>Fresh Produce</option><option>Art</option><option>Fashion</option><option>Nutraceuticals</option><option>Electronics</option><option>Luxury Goods</option><option>Construction</option><option>Textiles</option><option>Furniture</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label>Price (AUD)</label>
+                            <input type="number" id="prodPrice" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Quantity (Units)</label>
+                            <input type="number" id="prodQty" placeholder="1" min="1" value="1">
+                        </div>
+                        <div class="form-field">
+                            <label>SKU (optional)</label>
+                            <input type="text" id="prodSKU" placeholder="e.g. DD-Yowah-0047">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Weight (grams)</label>
+                            <input type="number" id="prodWeight" placeholder="e.g. 250" step="0.1" min="0">
+                        </div>
+                        <div class="form-field">
+                            <label>Country of Origin <span class="dpp-label">DPP</span></label>
+                            <input type="text" id="prodOrigin" placeholder="e.g. Australia">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: DPP DATA -->
+                <div class="tab-panel" id="tab-dpp">
+
+                    <div class="form-section-label"><span class="dot" style="background:var(--dpp-green)"></span> Material Composition</div>
+                    <div class="materials-list" id="materialsList">
+                        <div class="material-row">
+                            <input type="text" placeholder="Material name" class="mat-name" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg-input);color:var(--text);font-family:inherit;font-size:12px;">
+                            <input type="number" placeholder="%" class="mat-pct pct" min="0" max="100" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg-input);color:var(--text);font-family:inherit;font-size:12px;">
+                            <button class="remove-mat" onclick="this.parentElement.remove()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                        </div>
+                    </div>
+                    <button class="add-material" onclick="addMaterialRow()">+ Add Material</button>
+
+                    <hr class="form-divider">
+
+                    <div class="form-section-label"><span class="dot" style="background:var(--accent-green)"></span> Environmental Impact</div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Carbon Footprint (kg CO₂e) <span class="dpp-label">DPP</span></label>
+                            <input type="number" id="dppCarbon" placeholder="e.g. 12.5" step="0.1" min="0">
+                            <div class="hint">Total lifecycle carbon emissions per unit</div>
+                        </div>
+                        <div class="form-field">
+                            <label>Water Consumption (litres) <span class="dpp-label">DPP</span></label>
+                            <input type="number" id="dppWater" placeholder="e.g. 50" step="0.1" min="0">
+                            <div class="hint">Total water used in production per unit</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Recycled Content (%) <span class="dpp-label">DPP</span></label>
+                            <input type="number" id="dppRecycledContent" placeholder="0-100" min="0" max="100" step="1">
+                        </div>
+                        <div class="form-field">
+                            <label>Recyclability (%) <span class="dpp-label">DPP</span></label>
+                            <input type="number" id="dppRecyclability" placeholder="0-100" min="0" max="100" step="1">
+                        </div>
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <div class="form-section-label"><span class="dot" style="background:var(--accent-orange)"></span> Durability & Repairability</div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Durability Rating <span class="dpp-label">DPP</span></label>
+                            <select id="dppDurability">
+                                <option value="">— Select —</option>
+                                <option value="A">A — Exceptional (10+ years)</option>
+                                <option value="B">B — High (5-10 years)</option>
+                                <option value="C">C — Standard (2-5 years)</option>
+                                <option value="D">D — Limited (< 2 years)</option>
+                                <option value="N/A">N/A — Not Applicable</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label>Repairability Score (0-10) <span class="dpp-label">DPP</span></label>
+                            <input type="number" id="dppRepairability" placeholder="e.g. 7" min="0" max="10" step="0.1">
+                            <div class="hint">French Repairability Index scale (0-10)</div>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label>Expected Lifespan <span class="dpp-label">DPP</span></label>
+                        <input type="text" id="dppLifespan" placeholder="e.g. 50 years, Permanent, 2 years shelf life">
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <div class="form-section-label"><span class="dot" style="background:var(--violet)"></span> Compliance & Hazardous Substances</div>
+                    <div class="form-field">
+                        <label>Hazardous Substances (REACH/SVHC)</label>
+                        <select id="dppHazardous">
+                            <option value="">— Select —</option>
+                            <option value="none">No SVHC > 0.1% w/w</option>
+                            <option value="declared">SVHC present — see declaration</option>
+                            <option value="exempt">Exempt category</option>
+                        </select>
+                        <div class="hint">EU REACH Regulation (EC 1907/2006) — Substances of Very High Concern</div>
+                    </div>
+                    <div class="form-field">
+                        <label>Hazardous Substance Details</label>
+                        <textarea id="dppHazardousDetail" placeholder="List any SVHC substances present above 0.1% w/w..." rows="2"></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label>End-of-Life Instructions <span class="dpp-label">DPP</span></label>
+                        <textarea id="dppEndOfLife" placeholder="e.g. Return to authorised recycler. Gemstone: permanent — no disposal required. Packaging: recyclable cardboard." rows="3"></textarea>
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <div class="form-section-label"><span class="dot" style="background:var(--accent-blue)"></span> Certifications</div>
+                    <div class="form-row" style="align-items:flex-end;">
+                        <div class="form-field" style="flex:1;">
+                            <label>Add Certification</label>
+                            <input type="text" id="certInput" placeholder="e.g. ISO 14001, Fair Trade, GOTS" onkeydown="if(event.key==='Enter'){addCert();event.preventDefault();}">
+                        </div>
+                        <button class="btn" onclick="addCert()" style="margin-bottom:16px;">+ Add</button>
+                    </div>
+                    <div class="cert-chips" id="certChips"></div>
+                </div>
+
+                <!-- TAB: SUPPLY CHAIN -->
+                <div class="tab-panel" id="tab-supply">
+                    <div class="form-section-label"><span class="dot" style="background:var(--accent-green)"></span> Supply Chain Actors</div>
+                    <div class="form-field">
+                        <label>Manufacturer Name <span class="dpp-label">DPP</span></label>
+                        <input type="text" id="scManufacturer" placeholder="e.g. Metarock Pty Ltd / DigiDiggers">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Manufacturer Country</label>
+                            <input type="text" id="scManufacturerCountry" placeholder="e.g. Australia">
+                        </div>
+                        <div class="form-field">
+                            <label>Manufacturer ID (GLN)</label>
+                            <input type="text" id="scManufacturerGLN" placeholder="Global Location Number">
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label>Manufacturing Facility Address</label>
+                        <textarea id="scFacilityAddress" placeholder="Full address of production facility" rows="2"></textarea>
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <div class="form-section-label"><span class="dot" style="background:var(--accent-orange)"></span> Provenance & Authentication</div>
+                    <div class="form-field">
+                        <label>Batch / Lot Number (GS1 AI 10)</label>
+                        <input type="text" id="scBatch" placeholder="e.g. LOT-2026-03-A">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label>Production Date</label>
+                            <input type="date" id="scProductionDate">
+                        </div>
+                        <div class="form-field">
+                            <label>Expiry Date (if applicable)</label>
+                            <input type="date" id="scExpiryDate">
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label>Laava Smart Fingerprint® ID</label>
+                        <input type="text" id="scLaavaId" placeholder="Laava fingerprint reference">
+                        <div class="hint">Unique optical fingerprint ID from Laava</div>
+                    </div>
+                    <div class="form-field">
+                        <label>DPP Contract Address</label>
+                        <input type="text" id="scNFTContract" placeholder="0x... (Base / Polygon / Soneium)">
+                    </div>
+                    <div class="form-field">
+                        <label>DPP Record ID</label>
+                        <input type="text" id="scNFTToken" placeholder="Record ID">
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <div class="form-section-label"><span class="dot" style="background:var(--violet)"></span> Importer / Distributor (for EU market)</div>
+                    <div class="form-field">
+                        <label>EU Authorised Representative / Importer</label>
+                        <input type="text" id="scEUImporter" placeholder="Company name for EU market access">
+                    </div>
+                    <div class="form-field">
+                        <label>EU Importer Address</label>
+                        <textarea id="scEUImporterAddress" placeholder="Full EU address" rows="2"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="dpp-score-ring" id="modalDppScore"></div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn" id="deleteProductBtn" onclick="deleteProduct()" style="color:var(--danger);border-color:rgba(239,68,68,0.2);">Delete</button>
+                    <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ COLLECTION MODAL ═══ -->
+    <div class="collection-modal" id="collectionModal">
+        <div class="modal">
+            <div class="modal-header"><h3>New Collection</h3><button class="modal-close" onclick="closeCollectionModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+            <div class="modal-body" style="padding:24px;">
+                <div class="form-field">
+                    <label>Collection Name <span class="required">*</span></label>
+                    <input type="text" id="collName" placeholder="e.g. DigiDiggers Yowah Opals">
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content:flex-end;">
+                <button class="btn btn-primary" onclick="saveCollection()">Create</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+        // ─── STATE ───
+        let collections = [];
+        let activeCollId = null;
+        let editingProductIndex = -1;
+        let tempImage = null;
+        let tempCerts = [];
+        let tempMaterials = [];
+
+        // ─── GS1 ───
+        function calcCheckDigit(digits) {
+            let sum = 0;
+            for (let i = 0; i < digits.length; i++) {
+                const d = parseInt(digits[i]);
+                sum += (i % 2 === 0) ? d * 3 : d;
+            }
+            return (10 - (sum % 10)) % 10;
+        }
+        function buildGTIN14(prefix, seq) {
+            const indicator = '0';
+            const p = String(prefix).padStart(9, '0').slice(0, 9);
+            const s = String(seq).padStart(3, '0').slice(0, 3);
+            const partial = indicator + p + s;
+            return partial + calcCheckDigit(partial);
+        }
+
+        // ─── COLLECTIONS ───
+        function toggleAdvanced() {
+            const panel = document.getElementById('metaAdvanced');
+            const btn = document.getElementById('advancedToggle');
+            panel.classList.toggle('open');
+            btn.classList.toggle('open');
+        }
+
+        function getActive() { return collections.find(c => c.id === activeCollId); }
+
+        function createCollection() {
+            document.getElementById('collName').value = '';
+            document.getElementById('collectionModal').classList.add('active');
+            setTimeout(() => document.getElementById('collName').focus(), 100);
+        }
+        function closeCollectionModal() { document.getElementById('collectionModal').classList.remove('active'); }
+        function saveCollection() {
+            const name = document.getElementById('collName').value.trim();
+            if (!name) return;
+            const coll = { id: Date.now().toString(), name, brand: '', domain: 'qr.destore.network', prefix: '950600013', operatorId: '', facilityId: '', products: [] };
+            collections.push(coll);
+            activeCollId = coll.id;
+            closeCollectionModal();
+            renderSidebar();
+            renderCollectionView();
+        }
+        function selectCollection(id) { activeCollId = id; renderSidebar(); renderCollectionView(); }
+
+        function renderSidebar() {
+            const list = document.getElementById('sidebarList');
+            list.innerHTML = '';
+            collections.forEach(c => {
+                const el = document.createElement('div');
+                el.className = 'sidebar-item' + (c.id === activeCollId ? ' active' : '');
+                el.onclick = () => selectCollection(c.id);
+                const avgDpp = c.products.length ? Math.round(c.products.reduce((s, p) => s + calcDppScore(p), 0) / c.products.length) : 0;
+                el.innerHTML = `
+                    <div class="item-icon">◇</div>
+                    <div class="item-info">
+                        <div class="item-name">${c.name}</div>
+                        <div class="item-count">${c.products.length} products · DPP ${avgDpp}%</div>
+                    </div>`;
+                list.appendChild(el);
+            });
+        }
+
+        function renderCollectionView() {
+            const coll = getActive();
+            if (!coll) { document.getElementById('emptyState').style.display = 'flex'; document.getElementById('collectionView').style.display = 'none'; return; }
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('collectionView').style.display = 'flex';
+            document.getElementById('collectionTitle').innerHTML = `<span>${coll.name}</span>`;
+            document.getElementById('metaBrand').value = coll.brand || '';
+            document.getElementById('metaDomain').value = coll.domain || 'qr.destore.network';
+            document.getElementById('metaPrefix').value = coll.prefix || '950600013';
+            document.getElementById('metaOperatorId').value = coll.operatorId || '';
+            document.getElementById('metaFacilityId').value = coll.facilityId || '';
+            renderProducts();
+        }
+
+        function updateCollectionMeta() {
+            const coll = getActive();
+            if (!coll) return;
+            coll.brand = document.getElementById('metaBrand').value;
+            coll.domain = document.getElementById('metaDomain').value;
+            coll.prefix = document.getElementById('metaPrefix').value;
+            coll.operatorId = document.getElementById('metaOperatorId').value;
+            coll.facilityId = document.getElementById('metaFacilityId').value;
+        }
+
+        // ─── DPP SCORING ───
+        function calcDppScore(p) {
+            const fields = [
+                p.origin, p.weight,
+                p.dpp?.materials?.length > 0,
+                p.dpp?.carbon, p.dpp?.water,
+                p.dpp?.recycledContent !== undefined && p.dpp?.recycledContent !== '',
+                p.dpp?.recyclability !== undefined && p.dpp?.recyclability !== '',
+                p.dpp?.durability, p.dpp?.repairability,
+                p.dpp?.lifespan,
+                p.dpp?.hazardous,
+                p.dpp?.endOfLife,
+                p.dpp?.certifications?.length > 0,
+                p.supply?.manufacturer,
+                p.supply?.batch,
+                p.supply?.productionDate
+            ];
+            const filled = fields.filter(f => f && f !== '' && f !== false).length;
+            return Math.round((filled / fields.length) * 100);
+        }
+
+        function getDppClass(score) { return score >= 75 ? 'dpp-complete' : score >= 30 ? 'dpp-partial' : 'dpp-missing'; }
+        function getDppLabel(score) { return score >= 75 ? 'DPP Ready' : score >= 30 ? 'DPP Partial' : 'DPP Missing'; }
+
+        // ─── PRODUCTS ───
+        function renderProducts() {
+            const coll = getActive();
+            if (!coll) return;
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            const totalUnits = coll.products.reduce((sum, p) => sum + (p.qty || 1), 0);
+            document.getElementById('productCount').textContent = `${coll.products.length} products · ${totalUnits} total units`;
+
+            let totalDpp = 0;
+            coll.products.forEach((p, i) => {
+                const gtin = buildGTIN14(coll.prefix, i + 1);
+                p._gtin = gtin;
+                p._link = `https://${coll.domain}/01/${gtin}`;
+                const score = calcDppScore(p);
+                totalDpp += score;
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => editProduct(i);
+                card.innerHTML = `
+                    <div class="dpp-card-badge ${getDppClass(score)}">${score}% ${getDppLabel(score)}</div>
+                    <div class="product-card-image">${p.image ? `<img src="${p.image}" alt="${p.name}">` : '◇'}</div>
+                    <div class="product-card-body">
+                        <div class="product-card-name">${p.name}</div>
+                        <div class="product-card-desc">${p.description || 'No description'}</div>
+                        <div class="product-card-footer">
+                            <span class="product-price">$${parseFloat(p.price || 0).toFixed(2)}</span>
+                            <span class="product-qty">×${p.qty || 1}</span>
+                        </div>
+                        <div class="product-gtin">GTIN: ${gtin} · ${p.sku || ''}</div>
+                    </div>`;
+                grid.appendChild(card);
+            });
+
+            const addCard = document.createElement('div');
+            addCard.className = 'add-product-card';
+            addCard.onclick = () => openAddProduct();
+            addCard.innerHTML = '<div class="plus">+</div><div class="label">Add Product</div>';
+            grid.appendChild(addCard);
+
+            const avgDpp = coll.products.length ? Math.round(totalDpp / coll.products.length) : 0;
+            const barFill = document.getElementById('dppBarFill');
+            barFill.style.width = avgDpp + '%';
+            barFill.style.background = avgDpp >= 75 ? 'var(--dpp-green)' : avgDpp >= 30 ? 'var(--dpp-yellow)' : 'var(--dpp-red)';
+            document.getElementById('dppScore').textContent = avgDpp + '%';
+            document.getElementById('statusText').textContent = `${coll.products.length} products · ${totalUnits} QR codes to generate`;
+
+            // ─── DPP DASHBOARD ───
+            const dash = document.getElementById('dppDashboard');
+            if (coll.products.length > 0) {
+                dash.style.display = '';
+
+                // Ring
+                const ringCard = document.getElementById('dppRingCard');
+                ringCard.className = 'dpp-ring-card ' + (avgDpp >= 75 ? 'ready' : avgDpp >= 30 ? 'partial' : 'missing');
+                const ringColor = avgDpp >= 75 ? '#22c55e' : avgDpp >= 30 ? '#eab308' : '#ef4444';
+                const circumference = 2 * Math.PI * 38;
+                const offset = circumference - (avgDpp / 100) * circumference;
+                document.getElementById('dppRingSvg').innerHTML = `
+                    <circle cx="48" cy="48" r="38" fill="none" stroke="#262626" stroke-width="6"/>
+                    <circle cx="48" cy="48" r="38" fill="none" stroke="${ringColor}" stroke-width="6"
+                        stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+                        stroke-linecap="round" transform="rotate(-90 48 48)" style="transition:stroke-dashoffset 0.6s;"/>
+                    <text x="48" y="44" text-anchor="middle" fill="${ringColor}" font-size="22" font-weight="800" font-family="Plus Jakarta Sans">${avgDpp}%</text>
+                    <text x="48" y="59" text-anchor="middle" fill="#999" font-size="9" font-weight="600" font-family="Plus Jakarta Sans" letter-spacing="1">DPP READY</text>`;
+                document.getElementById('dppRingLabel').textContent = avgDpp >= 75 ? 'Compliant' : avgDpp >= 30 ? 'Partial' : 'Incomplete';
+                document.getElementById('dppRingLabel').style.color = ringColor;
+
+                // Per-product bars
+                const ppContainer = document.getElementById('dppPerProduct');
+                ppContainer.innerHTML = '';
+                coll.products.forEach((p, i) => {
+                    const s = calcDppScore(p);
+                    const c = s >= 75 ? 'var(--dpp-green)' : s >= 30 ? 'var(--dpp-yellow)' : 'var(--dpp-red)';
+                    ppContainer.innerHTML += `
+                        <div class="dpp-stat-row">
+                            <span class="dpp-stat-name">${p.name}</span>
+                            <div class="dpp-stat-bar-wrap"><div class="dpp-stat-bar-inner" style="width:${s}%;background:${c};"></div></div>
+                            <span class="dpp-stat-pct" style="color:${c};">${s}%</span>
+                        </div>`;
+                });
+
+                // Breakdown - aggregate across all products
+                const fields = [
+                    { key: 'origin', label: 'Country of Origin' },
+                    { key: 'materials', label: 'Material Composition' },
+                    { key: 'carbon', label: 'Carbon Footprint' },
+                    { key: 'water', label: 'Water Consumption' },
+                    { key: 'recycledContent', label: 'Recycled Content' },
+                    { key: 'recyclability', label: 'Recyclability' },
+                    { key: 'durability', label: 'Durability Rating' },
+                    { key: 'repairability', label: 'Repairability Score' },
+                    { key: 'lifespan', label: 'Expected Lifespan' },
+                    { key: 'hazardous', label: 'Hazardous Substances' },
+                    { key: 'endOfLife', label: 'End-of-Life Instructions' },
+                    { key: 'certifications', label: 'Certifications' },
+                    { key: 'manufacturer', label: 'Manufacturer' },
+                    { key: 'batch', label: 'Batch / Lot' }
+                ];
+                const bk = document.getElementById('dppBreakdown');
+                bk.innerHTML = '';
+                fields.forEach(f => {
+                    let filled = 0;
+                    coll.products.forEach(p => {
+                        let val;
+                        if (f.key === 'origin') val = p.origin;
+                        else if (f.key === 'materials') val = p.dpp?.materials?.length > 0;
+                        else if (f.key === 'certifications') val = p.dpp?.certifications?.length > 0;
+                        else if (f.key === 'manufacturer') val = p.supply?.manufacturer;
+                        else if (f.key === 'batch') val = p.supply?.batch;
+                        else val = p.dpp?.[f.key];
+                        if (val && val !== '' && val !== false) filled++;
+                    });
+                    const pct = Math.round((filled / coll.products.length) * 100);
+                    bk.innerHTML += `
+                        <div class="dpp-bk-item">
+                            <div class="dpp-bk-dot ${pct === 100 ? 'yes' : 'no'}"></div>
+                            <span class="dpp-bk-label">${f.label} <span style="color:${pct===100?'var(--dpp-green)':pct>0?'var(--dpp-yellow)':'var(--text-dim)'};font-weight:700;">${pct}%</span></span>
+                        </div>`;
+                });
+            } else {
+                dash.style.display = 'none';
+            }
+            renderSidebar();
+        }
+
+        // ─── TABS ───
+        function switchTab(name) {
+            document.querySelectorAll('.modal-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+        }
+
+        // ─── MATERIALS ───
+        function addMaterialRow() {
+            const list = document.getElementById('materialsList');
+            const row = document.createElement('div');
+            row.className = 'material-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Material name" class="mat-name" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg-input);color:var(--text);font-family:inherit;font-size:12px;">
+                <input type="number" placeholder="%" class="mat-pct pct" min="0" max="100" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg-input);color:var(--text);font-family:inherit;font-size:12px;">
+                <button class="remove-mat" onclick="this.parentElement.remove()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>`;
+            list.appendChild(row);
+        }
+
+        function getMaterials() {
+            const rows = document.querySelectorAll('#materialsList .material-row');
+            const mats = [];
+            rows.forEach(r => {
+                const name = r.querySelector('.mat-name').value.trim();
+                const pct = parseFloat(r.querySelector('.mat-pct').value);
+                if (name) mats.push({ name, percentage: isNaN(pct) ? null : pct });
+            });
+            return mats;
+        }
+
+        function setMaterials(mats) {
+            const list = document.getElementById('materialsList');
+            list.innerHTML = '';
+            if (!mats || mats.length === 0) { addMaterialRow(); return; }
+            mats.forEach(m => {
+                const row = document.createElement('div');
+                row.className = 'material-row';
+                row.innerHTML = `
+                    <input type="text" placeholder="Material name" class="mat-name" value="${m.name || ''}" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg-input);color:var(--text);font-family:inherit;font-size:12px;">
+                    <input type="number" placeholder="%" class="mat-pct pct" min="0" max="100" value="${m.percentage || ''}" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg-input);color:var(--text);font-family:inherit;font-size:12px;">
+                    <button class="remove-mat" onclick="this.parentElement.remove()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>`;
+                list.appendChild(row);
+            });
+        }
+
+        // ─── CERTIFICATIONS ───
+        function addCert() {
+            const input = document.getElementById('certInput');
+            const val = input.value.trim();
+            if (!val) return;
+            tempCerts.push(val);
+            input.value = '';
+            renderCerts();
+        }
+        function removeCert(i) { tempCerts.splice(i, 1); renderCerts(); }
+        function renderCerts() {
+            const container = document.getElementById('certChips');
+            container.innerHTML = '';
+            tempCerts.forEach((c, i) => {
+                container.innerHTML += `<span class="cert-chip">${c} <span class="remove-cert" onclick="removeCert(${i})"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span></span>`;
+            });
+        }
+
+        // ─── MODAL OPEN / CLOSE ───
+        function openAddProduct() {
+            editingProductIndex = -1;
+            document.getElementById('modalTitle').textContent = 'Add Product';
+            document.getElementById('deleteProductBtn').style.display = 'none';
+            clearProductForm();
+            switchTab('basic');
+            document.getElementById('productModal').classList.add('active');
+            setTimeout(() => document.getElementById('prodName').focus(), 100);
+        }
+
+        function editProduct(index) {
+            const coll = getActive();
+            if (!coll) return;
+            const p = coll.products[index];
+            editingProductIndex = index;
+            document.getElementById('modalTitle').textContent = 'Edit Product';
+            document.getElementById('deleteProductBtn').style.display = '';
+
+            // Basic
+            document.getElementById('prodName').value = p.name;
+            document.getElementById('prodDesc').value = p.description || '';
+            document.getElementById('prodCategory').value = p.category || 'General';
+            document.getElementById('prodPrice').value = p.price || '';
+            document.getElementById('prodQty').value = p.qty || 1;
+            document.getElementById('prodSKU').value = p.sku || '';
+            document.getElementById('prodWeight').value = p.weight || '';
+            document.getElementById('prodOrigin').value = p.origin || '';
+            tempImage = p.image || null;
+            if (tempImage) { const u = document.getElementById('imageUpload'); u.innerHTML = `<img src="${tempImage}">`; u.classList.add('has-image'); }
+            else resetImageUpload();
+
+            // DPP
+            const d = p.dpp || {};
+            setMaterials(d.materials || []);
+            document.getElementById('dppCarbon').value = d.carbon || '';
+            document.getElementById('dppWater').value = d.water || '';
+            document.getElementById('dppRecycledContent').value = d.recycledContent ?? '';
+            document.getElementById('dppRecyclability').value = d.recyclability ?? '';
+            document.getElementById('dppDurability').value = d.durability || '';
+            document.getElementById('dppRepairability').value = d.repairability || '';
+            document.getElementById('dppLifespan').value = d.lifespan || '';
+            document.getElementById('dppHazardous').value = d.hazardous || '';
+            document.getElementById('dppHazardousDetail').value = d.hazardousDetail || '';
+            document.getElementById('dppEndOfLife').value = d.endOfLife || '';
+            tempCerts = [...(d.certifications || [])];
+            renderCerts();
+
+            // Supply
+            const s = p.supply || {};
+            document.getElementById('scManufacturer').value = s.manufacturer || '';
+            document.getElementById('scManufacturerCountry').value = s.manufacturerCountry || '';
+            document.getElementById('scManufacturerGLN').value = s.manufacturerGLN || '';
+            document.getElementById('scFacilityAddress').value = s.facilityAddress || '';
+            document.getElementById('scBatch').value = s.batch || '';
+            document.getElementById('scProductionDate').value = s.productionDate || '';
+            document.getElementById('scExpiryDate').value = s.expiryDate || '';
+            document.getElementById('scLaavaId').value = s.laavaId || '';
+            document.getElementById('scNFTContract').value = s.nftContract || '';
+            document.getElementById('scNFTToken').value = s.nftToken || '';
+            document.getElementById('scEUImporter').value = s.euImporter || '';
+            document.getElementById('scEUImporterAddress').value = s.euImporterAddress || '';
+
+            switchTab('basic');
+            updateModalDppScore();
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function clearProductForm() {
+            ['prodName','prodDesc','prodPrice','prodSKU','prodWeight','prodOrigin',
+             'dppCarbon','dppWater','dppRecycledContent','dppRecyclability','dppRepairability','dppLifespan',
+             'dppHazardousDetail','dppEndOfLife',
+             'scManufacturer','scManufacturerCountry','scManufacturerGLN','scFacilityAddress',
+             'scBatch','scLaavaId','scNFTContract','scNFTToken','scEUImporter','scEUImporterAddress'
+            ].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('prodCategory').value = 'General';
+            document.getElementById('prodQty').value = '1';
+            document.getElementById('dppDurability').value = '';
+            document.getElementById('dppHazardous').value = '';
+            document.getElementById('scProductionDate').value = '';
+            document.getElementById('scExpiryDate').value = '';
+            tempImage = null; tempCerts = [];
+            resetImageUpload(); setMaterials([]); renderCerts();
+            updateModalDppScore();
+        }
+
+        function resetImageUpload() {
+            const u = document.getElementById('imageUpload');
+            u.innerHTML = 'Click to upload image';
+            u.classList.remove('has-image');
+        }
+
+        function closeModal() { document.getElementById('productModal').classList.remove('active'); }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => { tempImage = e.target.result; const u = document.getElementById('imageUpload'); u.innerHTML = `<img src="${tempImage}">`; u.classList.add('has-image'); };
+            reader.readAsDataURL(file);
+        }
+
+        function updateModalDppScore() {
+            const p = buildProductFromForm();
+            const score = calcDppScore(p);
+            const badge = document.getElementById('dppTabBadge');
+            badge.textContent = score + '%';
+            badge.style.background = score >= 75 ? 'rgba(34,197,94,0.15)' : score >= 30 ? 'rgba(234,179,8,0.15)' : 'rgba(239,68,68,0.12)';
+            badge.style.color = score >= 75 ? 'var(--dpp-green)' : score >= 30 ? 'var(--dpp-yellow)' : 'var(--dpp-red)';
+            const ring = document.getElementById('modalDppScore');
+            const color = score >= 75 ? 'var(--dpp-green)' : score >= 30 ? 'var(--dpp-yellow)' : 'var(--dpp-red)';
+            ring.innerHTML = `<div class="score-circle" style="border:2px solid ${color};color:${color};">${score}%</div><div class="score-label">DPP Score</div>`;
+        }
+
+        function buildProductFromForm() {
+            return {
+                name: document.getElementById('prodName').value.trim(),
+                description: document.getElementById('prodDesc').value.trim(),
+                category: document.getElementById('prodCategory').value,
+                price: parseFloat(document.getElementById('prodPrice').value) || 0,
+                qty: parseInt(document.getElementById('prodQty').value) || 1,
+                sku: document.getElementById('prodSKU').value.trim(),
+                image: tempImage,
+                weight: parseFloat(document.getElementById('prodWeight').value) || null,
+                origin: document.getElementById('prodOrigin').value.trim(),
+                dpp: {
+                    materials: getMaterials(),
+                    carbon: parseFloat(document.getElementById('dppCarbon').value) || null,
+                    water: parseFloat(document.getElementById('dppWater').value) || null,
+                    recycledContent: document.getElementById('dppRecycledContent').value !== '' ? parseFloat(document.getElementById('dppRecycledContent').value) : null,
+                    recyclability: document.getElementById('dppRecyclability').value !== '' ? parseFloat(document.getElementById('dppRecyclability').value) : null,
+                    durability: document.getElementById('dppDurability').value,
+                    repairability: parseFloat(document.getElementById('dppRepairability').value) || null,
+                    lifespan: document.getElementById('dppLifespan').value.trim(),
+                    hazardous: document.getElementById('dppHazardous').value,
+                    hazardousDetail: document.getElementById('dppHazardousDetail').value.trim(),
+                    endOfLife: document.getElementById('dppEndOfLife').value.trim(),
+                    certifications: [...tempCerts]
+                },
+                supply: {
+                    manufacturer: document.getElementById('scManufacturer').value.trim(),
+                    manufacturerCountry: document.getElementById('scManufacturerCountry').value.trim(),
+                    manufacturerGLN: document.getElementById('scManufacturerGLN').value.trim(),
+                    facilityAddress: document.getElementById('scFacilityAddress').value.trim(),
+                    batch: document.getElementById('scBatch').value.trim(),
+                    productionDate: document.getElementById('scProductionDate').value,
+                    expiryDate: document.getElementById('scExpiryDate').value,
+                    laavaId: document.getElementById('scLaavaId').value.trim(),
+                    nftContract: document.getElementById('scNFTContract').value.trim(),
+                    nftToken: document.getElementById('scNFTToken').value.trim(),
+                    euImporter: document.getElementById('scEUImporter').value.trim(),
+                    euImporterAddress: document.getElementById('scEUImporterAddress').value.trim()
+                }
+            };
+        }
+
+        function saveProduct() {
+            const coll = getActive();
+            if (!coll) return;
+            const name = document.getElementById('prodName').value.trim();
+            if (!name) { document.getElementById('prodName').focus(); return; }
+            const product = buildProductFromForm();
+            product.updatedAt = new Date().toISOString();
+
+            if (editingProductIndex >= 0) {
+                product.createdAt = coll.products[editingProductIndex].createdAt;
+                coll.products[editingProductIndex] = product;
+            } else {
+                product.createdAt = new Date().toISOString();
+                coll.products.push(product);
+            }
+            closeModal();
+            renderProducts();
+        }
+
+        function deleteProduct() {
+            if (editingProductIndex < 0) return;
+            const coll = getActive();
+            if (!coll) return;
+            if (!confirm('Delete this product?')) return;
+            coll.products.splice(editingProductIndex, 1);
+            closeModal();
+            renderProducts();
+        }
+
+        // Live DPP score update in modal
+        document.addEventListener('input', (e) => {
+            if (document.getElementById('productModal').classList.contains('active')) {
+                updateModalDppScore();
+            }
+        });
+
+        // ─── EXPORTS ───
+        function getExportData() {
+            const coll = getActive();
+            if (!coll) return null;
+            return {
+                meta: {
+                    generator: 'DeStore Product Collection Creator v0.4',
+                    platform: 'DeStore.network',
+                    espr: 'EU Regulation 2024/1781 — ESPR Digital Product Passport',
+                    collectionName: coll.name,
+                    brand: coll.brand,
+                    domain: coll.domain,
+                    companyPrefix: coll.prefix,
+                    economicOperatorId: coll.operatorId,
+                    facilityId: coll.facilityId,
+                    totalProducts: coll.products.length,
+                    totalUnits: coll.products.reduce((s, p) => s + (p.qty || 1), 0),
+                    exportedAt: new Date().toISOString(),
+                    standard: 'GS1 Digital Link URI + EU DPP (ESPR)'
+                },
+                products: coll.products.map((p, i) => {
+                    const gtin = buildGTIN14(coll.prefix, i + 1);
+                    return {
+                        index: i + 1, name: p.name, description: p.description, category: p.category,
+                        price: p.price, qty: p.qty, sku: p.sku, weight: p.weight, origin: p.origin,
+                        gtin14: gtin, gs1DigitalLink: `https://${coll.domain}/01/${gtin}`,
+                        dpp: p.dpp || {}, supply: p.supply || {},
+                        dppScore: calcDppScore(p),
+                        status: 'active', createdAt: p.createdAt, hasImage: !!p.image
+                    };
+                })
+            };
+        }
+
+        function exportJSON() {
+            const data = getExportData();
+            if (!data) return;
+            downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }),
+                `destore-${data.meta.collectionName.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.json`);
+        }
+
+        function exportCSV() {
+            const data = getExportData();
+            if (!data) return;
+            const h = ['index','name','category','price','qty','sku','gtin14','gs1DigitalLink','origin','weight','dppScore',
+                        'carbon_kgCO2e','water_litres','recycledContent_pct','recyclability_pct','durability','repairability',
+                        'lifespan','hazardous','certifications','manufacturer','batch','productionDate','laavaId','dppContract'];
+            const rows = data.products.map(p => [
+                p.index, p.name, p.category, p.price, p.qty, p.sku, p.gtin14, p.gs1DigitalLink, p.origin, p.weight, p.dppScore,
+                p.dpp?.carbon||'', p.dpp?.water||'', p.dpp?.recycledContent??'', p.dpp?.recyclability??'', p.dpp?.durability||'', p.dpp?.repairability||'',
+                p.dpp?.lifespan||'', p.dpp?.hazardous||'', (p.dpp?.certifications||[]).join(';'), p.supply?.manufacturer||'', p.supply?.batch||'', p.supply?.productionDate||'', p.supply?.laavaId||'', p.supply?.nftContract||''
+            ]);
+            const csv = [h.join(','), ...rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(','))].join('\n');
+            downloadBlob(new Blob([csv], { type: 'text/csv' }),
+                `destore-dpp-${data.meta.collectionName.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.csv`);
+        }
+
+        // ─── JSON-LD EXPORT (ESPR DPP) ───
+        function exportJSONLD() {
+            const coll = getActive();
+            if (!coll || coll.products.length === 0) return;
+            const passports = coll.products.map((p, i) => {
+                const gtin = buildGTIN14(coll.prefix, i + 1);
+                const d = p.dpp || {};
+                const s = p.supply || {};
+                return {
+                    "@context": {
+                        "@vocab": "https://schema.org/",
+                        "gs1": "https://gs1.org/voc/",
+                        "espr": "https://data.europa.eu/espr/",
+                        "dpp": "https://w3id.org/dpp/"
+                    },
+                    "@type": "Product",
+                    "@id": `https://${coll.domain}/01/${gtin}`,
+                    "gs1:gtin": gtin,
+                    "name": p.name,
+                    "description": p.description,
+                    "category": p.category,
+                    "sku": p.sku,
+                    "weight": p.weight ? { "@type": "QuantitativeValue", "value": p.weight, "unitCode": "GRM" } : undefined,
+                    "countryOfOrigin": p.origin || undefined,
+                    "gs1:digitalLink": `https://${coll.domain}/01/${gtin}`,
+                    "espr:economicOperator": {
+                        "@type": "Organization",
+                        "name": coll.brand,
+                        "identifier": coll.operatorId || undefined,
+                        "gs1:gln": coll.operatorId || undefined
+                    },
+                    "espr:manufacturingFacility": {
+                        "@type": "Place",
+                        "identifier": coll.facilityId || undefined,
+                        "address": s.facilityAddress || undefined
+                    },
+                    "espr:materialComposition": d.materials?.length ? d.materials.map(m => ({
+                        "@type": "PropertyValue",
+                        "name": m.name,
+                        "value": m.percentage,
+                        "unitCode": "P1"
+                    })) : undefined,
+                    "espr:carbonFootprint": d.carbon ? { "@type": "QuantitativeValue", "value": d.carbon, "unitCode": "KGM", "description": "kg CO2 equivalent, total lifecycle" } : undefined,
+                    "espr:waterConsumption": d.water ? { "@type": "QuantitativeValue", "value": d.water, "unitCode": "LTR" } : undefined,
+                    "espr:recycledContent": d.recycledContent != null ? { "@type": "QuantitativeValue", "value": d.recycledContent, "unitCode": "P1" } : undefined,
+                    "espr:recyclability": d.recyclability != null ? { "@type": "QuantitativeValue", "value": d.recyclability, "unitCode": "P1" } : undefined,
+                    "espr:durabilityRating": d.durability || undefined,
+                    "espr:repairabilityScore": d.repairability || undefined,
+                    "espr:expectedLifespan": d.lifespan || undefined,
+                    "espr:hazardousSubstances": {
+                        "status": d.hazardous || "unknown",
+                        "detail": d.hazardousDetail || undefined,
+                        "regulation": "EU REACH (EC 1907/2006)"
+                    },
+                    "espr:endOfLifeInstructions": d.endOfLife || undefined,
+                    "espr:certifications": d.certifications?.length ? d.certifications : undefined,
+                    "dpp:supplyChain": {
+                        "manufacturer": { "@type": "Organization", "name": s.manufacturer, "address": s.manufacturerCountry, "gs1:gln": s.manufacturerGLN || undefined },
+                        "batchLot": s.batch || undefined,
+                        "productionDate": s.productionDate || undefined,
+                        "expiryDate": s.expiryDate || undefined
+                    },
+                    "dpp:authentication": {
+                        "laavaSmartFingerprint": s.laavaId || undefined,
+                        "dppRecord": s.nftContract ? { "contractAddress": s.nftContract, "recordId": s.nftToken, "network": "EVM-compatible" } : undefined
+                    },
+                    "dpp:euImporter": s.euImporter ? { "@type": "Organization", "name": s.euImporter, "address": s.euImporterAddress } : undefined,
+                    "dpp:passportMeta": {
+                        "generator": "DeStore Collection Creator v0.4",
+                        "regulation": "EU ESPR Regulation 2024/1781",
+                        "dppScore": calcDppScore(p),
+                        "generatedAt": new Date().toISOString()
+                    }
+                };
+            });
+
+            // Clean undefined values
+            const clean = JSON.parse(JSON.stringify(passports));
+            const blob = new Blob([JSON.stringify(clean, null, 2)], { type: 'application/ld+json' });
+            downloadBlob(blob, `destore-dpp-jsonld-${coll.name.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.jsonld`);
+        }
+
+        function downloadBlob(blob, filename) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // ─── INIT ───
+        renderSidebar();
+    </script>
+</body>
+</html>

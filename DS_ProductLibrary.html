@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeStore · Product Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;--bg:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#202128;--border:#2e2f3a;--text:#f0f0f5;--text2:#a0a0b0;--text3:#666678;--green:#28B79D;--orange:#FF9F46;--mono:'JetBrains Mono',monospace}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);padding:24px}
+.page-title{font-size:20px;font-weight:900;letter-spacing:-.4px;margin-bottom:4px}
+.page-sub{font-size:12px;color:var(--text3);margin-bottom:24px}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);margin-bottom:20px}
+.breadcrumb a{color:var(--violet);text-decoration:none;cursor:pointer}
+.breadcrumb a:hover{text-decoration:underline}
+.collections-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:24px}
+.collection-card{background:var(--d2);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .15s}
+.collection-card:hover{border-color:var(--orchid);transform:translateY(-2px);box-shadow:0 8px 24px rgba(10, 10, 13, 0.22)}
+.cc-image{height:140px;background:var(--d3);display:flex;align-items:center;justify-content:center;font-size:48px;position:relative;overflow:hidden}
+.cc-image .cc-count{position:absolute;top:10px;right:10px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:800;background:rgba(10, 10, 13, 0.65);color:#fff;backdrop-filter:blur(8px)}
+.cc-body{padding:14px}
+.cc-name{font-size:14px;font-weight:800;margin-bottom:2px}
+.cc-brand{font-size:11px;color:var(--text3);margin-bottom:8px}
+.cc-stats{display:flex;gap:12px}
+.cc-stat{font-size:10px;color:var(--text3)}
+.cc-stat span{font-weight:800;color:var(--text2)}
+.cc-type{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:800;margin-top:8px}
+.cc-type.dpp{background:rgba(106,20,219,.1);color:var(--violet)}
+.cc-type.smart{background:rgba(40,183,157,.1);color:var(--green)}
+
+/* Product list view (inside collection) */
+.product-list{display:none}
+.product-list.active{display:block}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:16px}
+.back-btn:hover{border-color:var(--orchid);color:var(--violet)}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.product-tile{background:var(--d2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .12s}
+.product-tile:hover{border-color:var(--orchid)}
+.pt-icon{font-size:28px;margin-bottom:8px}
+.pt-name{font-size:12px;font-weight:700;margin-bottom:2px}
+.pt-id{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.pt-status{margin-top:6px;display:inline-flex;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:800}
+.pt-status.minted{background:rgba(40,183,157,.1);color:var(--green)}
+.pt-status.pending{background:rgba(255,159,70,.1);color:var(--orange)}
+.search-bar{display:flex;gap:8px;margin-bottom:16px}
+.search-bar input{flex:1;padding:9px 14px;border-radius:8px;border:1px solid var(--border);background:var(--d3);color:var(--text);font-family:inherit;font-size:13px;outline:none}
+.search-bar input:focus{border-color:var(--orchid)}
+</style>
+</head>
+<body>
+
+<!-- Collections View -->
+<div id="collectionsView">
+  <div class="page-title">Product Library</div>
+  <div class="page-sub">Your collections and individual product DPPs</div>
+
+  <div class="search-bar">
+    <input type="text" placeholder="Search collections..." oninput="searchCollections(this.value)">
+  </div>
+
+  <div class="collections-grid" id="collectionsGrid">
+    <div class="collection-card" onclick="openCollection('party-rock')">
+      <div class="cc-image" style="background:linear-gradient(135deg,#1a1a2e,var(--royal))"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0Z"/></svg><div class="cc-count">1,000 DPPs</div></div>
+      <div class="cc-body">
+        <div class="cc-name">Party Rock Collection</div>
+        <div class="cc-brand">DigiDiggers</div>
+        <div class="cc-stats">
+          <div class="cc-stat"><span>1,000</span> items</div>
+          <div class="cc-stat"><span>847</span> minted</div>
+          <div class="cc-stat"><span>153</span> pending</div>
+        </div>
+        <div class="cc-type smart">GS1 Smart Label</div>
+      </div>
+    </div>
+    <div class="collection-card" onclick="openCollection('summer-tee')">
+      <div class="cc-image" style="background:linear-gradient(135deg,#0d2818,#1a4a2e)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg><div class="cc-count">50,000 DPPs</div></div>
+      <div class="cc-body">
+        <div class="cc-name">Summer Tee 2027</div>
+        <div class="cc-brand">EcoThreads GmbH</div>
+        <div class="cc-stats">
+          <div class="cc-stat"><span>50,000</span> items</div>
+          <div class="cc-stat"><span>0</span> minted</div>
+          <div class="cc-stat"><span>50,000</span> pending</div>
+        </div>
+        <div class="cc-type dpp">ESPR DPP</div>
+      </div>
+    </div>
+    <div class="collection-card" onclick="openCollection('face-serum')">
+      <div class="cc-image" style="background:linear-gradient(135deg,#2a1a2e,#4a2850)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg><div class="cc-count">5,000 DPPs</div></div>
+      <div class="cc-body">
+        <div class="cc-name">Natural Face Serum</div>
+        <div class="cc-brand">Glow Botanics</div>
+        <div class="cc-stats">
+          <div class="cc-stat"><span>5,000</span> items</div>
+          <div class="cc-stat"><span>5,000</span> minted</div>
+          <div class="cc-stat"><span>0</span> pending</div>
+        </div>
+        <div class="cc-type dpp">ESPR DPP</div>
+      </div>
+    </div>
+    <div class="collection-card" onclick="openCollection('shiraz')">
+      <div class="cc-image" style="background:linear-gradient(135deg,#2e1a1a,#4a2020)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M12 11v11"/><path d="m19 3-7 8-7-8Z"/></svg><div class="cc-count">2,400 DPPs</div></div>
+      <div class="cc-body">
+        <div class="cc-name">Single Vineyard Shiraz 2024</div>
+        <div class="cc-brand">Byron Bay Winery</div>
+        <div class="cc-stats">
+          <div class="cc-stat"><span>2,400</span> items</div>
+          <div class="cc-stat"><span>2,400</span> minted</div>
+          <div class="cc-stat"><span>0</span> pending</div>
+        </div>
+        <div class="cc-type smart">GS1 Smart Label</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product List View (inside collection) -->
+<div id="productListView" class="product-list">
+  <button class="back-btn" onclick="backToCollections()">← Back to Collections</button>
+  <div class="page-title" id="collectionTitle">Party Rock Collection</div>
+  <div class="page-sub" id="collectionSub">DigiDiggers · 1,000 items · GS1 Smart Label</div>
+
+  <div class="search-bar">
+    <input type="text" placeholder="Search products by name or serial..." id="productSearch">
+  </div>
+
+  <div class="product-grid" id="productGrid"></div>
+</div>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+const collections = {
+  'party-rock': {name:'Party Rock Collection',brand:'DigiDiggers',count:1000,type:'GS1 Smart Label',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0Z"/></svg>',items:[]},
+  'summer-tee': {name:'Summer Tee 2027',brand:'EcoThreads GmbH',count:50000,type:'ESPR DPP',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>',items:[]},
+  'face-serum': {name:'Natural Face Serum',brand:'Glow Botanics',count:5000,type:'ESPR DPP',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',items:[]},
+  'shiraz': {name:'Single Vineyard Shiraz 2024',brand:'Byron Bay Winery',count:2400,type:'GS1 Smart Label',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M12 11v11"/><path d="m19 3-7 8-7-8Z"/></svg>',items:[]},
+};
+
+// Generate sample items for Party Rock
+for(let i=1;i<=50;i++){
+  collections['party-rock'].items.push({
+    id:i, name:`Party Rock #${i.toString().padStart(4,'0')}`,
+    serial:`PR-${i.toString().padStart(4,'0')}`,
+    minted: i <= 42
+  });
+}
+
+function openCollection(key){
+  const c = collections[key];
+  document.getElementById('collectionsView').style.display='none';
+  document.getElementById('productListView').classList.add('active');
+  document.getElementById('collectionTitle').textContent=c.name;
+  document.getElementById('collectionSub').textContent=`${c.brand} · ${c.count.toLocaleString()} items · ${c.type}`;
+
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = '';
+  const items = c.items.length ? c.items : Array.from({length:Math.min(50,c.count)},(_,i)=>({
+    id:i+1, name:`${c.icon} Unit #${(i+1).toString().padStart(4,'0')}`,
+    serial:`${key.toUpperCase().substring(0,3)}-${(i+1).toString().padStart(4,'0')}`,
+    minted: Math.random()>.3
+  }));
+
+  items.forEach(item=>{
+    const d=document.createElement('div');
+    d.className='product-tile';
+    d.innerHTML=`<div class="pt-icon">${c.icon}</div><div class="pt-name">${item.name}</div><div class="pt-id">${item.serial}</div><div class="pt-status ${item.minted?'minted':'pending'}">${item.minted?'Minted':'Pending'}</div>`;
+    grid.appendChild(d);
+  });
+
+  if(c.count>50){
+    const more=document.createElement('div');
+    more.className='product-tile';
+    more.style.display='flex';
+    more.style.alignItems='center';
+    more.style.justifyContent='center';
+    more.style.color='var(--text3)';
+    more.style.fontSize='12px';
+    more.innerHTML=`+ ${(c.count-50).toLocaleString()} more items`;
+    grid.appendChild(more);
+  }
+}
+
+function backToCollections(){
+  document.getElementById('collectionsView').style.display='block';
+  document.getElementById('productListView').classList.remove('active');
+}
+
+function searchCollections(q){
+  const cards=document.querySelectorAll('.collection-card');
+  cards.forEach(c=>{
+    const name=c.querySelector('.cc-name').textContent.toLowerCase();
+    const brand=c.querySelector('.cc-brand').textContent.toLowerCase();
+    c.style.display=(name.includes(q.toLowerCase())||brand.includes(q.toLowerCase()))?'':'none';
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeStore · Label Template Exporter</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;
+  --dark1:#0d0d10;--dark2:#141418;--dark3:#1a1a20;--dark4:#202128;--dark5:#2a2b34;
+  --border:#2e2f3a;--border2:#3a3b48;
+  --text:#f0f0f5;--text2:#a0a0b0;--text3:#666678;
+  --green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--red:#e74c3c;
+  --mono:'JetBrains Mono',monospace;
+}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark1);color:var(--text);min-height:100vh}
+
+/* ── Header ── */
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:var(--dark2)}
+.header-left{display:flex;align-items:center;gap:14px}
+.header-logo{height:22px;opacity:.8}
+.header-sep{width:1px;height:20px;background:var(--border)}
+.header-title{font-size:14px;font-weight:800;letter-spacing:-.2px}
+.header-badge{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:rgba(106,20,219,.2);color:var(--violet)}
+
+/* ── Layout ── */
+.main{display:grid;grid-template-columns:340px 1fr 280px;height:calc(100vh - 57px)}
+.panel{border-right:1px solid var(--border);overflow-y:auto;padding:20px}
+.panel:last-child{border-right:none}
+.panel-title{font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+
+/* ── Form Elements ── */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--dark3);color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border .15s}
+.field input:focus,.field select:focus{border-color:var(--orchid)}
+.field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666678'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.field .hint{font-size:10px;color:var(--text3);margin-top:4px}
+.field .mono-val{font-family:var(--mono);font-size:12px;color:var(--violet)}
+
+/* ── Upload Zone ── */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.upload-zone:hover{border-color:var(--orchid);background:rgba(106,20,219,.04)}
+.upload-zone.has-file{border-style:solid;border-color:var(--green);padding:0}
+.upload-zone .uz-icon{font-size:28px;margin-bottom:8px;opacity:.5}
+.upload-zone .uz-text{font-size:12px;color:var(--text2)}
+.upload-zone .uz-sub{font-size:10px;color:var(--text3);margin-top:4px}
+.upload-zone img{width:100%;display:block;border-radius:10px}
+.upload-zone input{display:none}
+
+/* ── Canvas (center) ── */
+.canvas-area{background:var(--dark3);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.canvas-toolbar{position:absolute;top:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:var(--dark2);border:1px solid var(--border);border-radius:8px;padding:4px;z-index:10}
+.canvas-toolbar button{padding:6px 14px;border:none;border-radius:6px;background:transparent;color:var(--text2);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+.canvas-toolbar button:hover{color:var(--text)}
+.canvas-toolbar button.active{background:var(--orchid);color:#fff}
+.canvas-wrap{position:relative;background: var(--d2);border-radius:4px;box-shadow:0 8px 40px rgba(10, 10, 13, 0.40)}
+.canvas-empty{text-align:center;color:var(--text3)}
+.canvas-empty .ce-icon{font-size:48px;margin-bottom:12px;opacity:.3}
+.canvas-empty p{font-size:13px}
+
+/* ── QR Overlay ── */
+.qr-overlay{position:absolute;cursor:move;transition:border-color .15s}
+.qr-overlay:hover .qr-border{border-color:var(--violet)}
+.qr-quiet-zone{width:100%;height:100%;background: var(--d2);display:flex;align-items:center;justify-content:center;position:relative}
+.qr-border{position:absolute;inset:-2px;border:2px dashed var(--orchid);pointer-events:none;transition:border-color .15s}
+.qr-quiet-label{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:800;color:var(--orchid);white-space:nowrap;letter-spacing:.04em;text-transform:uppercase;opacity:0;transition:opacity .15s}
+.qr-overlay:hover .qr-quiet-label{opacity:1}
+.qr-inner{width:calc(100% - 16.6%);height:calc(100% - 16.6%);display:flex;align-items:center;justify-content:center}
+.qr-inner svg{width:100%;height:100%}
+.qr-resize{position:absolute;bottom:-4px;right:-4px;width:10px;height:10px;background:var(--orchid);border-radius:2px;cursor:nwse-resize;z-index:2}
+
+/* ── Print Run Config (right panel) ── */
+.run-card{background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+.run-card .rc-label{font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.run-card .rc-value{font-size:22px;font-weight:900;color:var(--text);letter-spacing:-.5px}
+.run-card .rc-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* ── Buttons ── */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:all .15s}
+.btn-primary{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-secondary{background:var(--dark3);border:1px solid var(--border);color:var(--text)}
+.btn-secondary:hover{border-color:var(--orchid);color:var(--violet)}
+.btn+.btn{margin-top:8px}
+
+/* ── Progress ── */
+.progress-wrap{margin:16px 0}
+.progress-bar{height:6px;background:var(--dark4);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--orchid),var(--green));border-radius:3px;width:0%;transition:width .3s}
+.progress-text{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px}
+
+/* ── Divider ── */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* ── Status ── */
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:800}
+.status-badge.ready{background:rgba(40,183,157,.12);color:var(--green)}
+.status-badge.pending{background:rgba(255,159,70,.12);color:var(--orange)}
+.status-badge.error{background:rgba(231,76,60,.12);color:var(--red)}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ── Format Selector ── */
+.format-opts{display:flex;gap:6px;margin-bottom:16px}
+.format-opt{flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;text-align:center;cursor:pointer;transition:all .15s}
+.format-opt:hover{border-color:var(--text3)}
+.format-opt.active{border-color:var(--orchid);background:rgba(106,20,219,.08)}
+.format-opt .fo-icon{font-size:20px;margin-bottom:4px}
+.format-opt .fo-label{font-size:11px;font-weight:800;color:var(--text)}
+.format-opt .fo-desc{font-size:9px;color:var(--text3);margin-top:2px}
+
+/* ── Label Size Presets ── */
+.size-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.size-preset{padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:10px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s}
+.size-preset:hover{border-color:var(--text3)}
+.size-preset.active{border-color:var(--orchid);color:var(--violet);background:rgba(106,20,219,.08)}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="header-left">
+    <svg class="header-logo" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#B354F1"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#f0f0f5"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#f0f0f5"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#f0f0f5"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#f0f0f5"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#f0f0f5"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#f0f0f5"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#f0f0f5"/></svg>
+    <div class="header-sep"></div>
+    <div class="header-title">Label Template Exporter</div>
+  </div>
+  <div class="header-badge">Print Run Generator</div>
+</div>
+
+<!-- ═══ MAIN 3-COLUMN LAYOUT ═══ -->
+<div class="main">
+
+  <!-- ═══ LEFT PANEL: Template Config ═══ -->
+  <div class="panel">
+    <div class="panel-title">Label Template</div>
+
+    <!-- Upload -->
+    <div class="field">
+      <label>Template File</label>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('templateFile').click()">
+        <div id="uploadPlaceholder">
+          <div class="uz-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+          <div class="uz-text">Drop label template here</div>
+          <div class="uz-sub">PNG, JPG, PDF, SVG · Max 10MB</div>
+        </div>
+        <img id="templatePreview" style="display:none" alt="Template">
+        <input type="file" id="templateFile" accept="image/*,.pdf,.svg" onchange="loadTemplate(this)">
+      </div>
+    </div>
+
+    <!-- Label Size -->
+    <div class="field">
+      <label>Label Size</label>
+      <div class="size-presets" id="sizePresets">
+        <div class="size-preset active" data-w="90" data-h="50" onclick="setLabelSize(this)">90×50mm</div>
+        <div class="size-preset" data-w="70" data-h="40" onclick="setLabelSize(this)">70×40mm</div>
+        <div class="size-preset" data-w="50" data-h="30" onclick="setLabelSize(this)">50×30mm</div>
+        <div class="size-preset" data-w="100" data-h="60" onclick="setLabelSize(this)">Hang Tag</div>
+        <div class="size-preset" data-w="60" data-h="40" onclick="setLabelSize(this)">Care Label</div>
+        <div class="size-preset" data-w="0" data-h="0" onclick="setLabelSize(this)">Custom</div>
+      </div>
+      <div class="field-row" id="customSizeRow" style="display:none">
+        <div class="field"><label>Width (mm)</label><input type="number" id="labelW" value="90" onchange="updateCanvas()"></div>
+        <div class="field"><label>Height (mm)</label><input type="number" id="labelH" value="50" onchange="updateCanvas()"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- QR Code Settings -->
+    <div class="panel-title">QR Code Placement</div>
+
+    <div class="field-row">
+      <div class="field"><label>X Position (mm)</label><input type="number" id="qrX" value="62" min="0" oninput="updateQRFromInputs()"></div>
+      <div class="field"><label>Y Position (mm)</label><input type="number" id="qrY" value="8" min="0" oninput="updateQRFromInputs()"></div>
+    </div>
+    <div class="field">
+      <label>QR Size (mm)</label>
+      <input type="range" id="qrSize" min="10" max="50" value="20" oninput="updateQRFromInputs();document.getElementById('qrSizeVal').textContent=this.value+'mm'">
+      <div style="display:flex;justify-content:space-between;margin-top:4px">
+        <span class="hint">Min 10mm incl. 4-module quiet zone (GS1)</span>
+        <span class="hint" id="qrSizeVal" style="color:var(--violet)">20mm</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Error Correction</label>
+      <select id="qrEC">
+        <option value="L">Low (7%) — smallest QR</option>
+        <option value="M" selected>Medium (15%) — recommended</option>
+        <option value="Q">Quartile (25%) — logo-safe</option>
+        <option value="H">High (30%) — maximum resilience</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>QR Colour</label>
+      <div class="field-row">
+        <div class="field"><label>Foreground</label><input type="color" id="qrFg" value="#000000" style="height:34px;padding:2px" onchange="updateQRPreview()"></div>
+        <div class="field"><label>Background</label><input type="color" id="qrBg" value="#ffffff" style="height:34px;padding:2px" onchange="updateQRPreview()"></div>
+      </div>
+    </div>
+
+    <div style="padding:8px 10px;background:rgba(106,20,219,.06);border:1px solid rgba(106,20,219,.15);border-radius:6px;margin-bottom:16px">
+      <div style="font-size:9px;font-weight:800;color:var(--violet);letter-spacing:.04em;margin-bottom:2px">GS1 QR COMPLIANCE</div>
+      <div style="font-size:9px;color:var(--text3);line-height:1.5">4-module quiet zone included automatically. White border around QR is mandatory per ISO/IEC 18004 and GS1 Digital Link spec. Do not place design elements within the quiet zone boundary.</div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="panel-title">GS1 Digital Link</div>
+    <div class="field">
+      <label>Brand Domain</label>
+      <input type="text" id="brandDomain" value="id.destore.network" placeholder="id.yourbrand.com">
+      <div class="hint">White-label domain for the resolver</div>
+    </div>
+    <div class="field">
+      <label>GTIN-14</label>
+      <input type="text" id="gtin" value="09501234567890" maxlength="14" placeholder="14-digit GTIN" style="font-family:var(--mono)">
+    </div>
+    <div class="field">
+      <label>Collection Contract</label>
+      <input type="text" id="contractAddr" value="0x7a3B...8f2C" placeholder="0x..." style="font-family:var(--mono);color:var(--green)">
+    </div>
+  </div>
+
+  <!-- ═══ CENTER: Canvas Preview ═══ -->
+  <div class="canvas-area" id="canvasArea">
+    <div class="canvas-toolbar">
+      <button class="active" onclick="setZoom(1,this)">100%</button>
+      <button onclick="setZoom(1.5,this)">150%</button>
+      <button onclick="setZoom(2,this)">200%</button>
+      <button onclick="setZoom(0.75,this)">75%</button>
+    </div>
+    <div class="canvas-wrap" id="canvasWrap" style="width:360px;height:200px">
+      <div class="canvas-empty" id="canvasEmpty">
+        <div class="ce-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+        <p style="color:var(--text3)">Upload a template or start with a blank label</p>
+        <p style="color:var(--text3);font-size:11px;margin-top:8px">90mm × 50mm · 300 DPI</p>
+      </div>
+      <img id="canvasTemplate" style="display:none;width:100%;height:100%;object-fit:contain;border-radius:4px" alt="Label template">
+      <!-- QR Overlay with GS1-compliant quiet zone -->
+      <div class="qr-overlay" id="qrOverlay" style="width:80px;height:80px;left:248px;top:32px">
+        <div class="qr-quiet-zone">
+          <div class="qr-border"></div>
+          <div class="qr-quiet-label">4-module quiet zone</div>
+          <div class="qr-inner" id="qrInner"></div>
+        </div>
+        <div class="qr-resize" id="qrResize"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT PANEL: Print Run ═══ -->
+  <div class="panel">
+    <div class="panel-title">Print Run</div>
+
+    <div class="field">
+      <label>Collection</label>
+      <select id="collection">
+        <option>Summer Tee 2027 — Organic Cotton</option>
+        <option>Winter Jacket 2027 — Merino Blend</option>
+        <option>Face Serum — Natural Range</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Quantity</label>
+      <input type="number" id="quantity" value="50000" min="1" max="5000000" onchange="updateRun()">
+      <div class="hint">Max 5,000,000 per print run</div>
+    </div>
+
+    <div class="run-card">
+      <div class="rc-label">Labels</div>
+      <div class="rc-value" id="labelCount">50,000</div>
+      <div class="rc-sub">Unique GS1 QR codes per label</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- QR Code Source -->
+    <div class="panel-title">QR Code Source</div>
+
+    <div class="format-opts" style="margin-bottom:12px">
+      <div class="format-opt active" onclick="setQRSource(this,'collection')">
+        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
+        <div class="fo-label">Collection</div>
+        <div class="fo-desc">From DPP order</div>
+      </div>
+      <div class="format-opt" onclick="setQRSource(this,'upload')">
+        <div class="fo-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></div>
+        <div class="fo-label">Upload</div>
+        <div class="fo-desc">ZIP of QR files</div>
+      </div>
+    </div>
+
+    <!-- Collection source -->
+    <div id="qrSourceCollection">
+      <div class="field">
+        <label>DPP Order</label>
+        <select id="qrOrder" onchange="updateQRSource()">
+          <option value="" disabled selected>Select a paid DPP order...</option>
+          <option value="ord-2027-001">ORD-001 · Summer Tee · 50,000 DPPs · Paid ✓</option>
+          <option value="ord-2027-002">ORD-002 · Winter Jacket · 12,000 DPPs · Paid ✓</option>
+          <option value="ord-2027-003">ORD-003 · Face Serum · 8,500 DPPs · Paid ✓</option>
+        </select>
+        <div class="hint">Only paid DPP orders with minted QR codes appear here</div>
+      </div>
+      <div id="qrOrderDetail" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">
+          <div style="background:var(--dark4);border-radius:6px;padding:8px 10px">
+            <div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">QR Codes</div>
+            <div style="font-size:15px;font-weight:800;margin-top:2px" id="qrOrderQty">50,000</div>
+          </div>
+          <div style="background:var(--dark4);border-radius:6px;padding:8px 10px">
+            <div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Status</div>
+            <div style="font-size:12px;font-weight:800;color:var(--green);margin-top:4px">Minted ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload source -->
+    <div id="qrSourceUpload" style="display:none">
+      <div class="field">
+        <div class="upload-zone" id="qrUploadZone" onclick="document.getElementById('qrZipFile').click()" style="padding:18px">
+          <div id="qrUploadPlaceholder">
+            <div class="uz-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></div>
+            <div class="uz-text">Upload QR codes ZIP</div>
+            <div class="uz-sub">ZIP containing SVG or PNG QR files · Named sequentially</div>
+          </div>
+          <div id="qrUploadDone" style="display:none">
+            <div style="font-size:14px;margin-bottom:4px">✓</div>
+            <div class="uz-text" style="color:var(--green)" id="qrUploadInfo">50,000 QR files loaded</div>
+          </div>
+          <input type="file" id="qrZipFile" accept=".zip" style="display:none" onchange="handleQRUpload(this)">
+        </div>
+        <div class="hint">Each QR file maps to one label. File count must match quantity.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Export Format -->
+    <div class="panel-title">Export Format</div>
+    <div class="format-opts">
+      <div class="format-opt active" onclick="setFormat(this,'csv')">
+        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+        <div class="fo-label">CSV</div>
+        <div class="fo-desc">For VDP printers</div>
+      </div>
+      <div class="format-opt" onclick="setFormat(this,'pdf')">
+        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+        <div class="fo-label">PDF</div>
+        <div class="fo-desc">Chunked files</div>
+      </div>
+      <div class="format-opt" onclick="setFormat(this,'zpl')">
+        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg></div>
+        <div class="fo-label">ZPL</div>
+        <div class="fo-desc">Zebra printers</div>
+      </div>
+    </div>
+
+    <div class="field" id="chunkField" style="display:none">
+      <label>Pages per PDF chunk</label>
+      <select id="chunkSize">
+        <option value="1000">1,000</option>
+        <option value="5000">5,000</option>
+        <option value="10000" selected>10,000</option>
+        <option value="25000">25,000</option>
+      </select>
+      <div class="hint" id="chunkCount">5 PDF files</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div style="padding:10px 12px;background:rgba(40,183,157,.08);border:1px solid rgba(40,183,157,.2);border-radius:8px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:2px">Template export is free</div>
+      <div style="font-size:10px;color:var(--text3);line-height:1.5">DPP QR codes are generated after your DPP order is placed and paid. This tool saves your label template and QR placement for the print run.</div>
+    </div>
+
+    <!-- Save Template -->
+    <button class="btn btn-primary" id="btnSave" onclick="saveTemplate()">
+      Save Label Template
+    </button>
+    <button class="btn btn-secondary" id="btnPreview" onclick="previewExport()">
+      Preview Sample Label
+    </button>
+
+    <div class="progress-wrap" id="progressWrap" style="display:none">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text">
+        <span id="progressLabel">Saving template...</span>
+        <span id="progressPct">0%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
+(function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
+
+// ── State ──
+let labelW=90, labelH=50, currentZoom=1, exportFormat='csv';
+const PX_PER_MM = 4; // canvas scale
+
+// ── Template Upload ──
+function loadTemplate(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=document.getElementById('canvasTemplate');
+    img.src=e.target.result;
+    img.style.display='block';
+    document.getElementById('canvasEmpty').style.display='none';
+    // Also show in upload zone
+    const prev=document.getElementById('templatePreview');
+    prev.src=e.target.result;
+    prev.style.display='block';
+    document.getElementById('uploadPlaceholder').style.display='none';
+    document.getElementById('uploadZone').classList.add('has-file');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Label Size ──
+function setLabelSize(el){
+  document.querySelectorAll('.size-preset').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  const w=parseInt(el.dataset.w), h=parseInt(el.dataset.h);
+  if(w===0){
+    document.getElementById('customSizeRow').style.display='grid';
+    return;
+  }
+  document.getElementById('customSizeRow').style.display='none';
+  labelW=w; labelH=h;
+  document.getElementById('labelW').value=w;
+  document.getElementById('labelH').value=h;
+  updateCanvas();
+}
+
+function updateCanvas(){
+  labelW=parseInt(document.getElementById('labelW').value)||90;
+  labelH=parseInt(document.getElementById('labelH').value)||50;
+  const wrap=document.getElementById('canvasWrap');
+  wrap.style.width=(labelW*PX_PER_MM*currentZoom)+'px';
+  wrap.style.height=(labelH*PX_PER_MM*currentZoom)+'px';
+  const empty=document.getElementById('canvasEmpty');
+  if(empty.style.display!=='none'){
+    empty.querySelector('p:last-child').textContent=`${labelW}mm × ${labelH}mm · 300 DPI`;
+  }
+}
+
+function setZoom(z,btn){
+  currentZoom=z;
+  document.querySelectorAll('.canvas-toolbar button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateCanvas();
+}
+
+// ── QR Drag + Resize ──
+const qrOverlay=document.getElementById('qrOverlay');
+const qrResize=document.getElementById('qrResize');
+let dragging=false, resizing=false, dragStart={x:0,y:0}, origPos={x:0,y:0}, origSize=0;
+
+qrOverlay.addEventListener('mousedown',function(e){
+  if(e.target===qrResize)return;
+  dragging=true;
+  dragStart={x:e.clientX,y:e.clientY};
+  origPos={x:qrOverlay.offsetLeft,y:qrOverlay.offsetTop};
+  e.preventDefault();
+});
+
+qrResize.addEventListener('mousedown',function(e){
+  resizing=true;
+  dragStart={x:e.clientX,y:e.clientY};
+  origSize=qrOverlay.offsetWidth;
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove',function(e){
+  if(dragging){
+    const dx=e.clientX-dragStart.x, dy=e.clientY-dragStart.y;
+    qrOverlay.style.left=(origPos.x+dx)+'px';
+    qrOverlay.style.top=(origPos.y+dy)+'px';
+    syncQRToInputs();
+  }
+  if(resizing){
+    const dx=e.clientX-dragStart.x;
+    const newSize=Math.max(30,origSize+dx);
+    qrOverlay.style.width=newSize+'px';
+    qrOverlay.style.height=newSize+'px';
+    syncQRToInputs();
+  }
+});
+
+document.addEventListener('mouseup',function(){dragging=false;resizing=false});
+
+function syncQRToInputs(){
+  const scale=PX_PER_MM*currentZoom;
+  document.getElementById('qrX').value=Math.round(qrOverlay.offsetLeft/scale);
+  document.getElementById('qrY').value=Math.round(qrOverlay.offsetTop/scale);
+  const sizeMM=Math.round(qrOverlay.offsetWidth/scale);
+  document.getElementById('qrSize').value=sizeMM;
+  document.getElementById('qrSizeVal').textContent=sizeMM+'mm';
+}
+
+function updateQRFromInputs(){
+  const scale=PX_PER_MM*currentZoom;
+  const x=parseInt(document.getElementById('qrX').value)||0;
+  const y=parseInt(document.getElementById('qrY').value)||0;
+  const s=parseInt(document.getElementById('qrSize').value)||20;
+  qrOverlay.style.left=(x*scale)+'px';
+  qrOverlay.style.top=(y*scale)+'px';
+  qrOverlay.style.width=(s*scale)+'px';
+  qrOverlay.style.height=(s*scale)+'px';
+}
+
+// ── QR Preview (with GS1-compliant 4-module quiet zone) ──
+function updateQRPreview(){
+  const fg=document.getElementById('qrFg').value;
+  const bg=document.getElementById('qrBg').value;
+  const inner=document.getElementById('qrInner');
+  // QR modules: 21x21 + 4-module quiet zone on each side = 29x29 total
+  const modules=21, quiet=4, total=modules+quiet*2;
+  const px=100/total;
+  let svg=`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">`;
+  // Full white background (quiet zone)
+  svg+=`<rect width="100" height="100" fill="${bg}"/>`;
+  // Quiet zone indicators (subtle dashed lines showing the boundary)
+  svg+=`<rect x="${quiet*px}" y="${quiet*px}" width="${modules*px}" height="${modules*px}" fill="none" stroke="${fg}" stroke-width="0.3" stroke-dasharray="1 1" opacity="0.15"/>`;
+  // Finder patterns (offset by quiet zone)
+  const fp=[[0,0],[14,0],[0,14]];
+  fp.forEach(([fx,fy])=>{
+    const ox=(fx+quiet)*px, oy=(fy+quiet)*px;
+    svg+=`<rect x="${ox}" y="${oy}" width="${7*px}" height="${7*px}" fill="${fg}"/>`;
+    svg+=`<rect x="${ox+px}" y="${oy+px}" width="${5*px}" height="${5*px}" fill="${bg}"/>`;
+    svg+=`<rect x="${ox+2*px}" y="${oy+2*px}" width="${3*px}" height="${3*px}" fill="${fg}"/>`;
+  });
+  // Timing patterns
+  for(let i=8;i<13;i++){
+    if(i%2===0){
+      svg+=`<rect x="${(i+quiet)*px}" y="${(6+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/>`;
+      svg+=`<rect x="${(6+quiet)*px}" y="${(i+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/>`;
+    }
+  }
+  // Alignment pattern (for version 2+)
+  const ax=16+quiet, ay=16+quiet;
+  svg+=`<rect x="${(ax-2)*px}" y="${(ay-2)*px}" width="${5*px}" height="${5*px}" fill="${fg}"/>`;
+  svg+=`<rect x="${(ax-1)*px}" y="${(ay-1)*px}" width="${3*px}" height="${3*px}" fill="${bg}"/>`;
+  svg+=`<rect x="${ax*px}" y="${ay*px}" width="${px}" height="${px}" fill="${fg}"/>`;
+  // Random data modules (avoid finder + timing + alignment areas)
+  for(let r=0;r<modules;r++){for(let c=0;c<modules;c++){
+    if((r<7&&c<7)||(r<7&&c>13)||(r>13&&c<7))continue;
+    if(r===6||c===6)continue;
+    if(r>=14&&r<=18&&c>=14&&c<=18)continue;
+    if(Math.random()>.5)svg+=`<rect x="${(c+quiet)*px}" y="${(r+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/>`;
+  }}
+  svg+='</svg>';
+  inner.innerHTML=svg;
+}
+updateQRPreview();
+
+// ── Costs ──
+function updateRun(){
+  const qty=parseInt(document.getElementById('quantity').value)||0;
+  document.getElementById('labelCount').textContent=qty.toLocaleString();
+  if(exportFormat==='pdf'){
+    const chunk=parseInt(document.getElementById('chunkSize').value);
+    document.getElementById('chunkCount').textContent=Math.ceil(qty/chunk)+' PDF files';
+  }
+}
+updateRun();
+
+// ── Format ──
+function setFormat(el,fmt){
+  document.querySelectorAll('.format-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  exportFormat=fmt;
+  document.getElementById('chunkField').style.display=fmt==='pdf'?'block':'none';
+  updateRun();
+}
+
+// ── QR Source ──
+let qrSource='collection';
+function setQRSource(el,src){
+  document.querySelectorAll('.format-opts')[1].querySelectorAll('.format-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  qrSource=src;
+  document.getElementById('qrSourceCollection').style.display=src==='collection'?'block':'none';
+  document.getElementById('qrSourceUpload').style.display=src==='upload'?'block':'none';
+}
+
+function updateQRSource(){
+  const sel=document.getElementById('qrOrder');
+  if(sel.value){
+    document.getElementById('qrOrderDetail').style.display='block';
+    const txt=sel.options[sel.selectedIndex].text;
+    const match=txt.match(/([\d,]+) DPPs/);
+    if(match) document.getElementById('qrOrderQty').textContent=match[1];
+  }
+}
+
+function handleQRUpload(input){
+  const file=input.files[0];
+  if(!file)return;
+  document.getElementById('qrUploadPlaceholder').style.display='none';
+  document.getElementById('qrUploadDone').style.display='block';
+  const qty=document.getElementById('quantity').value;
+  document.getElementById('qrUploadInfo').textContent=file.name+' · '+parseInt(qty).toLocaleString()+' QR files';
+  document.getElementById('qrUploadZone').classList.add('has-file');
+}
+
+// ── Save Template ──
+function saveTemplate(){
+  const btn=document.getElementById('btnSave');
+  const wrap=document.getElementById('progressWrap');
+  const fill=document.getElementById('progressFill');
+  const label=document.getElementById('progressLabel');
+  const pct=document.getElementById('progressPct');
+  
+  btn.textContent='Saving...';
+  btn.style.opacity='.6';
+  btn.disabled=true;
+  wrap.style.display='block';
+
+  const steps=[
+    {pct:30,text:'Saving label dimensions...'},
+    {pct:60,text:'Storing QR placement coordinates...'},
+    {pct:85,text:'Registering export format...'},
+    {pct:100,text:'Template saved!'},
+  ];
+
+  let i=0;
+  const interval=setInterval(()=>{
+    if(i>=steps.length){
+      clearInterval(interval);
+      btn.textContent='✓ Template Saved';
+      btn.style.background='var(--green)';
+      setTimeout(()=>{
+        btn.textContent='Save Label Template';
+        btn.style.background='';
+        btn.style.opacity='1';
+        btn.disabled=false;
+        wrap.style.display='none';
+        fill.style.width='0%';
+      },2000);
+      return;
+    }
+    fill.style.width=steps[i].pct+'%';
+    label.textContent=steps[i].text;
+    pct.textContent=steps[i].pct+'%';
+    i++;
+  },500);
+}
+
+function previewExport(){
+  const qty=document.getElementById('quantity').value;
+  const fmt=exportFormat.toUpperCase();
+  const qrSize=document.getElementById('qrSize').value;
+  const qrX=document.getElementById('qrX').value;
+  const qrY=document.getElementById('qrY').value;
+  alert(`Label Template Preview\n\n` +
+    `Collection: ${document.getElementById('collection').value}\n` +
+    `Labels: ${parseInt(qty).toLocaleString()}\n` +
+    `Label size: ${labelW}mm × ${labelH}mm\n` +
+    `QR position: ${qrX}mm, ${qrY}mm\n` +
+    `QR size: ${qrSize}mm\n` +
+    `Export format: ${fmt}\n\n` +
+    `DPP QR codes will be generated when your DPP order is placed and paid.`);
+}
+
+// Initial QR position
+updateQRFromInputs();
+updateCanvas();
+</script>
+</body>
+</html>
