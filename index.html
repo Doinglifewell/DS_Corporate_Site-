@@ -176,14 +176,23 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div class="login-title">GS1 DPP Platform</div>
     <div class="login-sub">Sign in to manage your Digital Product Passports</div>
 
-    <div style="margin-top:28px">
-      <button onclick="enterPlatform()" style="width:100%;padding:16px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:-.2px">
-        Enter Platform →
-      </button>
+    <div style="margin-top:16px;border-radius:16px;overflow:hidden;width:100%">
+      <iframe id="twLoginFrame" src="https://tw-login-ax855eeis-info-45087063s-projects.vercel.app" style="width:100%;height:500px;border:none;border-radius:16px" allow="clipboard-write"></iframe>
     </div>
-    <div class="login-note" style="margin-top:16px">
-      DeStore GS1 DPP Platform · Internal access
+    <div class="login-note" style="margin-top:12px">
+      Secured by <a href="https://thirdweb.com" target="_blank">Thirdweb</a> · Google · Apple · Email · Wallet<br>
+      By signing in you agree to DeStore's Terms of Service
     </div>
+    <script>
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'tw-auth-success') {
+        var addr = e.data.address || 'user';
+        sessionStorage.setItem('ds_auth', JSON.stringify({email: addr, timestamp: Date.now()}));
+        document.getElementById('loginGate').classList.add('hidden');
+        if (window.onAuthComplete) onAuthComplete();
+      }
+    });
+    </script>
   </div>
 </div>
 
@@ -346,7 +355,6 @@ const session = sessionStorage.getItem('ds_auth');
 if (session) {
   loginGate.classList.add('hidden');
 }
-// Auto-skip login gate if already set (one-click mode)
 
 // ── Login Flow ──
 let loginEmailVal = '';
@@ -504,13 +512,6 @@ document.addEventListener('keydown', (e) => {
 if (session) {
   frame.src = 'DS_DPP_Foundation.html';
   setTimeout(() => loading.classList.add('hidden'), 500);
-}
-
-// One-click entry
-function enterPlatform() {
-  sessionStorage.setItem('ds_auth', JSON.stringify({ email: 'admin', timestamp: Date.now() }));
-  document.getElementById('loginGate').classList.add('hidden');
-  onAuthComplete();
 }
 
 // After login completes, load the default page
