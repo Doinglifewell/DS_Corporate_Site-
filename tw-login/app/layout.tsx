@@ -1,0 +1,1 @@
+import{ThirdwebProvider}from"thirdweb/react";export default function R({children}:{children:React.ReactNode}){return<html><body style={{margin:0}}><ThirdwebProvider>{children}</ThirdwebProvider></body></html>}
