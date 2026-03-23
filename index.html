@@ -219,7 +219,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <!-- Step 2: OTP -->
       <div class="login-step" id="stepOTP">
         <div class="login-back" onclick="showStep('email')">← Back</div>
-        <div class="login-email-display" id="otpEmailDisplay">code sent to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2d5442586d4e42405d4c4354034e4240">[email&#160;protected]</a></div>
+        <div class="login-email-display" id="otpEmailDisplay">Code sent</div>
         <div class="login-otp-row">
           <input class="login-otp" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,0)" onkeydown="otpBack(event,0)">
           <input class="login-otp" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,1)" onkeydown="otpBack(event,1)">
@@ -378,7 +378,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
+// ── Pre-declare all auth functions globally ─────────────────────────────
+// Cloudflare's email-decode script can inject itself before this script runs,
+// splitting execution context. Pre-declaring on window ensures onclick
+// handlers work regardless of when the script body executes.
+(function(){
+  var fns = ['sendOTP','verifyOTP','otpNext','otpBack','showStep','socialLogin','walletLogin'];
+  fns.forEach(function(fn){ if(!window[fn]) window[fn] = function(){ console.warn(fn+' not ready yet'); }; });
+})();
+
 // ── Thirdweb Config ──
 const TW_CLIENT_ID = 'f723c8676a9171dd121c76e96e6d0936';
 
@@ -478,12 +487,12 @@ async function sendOTP() {
       const { preAuthenticate } = await import('https://esm.sh/thirdweb@5/wallets/in-app');
       await preAuthenticate({ client: twClient, strategy: 'email', email });
     }
-    document.getElementById('otpEmailDisplay').textContent = 'Code sent to ' + email;
+    document.getElementById('otpEmailDisplay').textContent = 'Code sent to: ' + email;
     showStep('otp');
     otpInputs[0]?.focus();
   } catch(e) {
     // Still show OTP step — user may have received code
-    document.getElementById('otpEmailDisplay').textContent = 'Code sent to ' + email;
+    document.getElementById('otpEmailDisplay').textContent = 'Code sent to: ' + email;
     showStep('otp');
     otpInputs[0]?.focus();
     console.warn('sendOTP:', e);
@@ -582,9 +591,12 @@ function hideErr(id) {
 }
 
 // Expose for onclick handlers
+// Assign real functions (overrides the pre-declarations above)
 window.sendOTP=sendOTP; window.verifyOTP=verifyOTP; window.otpNext=otpNext;
 window.otpBack=otpBack; window.showStep=showStep; window.socialLogin=socialLogin;
 window.walletLogin=walletLogin;
+// Fire ready event so any queued calls from before init execute
+document.dispatchEvent(new Event('tw:ready'));
 
 // ── Platform Code ──
 const frame = document.getElementById('frame');
