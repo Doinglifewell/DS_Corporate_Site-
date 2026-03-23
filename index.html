@@ -724,3 +724,4 @@ function mQuick(text) {
   showTyping();
   setTimeout(() => {
     
+<script>document.addEventListener("DOMContentLoaded",function(){var g=document.getElementById("btnGoogle"),a=document.getElementById("btnApple"),w=document.getElementById("btnWallet"),s=document.getElementById("btnSendOTP"),v=document.getElementById("btnVerify");if(g)g.onclick=function(){socialLogin("google",g)};if(a)a.onclick=function(){socialLogin("apple",a)};if(w)w.onclick=function(){walletLogin(w)};if(s)s.onclick=sendOTP;if(v)v.onclick=verifyOTP;document.querySelectorAll(".login-otp").forEach(function(el,i){el.oninput=function(){otpNext(el,i)};el.onkeydown=function(e){otpBack(e,i)}});var ef=document.getElementById("loginEmail");if(ef)ef.onkeydown=function(e){if(e.key==="Enter")sendOTP()}});</script>
