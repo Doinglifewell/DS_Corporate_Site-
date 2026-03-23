@@ -1,0 +1,31 @@
+name = "dpp-mint-queue"
+main = "index.js"
+compatibility_date = "2026-03-23"
+account_id = "0aea812fa2cca191c0468f51f30955c1"
+
+[[kv_namespaces]]
+binding = "DPP_RESOLVER_ROUTING"
+id = "2fd89587c339408bb2c2e59cdb76dedd"
+
+[[kv_namespaces]]
+binding = "DPP_MINT_STATUS"
+id = "78c9ac77c28746d28cd4d4435b174efb"
+
+[[queues.producers]]
+binding = "DPP_MINT_QUEUE"
+queue = "dpp-mint-queue"
+
+[[queues.consumers]]
+queue = "dpp-mint-queue"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+dead_letter_queue = "dpp-mint-dlq"
+
+[[routes]]
+pattern = "mint.destore.network/*"
+zone_name = "destore.network"
+
+[vars]
+CHAIN_ID = "8453"
+THIRDWEB_ENGINE_URL = "https://engine.thirdweb.com"
