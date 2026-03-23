@@ -185,6 +185,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="login-title">GS1 DPP Platform</div>
     <div class="login-sub">Your Digital Product Passport workspace</div>
     <div style="margin-top:28px">
+      <script>function enterPlatform(){sessionStorage.setItem("ds_auth",JSON.stringify({email:"admin",timestamp:Date.now()}));document.getElementById("loginGate").classList.add("hidden");setTimeout(function(){var fr=document.getElementById("frame");if(fr)fr.src="DS_DPP_Foundation.html";},100);}</script>
       <button onclick="enterPlatform()" style="width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:-.2px;transition:all .15s" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter=''">
         Enter Platform
       </button>
