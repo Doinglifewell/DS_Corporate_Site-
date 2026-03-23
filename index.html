@@ -93,6 +93,9 @@
       font-size: 18px;
       font-weight: bold;
     }
+    .mobile-only {
+      display: block;
+    }
     @media (min-width: 768px) {
       .mobile-only {
         display: none;
@@ -107,11 +110,11 @@
   <div class="container">
     <div class="mobile-only">
       <h1>Claim Your NFT</h1>
-      <p>Verify your eligibility and claim your exclusive NFT. This page is only accessible on mobile devices.</p>
+      <p>Verify and claim your exclusive NFT on your mobile device.</p>
       <button id="claimButton" class="claim-button" onclick="claimNFT()">Claim NFT</button>
     </div>
     <div class="desktop-message">
-      <p>This page is only accessible on mobile devices.</p>
+      <p>This can only be viewed by a mobile phone.</p>
     </div>
   </div>
 
@@ -127,7 +130,7 @@
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
-    // If not on mobile, ensure the mobile-only content is hidden (backup for CSS)
+    // Enforce mobile-only access
     if (!isMobileDevice()) {
       document.querySelector('.mobile-only').style.display = 'none';
       document.querySelector('.desktop-message').style.display = 'block';
