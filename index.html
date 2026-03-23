@@ -1,137 +1,562 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NFT Claim Verification</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f0f2f5;
-      text-align: center;
-    }
-    .container {
-      padding: 20px;
-      max-width: 400px;
-      width: 100%;
-    }
-    h1 {
-      color: #333;
-      font-size: 24px;
-    }
-    p {
-      color: #666;
-      font-size: 16px;
-    }
-    .claim-button {
-      padding: 15px 30px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #fff;
-      background-color: #4CAF50;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-top: 20px;
-    }
-    .claim-button:hover {
-      background-color: #45a049;
-    }
-    .claim-button:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
-    .desktop-message {
-      display: none;
-      color: #ff4444;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    @media (min-width: 768px) {
-      .mobile-only {
-        display: none;
-      }
-      .desktop-message {
-        display: block;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/destore-favicon.svg">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeStore · GS1 DPP Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;
+  --bg:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;
+  --border:#222230;--border2:#2e2f3a;
+  --text:#f0f0f5;--text2:#a0a0b0;--text3:#666678;
+  --green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--red:#e74c3c;--blue:#3b82f6;
+}
+[data-theme="light"]{
+  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
+  --border:#e0e0e8;--border2:#d0d0da;
+  --text:#1a1a22;--text2:#555566;--text3:#888898;
+  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased}
+
+/* ── Login Gate ── */
+.login-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .4s}
+.login-gate.hidden{opacity:0;pointer-events:none}
+.login-card{width:380px;max-width:90vw;text-align:center}
+.login-logo{margin-bottom:32px}
+.login-logo svg{height:28px}
+.login-title{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px}
+.login-sub{font-size:13px;color:var(--text3);margin-bottom:32px;line-height:1.6}
+.login-box{background:var(--d2);border:1px solid var(--border);border-radius:16px;padding:28px 24px}
+.login-field{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border2);background:var(--d3);color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border .15s;margin-bottom:12px;text-align:center}
+.login-field:focus{border-color:var(--orchid)}
+.login-field::placeholder{color:var(--text3)}
+.login-btn{width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s}
+.login-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;filter:none}
+.login-divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--text3);font-size:11px}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.login-alt{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-alt:hover{border-color:var(--orchid);color:var(--text)}
+.login-note{font-size:10px;color:var(--text3);margin-top:20px;line-height:1.5}
+.login-note a{color:var(--violet);text-decoration:none}
+.login-step{display:none}
+.login-step.active{display:block}
+.login-back{font-size:12px;color:var(--text3);cursor:pointer;margin-bottom:16px;display:inline-flex;align-items:center;gap:4px}
+.login-back:hover{color:var(--violet)}
+.login-otp-row{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.login-otp{width:44px;height:52px;border-radius:10px;border:1px solid var(--border2);background:var(--d3);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;text-align:center;outline:none;transition:border .15s}
+.login-otp:focus{border-color:var(--orchid)}
+.login-email-display{font-size:13px;color:var(--violet);font-weight:600;margin-bottom:16px}
+.login-error{font-size:12px;color:var(--red);margin-top:8px;display:none}
+.login-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Shell Grid ── */
+.shell{display:grid;grid-template-rows:48px 1fr;grid-template-columns:56px 220px 1fr;height:100vh}
+
+/* ── Top Bar ── */
+.topbar{grid-column:1/-1;background:var(--d1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;z-index:100}
+.tb-logo{display:flex;align-items:center;gap:10px}
+.tb-logo svg{height:18px}
+.tb-sep{width:1px;height:20px;background:var(--border2)}
+.tb-page{font-size:12px;font-weight:800;color:var(--text2);letter-spacing:-.1px}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.tb-badge{font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:rgba(40,183,157,.1);color:var(--green);border:1px solid rgba(40,183,157,.2)}
+.tb-user{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--orchid),var(--violet));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;cursor:pointer}
+.tb-theme{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.tb-theme:hover{border-color:var(--orchid);color:var(--violet)}
+.tb-theme .t-sun{display:none}.tb-theme .t-moon{display:inline}
+[data-theme="light"] .tb-theme .t-sun{display:inline}
+[data-theme="light"] .tb-theme .t-moon{display:none}
+
+/* ── Icon Rail (left) ── */
+.rail{background:var(--d1);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;overflow-y:auto}
+.rail-btn{width:40px;height:40px;border-radius:10px;border:none;background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;position:relative}
+.rail-btn:hover{background:var(--d3);color:var(--text2)}
+.rail-btn.active{background:rgba(106,20,219,.15);color:var(--violet)}
+.rail-btn .rail-dot{position:absolute;right:6px;top:6px;width:5px;height:5px;border-radius:50%;background:var(--green);display:none}
+.rail-btn.has-dot .rail-dot{display:block}
+.rail-divider{width:24px;height:1px;background:var(--border);margin:4px 0}
+
+/* ── Sidebar (sub-nav) ── */
+.sidebar{background:var(--d2);border-right:1px solid var(--border);overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.sb-section{font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:12px 10px 6px;user-select:none}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all .12s;user-select:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-item:hover{background:var(--d3);color:var(--text)}
+.sb-item.active{background:rgba(106,20,219,.12);color:var(--violet)}
+.sb-item .sb-icon{flex-shrink:0;width:18px;display:flex;align-items:center;justify-content:center}
+.sb-item .sb-tag{margin-left:auto;font-size:8px;font-weight:800;padding:2px 6px;border-radius:3px;letter-spacing:.04em;flex-shrink:0}
+.sb-item .sb-tag.new{background:rgba(40,183,157,.12);color:var(--green)}
+.sb-item .sb-tag.beta{background:rgba(255,159,70,.12);color:var(--orange)}
+.sb-item .sb-tag.free{background:rgba(106,20,219,.12);color:var(--violet)}
+
+/* ── Content (iframe) ── */
+.content{position:relative;overflow:hidden;background:var(--bg)}
+.content iframe{width:100%;height:100%;border:none;background:#fff}
+.content .loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);z-index:5;transition:opacity .3s}
+.content .loading.hidden{opacity:0;pointer-events:none}
+.content .loading .ld-spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--violet);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.content .loading .ld-text{font-size:11px;color:var(--text3);margin-top:12px;font-weight:600}
+
+/* ── Collapsed sidebar ── */
+.shell.collapsed{grid-template-columns:56px 0px 1fr}
+.shell.collapsed .sidebar{display:none}
+
+/* ── Mobile View ── */
+.mobile-app{display:none}
+
+@media(max-width:768px){
+  .shell{display:none !important}
+  .mobile-app{display:flex;flex-direction:column;height:100vh;height:100dvh;background:var(--bg)}
+
+  /* Mobile header */
+  .m-header{display:flex;align-items:center;padding:12px 16px;gap:10px;border-bottom:1px solid var(--border);background:var(--d1);flex-shrink:0}
+  .m-header svg{height:16px}
+  .m-header-title{font-size:13px;font-weight:800;color:var(--text)}
+  .m-header-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .m-user{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--orchid),var(--violet));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff}
+
+  /* Chat area */
+  .m-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+  .m-msg{max-width:85%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.6;animation:msgIn .3s ease}
+  @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .m-msg.bot{background:var(--d2);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px;align-self:flex-start}
+  .m-msg.user{background:var(--orchid);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+  .m-msg .m-sender{font-size:10px;font-weight:800;margin-bottom:4px;opacity:.6}
+  .m-msg .m-sender.clippy{color:var(--violet)}
+  .m-msg .m-time{font-size:9px;opacity:.4;margin-top:4px;text-align:right}
+
+  /* Typing indicator */
+  .m-typing{display:flex;align-items:center;gap:4px;padding:10px 14px;align-self:flex-start}
+  .m-typing-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:typePulse 1.2s ease infinite}
+  .m-typing-dot:nth-child(2){animation-delay:.2s}
+  .m-typing-dot:nth-child(3){animation-delay:.4s}
+  @keyframes typePulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+  /* Quick actions */
+  .m-actions{display:flex;gap:6px;overflow-x:auto;padding:0 16px 8px;flex-shrink:0;-webkit-overflow-scrolling:touch}
+  .m-actions::-webkit-scrollbar{display:none}
+  .m-action{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--d2);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+  .m-action:active{background:var(--orchid);color:#fff;border-color:var(--orchid);transform:scale(.96)}
+
+  /* Input bar */
+  .m-input-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--d1);flex-shrink:0}
+  .m-input-bar .m-attach{width:36px;height:36px;border-radius:10px;border:none;background:var(--d3);color:var(--text3);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .m-input-bar .m-voice{width:36px;height:36px;border-radius:10px;border:none;background:var(--d3);color:var(--text3);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .m-input-bar input{flex:1;padding:10px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--d3);color:var(--text);font-family:inherit;font-size:14px;outline:none}
+  .m-input-bar input:focus{border-color:var(--orchid)}
+  .m-input-bar input::placeholder{color:var(--text3)}
+  .m-input-bar .m-send{width:36px;height:36px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s}
+  .m-input-bar .m-send:active{transform:scale(.9)}
+
+  /* Safe area for notch phones */
+  .m-header{padding-top:max(12px,env(safe-area-inset-top))}
+  .m-input-bar{padding-bottom:max(10px,env(safe-area-inset-bottom))}
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="mobile-only">
-      <h1>Claim Your NFT</h1>
-      <p>Verify your eligibility and claim your exclusive NFT. This page is only accessible on mobile devices.</p>
-      <button id="claimButton" class="claim-button" onclick="claimNFT()">Claim NFT</button>
+
+<div class="shell" id="shell">
+
+  <!-- ═══ TOP BAR ═══ -->
+  <div class="topbar">
+    <div class="tb-logo">
+      <svg height="18" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#B354F1"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#f0f0f5"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#f0f0f5"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#f0f0f5"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#f0f0f5"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#f0f0f5"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#f0f0f5"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#f0f0f5"/></svg>
     </div>
-    <div class="desktop-message">
-      <p>This page is only accessible on mobile devices.</p>
+    <div class="tb-sep"></div>
+    <div class="tb-page" id="tbPage">GS1 Smart Label</div>
+    <div class="tb-right">
+      <div class="tb-badge">GS1 DPP Platform</div>
+      <button class="tb-theme" onclick="toggleTheme()" title="Toggle light/dark mode">
+        <svg class="t-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="t-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <div class="tb-user">JK</div>
     </div>
   </div>
 
-  <script>
-    function claimNFT() {
-      const button = document.getElementById('claimButton');
-      button.disabled = true;
-      button.textContent = 'NFT Already Claimed';
-    }
+  <!-- ═══ ICON RAIL ═══ -->
+  <div class="rail">
+    <button class="rail-btn active has-dot" data-section="dpp" title="DPP Pipeline" onclick="showSection('dpp',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg></button>
+    <button class="rail-btn" data-section="toolbox" title="Toolbox & Templates" onclick="showSection('toolbox',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></button>
+    <button class="rail-btn" data-section="library" title="Product Library" onclick="showSection('library',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></button>
+    <button class="rail-btn" data-section="analytics" title="Analytics" onclick="showSection('analytics',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>
+    <div class="rail-divider"></div>
+    <button class="rail-btn" data-section="admin" title="Platform Admin" onclick="showSection('admin',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <div class="rail-divider"></div>
+    <button class="rail-btn" data-section="extras" title="Extras" onclick="showSection('extras',this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></button>
+  </div>
 
-    // Check if the user is on a mobile device
-    function isMobileDevice() {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    }
+  <!-- ═══ SIDEBAR ═══ -->
+  <div class="sidebar" id="sidebar">
+    <!-- DPP Pipeline -->
+    <div data-nav="dpp">
+      <div class="sb-section">DPP Pipeline</div>
+      <div class="sb-item active" onclick="load('DS_DPP_Foundation.html','GS1 Smart Label',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>GS1 Smart Label<span class="sb-tag free">FREE</span></div>
+      <div class="sb-item" onclick="load('DS_DPP_Workflow_ESPR.html','ESPR DPP',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>ESPR DPP</div>
+      <div class="sb-item" onclick="load('DS_DPP_Assistant.html','AI DPP Builder',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>AI DPP Builder<span class="sb-tag new">NEW</span></div>
+      <div class="sb-section">Management</div>
+      <div class="sb-item" onclick="load('DS_DraftDPPs.html','Draft DPPs',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>Draft DPPs<span class="sb-tag new">NEW</span></div>
+    </div>
+    <!-- Toolbox & Templates -->
+    <div data-nav="toolbox" style="display:none">
+      <div class="sb-section">Toolbox & Templates</div>
+      <div class="sb-item" onclick="load('DeStore_Collection_Creator_v0.4.html','Collection Creator',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></span>Collection Creator</div>
+      <div class="sb-item" onclick="load('DeStore_QR_Designer.html','QR Designer',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="4" height="4"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="21" y1="21" x2="21" y2="21.01"/></svg></span>QR Designer</div>
+      <div class="sb-item" onclick="load('DS_LabelExporter.html','Label Template Exporter',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Label Exporter<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_ResultScreenBuilder.html','Result Screen Builder',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>Result Screen Builder<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_ResultScreenTemplates.html','Result Screen Templates',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></span>Screen Templates<span class="sb-tag new">NEW</span></div>
+    </div>
+    <!-- Product Library -->
+    <div data-nav="library" style="display:none">
+      <div class="sb-section">Product Library</div>
+      <div class="sb-item" onclick="load('DS_ProductLibrary.html','Collections',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span>Collections</div>
+      <div class="sb-item" onclick="load('DeStore_Product_Page_Interactive.html','Product Page',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></span>Product Page</div>
+    </div>
+    <!-- Analytics -->
+    <div data-nav="analytics" style="display:none">
+      <div class="sb-section">Analytics</div>
+      <div class="sb-item" onclick="load('DS_ScanDashboard.html','QR Scan Intelligence',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>Scan Dashboard<span class="sb-tag new">NEW</span></div>
+    </div>
+    <!-- Platform Admin -->
+    <div data-nav="admin" style="display:none">
+      <div class="sb-section">Platform</div>
+      <div class="sb-item" onclick="load('DeStore_Connect_Domain.html','Connect Domain',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>Connect Domain</div>
+      <div class="sb-item" onclick="load('DS_BrandAssets.html','Brand Assets',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></span>Brand Assets<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_RolesPermissions.html','Roles & Permissions',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Roles & Permissions<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_BrandTeam.html','Brand Team',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Brand Team<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_WebmasterRoles.html','Webmaster Admin',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Webmaster Admin<span class="sb-tag new">NEW</span></div>
+      <div class="sb-section">Strategy</div>
+      <div class="sb-item" onclick="load('DS_Roadmap.html','Roadmap',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></span>Roadmap<span class="sb-tag new">NEW</span></div>
+    </div>
+    <!-- Extras -->
+    <div data-nav="extras" style="display:none">
+      <div class="sb-section">Tools</div>
+      <div class="sb-item" onclick="load('DS_Clippy.html','Clippy · AI Mascot',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></span>Clippy<span class="sb-tag new">NEW</span></div>
+      <div class="sb-item" onclick="load('DS_DPP_Foundation_Program.html','Webinar Series',this)"><span class="sb-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>Webinar Series<span class="sb-tag new">NEW</span></div>
+    </div>
+  </div>
 
-    // If not on mobile, ensure the mobile-only content is hidden (backup for CSS)
-    if (!isMobileDevice()) {
-      document.querySelector('.mobile-only').style.display = 'none';
-      document.querySelector('.desktop-message').style.display = 'block';
+  <!-- ═══ CONTENT (IFRAME) ═══ -->
+  <div class="content" id="content">
+    <div class="loading" id="loading">
+      <div class="ld-spinner"></div>
+      <div class="ld-text">Loading...</div>
+    </div>
+    <iframe id="frame" src="about:blank"></iframe>
+  </div>
+</div>
+
+<!-- ═══ MOBILE APP — AI Chat Only ═══ -->
+<div class="mobile-app" id="mobileApp">
+  <!-- Mobile Header -->
+  <div class="m-header">
+    <svg height="16" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#B354F1"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#f0f0f5"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#f0f0f5"/></svg>
+    <div class="m-header-title">DPP Assistant</div>
+    <div class="m-header-right">
+      <div class="m-user">JK</div>
+    </div>
+  </div>
+
+  <!-- Chat Messages -->
+  <div class="m-chat" id="mChat">
+    <div class="m-msg bot">
+      <div class="m-sender clippy">Clippy</div>
+      Hi! I'm your DPP Assistant. I'll help you build a Digital Product Passport for your product. Let's start — what product are you creating a DPP for?
+      <div class="m-time">Just now</div>
+    </div>
+  </div>
+
+  <!-- Quick Action Chips -->
+  <div class="m-actions" id="mActions">
+    <div class="m-action" onclick="mQuick('Start a new DPP')">New DPP</div>
+    <div class="m-action" onclick="mQuick('Continue my last DPP')">Continue DPP</div>
+    <div class="m-action" onclick="mQuick('Show my products')">My Products</div>
+    <div class="m-action" onclick="mQuick('What is a DPP?')">What is a DPP?</div>
+    <div class="m-action" onclick="mQuick('Check compliance score')">Check Score</div>
+  </div>
+
+  <!-- Input Bar -->
+  <div class="m-input-bar">
+    <button class="m-attach" title="Attach document"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+    <input type="text" id="mInput" placeholder="Tell me about your product..." onkeydown="if(event.key==='Enter')mSend()">
+    <button class="m-voice" title="Voice input"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
+    <button class="m-send" onclick="mSend()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+  </div>
+</div>
+
+<script>
+// ── Thirdweb Config ──
+const TW_CLIENT_ID = 'f723c8676a9171dd121c76e96e6d0936';
+
+// ── Theme ──
+const savedTheme = localStorage.getItem('ds_theme');
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+
+function toggleTheme() {
+  const next = document.documentElement.dataset.theme === 'light' ? '' : 'light';
+  if (next) {
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('ds_theme', next);
+  } else {
+    delete document.documentElement.dataset.theme;
+    localStorage.removeItem('ds_theme');
+  }
+  // Propagate to iframe
+  const f = document.getElementById('frame');
+  if (f && f.contentWindow) {
+    f.contentWindow.postMessage({type: 'ds-theme', theme: next || 'dark'}, '*');
+  }
+}
+
+// ── Auth Check ──
+// auth removed — direct access
+
+// ── Login Flow ──
+let loginEmailVal = '';
+const otpInputs = document.querySelectorAll('.login-otp');
+
+function showStep(step) {
+  document.querySelectorAll('.login-step').forEach(s => s.classList.remove('active'));
+  if (step === 'email') document.getElementById('stepEmail').classList.add('active');
+  if (step === 'otp') document.getElementById('stepOTP').classList.add('active');
+  if (step === 'loading') document.getElementById('stepLoading').classList.add('active');
+}
+
+function sendOTP() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email || !email.includes('@') || !email.includes('.')) {
+    document.getElementById('emailError').style.display = 'block';
+    return;
+  }
+  document.getElementById('emailError').style.display = 'none';
+  loginEmailVal = email;
+
+  const btn = document.getElementById('btnSendOTP');
+  btn.innerHTML = '<span class="login-spinner"></span>Sending code...';
+  btn.disabled = true;
+
+  // In production: Thirdweb SDK sends the OTP
+  // await thirdwebClient.auth.sendVerificationEmail(email)
+  setTimeout(() => {
+    btn.innerHTML = 'Continue with email';
+    btn.disabled = false;
+    document.getElementById('otpEmailDisplay').textContent = 'Code sent to ' + email;
+    showStep('otp');
+    otpInputs[0].focus();
+  }, 1500);
+}
+
+function googleLogin() {
+  // In production: Thirdweb SDK Google OAuth
+  // await thirdwebClient.auth.loginWithGoogle()
+  const btn = event.target.closest('.login-alt');
+  btn.innerHTML = '<span class="login-spinner"></span>Connecting...';
+  setTimeout(() => {
+    completeLogin('google-user@gmail.com');
+  }, 2000);
+}
+
+function otpNext(el, idx) {
+  el.value = el.value.replace(/\D/g, '');
+  if (el.value && idx < 5) otpInputs[idx + 1].focus();
+  // Auto-verify when all filled
+  const code = Array.from(otpInputs).map(i => i.value).join('');
+  if (code.length === 6) verifyOTP();
+}
+
+function otpBack(e, idx) {
+  if (e.key === 'Backspace' && !otpInputs[idx].value && idx > 0) {
+    otpInputs[idx - 1].focus();
+  }
+}
+
+function verifyOTP() {
+  const code = Array.from(otpInputs).map(i => i.value).join('');
+  if (code.length < 6) return;
+
+  const btn = document.getElementById('btnVerify');
+  btn.innerHTML = '<span class="login-spinner"></span>Verifying...';
+  btn.disabled = true;
+
+  // In production: Thirdweb SDK verifies the OTP
+  // const result = await thirdwebClient.auth.verifyEmail(loginEmailVal, code)
+  setTimeout(() => {
+    if (code === '000000') {
+      // Wrong code demo
+      document.getElementById('otpError').style.display = 'block';
+      btn.innerHTML = 'Verify';
+      btn.disabled = false;
+      otpInputs.forEach(i => { i.value = ''; });
+      otpInputs[0].focus();
+      return;
     }
-  </script>
+    document.getElementById('otpError').style.display = 'none';
+    completeLogin(loginEmailVal);
+  }, 1200);
+}
+
+function completeLogin(email) {
+  showStep('loading');
+  // Store session
+  sessionStorage.setItem('ds_auth', JSON.stringify({
+    email: email,
+    timestamp: Date.now(),
+    // In production: Thirdweb session token goes here
+    // token: result.sessionToken
+  }));
+  // Update user avatar with initials
+  const initials = email.split('@')[0].substring(0, 2).toUpperCase();
+  document.querySelectorAll('.tb-user, .m-user').forEach(el => {
+    el.textContent = initials;
+  });
+  // Reveal platform
+  setTimeout(() => {
+    loginGate.classList.add('hidden');
+    onAuthComplete();
+  }, 1500);
+}
+
+// ── Platform Code ──
+const frame = document.getElementById('frame');
+const loading = document.getElementById('loading');
+const tbPage = document.getElementById('tbPage');
+
+frame.addEventListener('load', () => {
+  loading.classList.add('hidden');
+  // Propagate theme to loaded iframe
+  const t = document.documentElement.dataset.theme;
+  if (t && frame.contentWindow) {
+    frame.contentWindow.postMessage({type: 'ds-theme', theme: t}, '*');
+  }
+});
+
+function load(file, title, el) {
+  // Update active state in sidebar
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  // Show loading
+  loading.classList.remove('hidden');
+  // Update topbar title
+  tbPage.textContent = title;
+  // Load iframe
+  frame.src = file;
+}
+
+function showSection(section, railBtn) {
+  // Update rail active
+  document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
+  railBtn.classList.add('active');
+  // Show/hide sidebar sections
+  document.querySelectorAll('[data-nav]').forEach(n => {
+    n.style.display = n.dataset.nav === section ? 'block' : 'none';
+  });
+  // Auto-click first item in the section
+  const firstItem = document.querySelector(`[data-nav="${section}"] .sb-item`);
+  if (firstItem) firstItem.click();
+}
+
+// Keyboard shortcut: Cmd/Ctrl+B to toggle sidebar
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+    e.preventDefault();
+    document.getElementById('shell').classList.toggle('collapsed');
+  }
+});
+
+// Initial load — only if already authenticated
+frame.src = 'DS_DPP_Foundation.html';
+setTimeout(() => loading.classList.add('hidden'), 500);
+
+// After login completes, load the default page
+function onAuthComplete() {
+  frame.src = 'DS_DPP_Foundation.html';
+}
+
+// ── Mobile Chat ──
+const mChat = document.getElementById('mChat');
+const mInput = document.getElementById('mInput');
+
+const clippy_responses = {
+  'Start a new DPP': "Great! Let's create a new DPP. First, what's the product name? For example: \"Organic Cotton Tee\" or \"Stainless Steel Water Bottle\".",
+  'Continue my last DPP': "You were working on **Organic Cotton Tee** (ECO-TEE-001). You're at 74% completion — 5 fields still need review. Want to pick up where you left off?",
+  'Show my products': "You have 3 products:\n\n1. Organic Cotton Tee — 74% complete\n2. Winter Jacket — 45% complete\n3. Face Serum — Draft\n\nWhich one would you like to work on?",
+  'What is a DPP?': "A Digital Product Passport is a digital record of your product's identity — what it's made of, where it comes from, and how to recycle it. The EU requires DPPs under ESPR starting 2027. I'll help you build one step by step.",
+  'Check compliance score': "Your **Organic Cotton Tee** scores **74%** on ESPR compliance.\n\n✅ Product identity: 90%\n⚠️ Materials: 60%\n⚠️ Supply chain: 50%\n✅ End of life: 71%\n\n2 critical items need attention: REACH/SVHC assessment and Declaration of Conformity.",
+};
+
+const default_responses = [
+  "Got it! I've captured that information. What else can you tell me about this product?",
+  "That's helpful. Let me add that to your DPP. Do you have any certifications for this product?",
+  "I've noted that down. What materials is this product made from?",
+  "Thanks! I'll include that in the DPP. Where is this product manufactured?",
+  "Understood. Now let's talk about the end-of-life — can this product be recycled?",
+  "Good. I've updated your compliance score. Would you like to see the DPP Preliminary Report?",
+];
+
+function addMsg(text, isUser) {
+  const div = document.createElement('div');
+  div.className = 'm-msg ' + (isUser ? 'user' : 'bot');
+  const now = new Date();
+  const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  if (!isUser) {
+    div.innerHTML = `<div class="m-sender clippy">Clippy</div>${text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}<div class="m-time">${time}</div>`;
+  } else {
+    div.innerHTML = `${text}<div class="m-time">${time}</div>`;
+  }
+  mChat.appendChild(div);
+  mChat.scrollTop = mChat.scrollHeight;
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'm-typing';
+  div.id = 'mTyping';
+  div.innerHTML = '<div class="m-typing-dot"></div><div class="m-typing-dot"></div><div class="m-typing-dot"></div>';
+  mChat.appendChild(div);
+  mChat.scrollTop = mChat.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('mTyping');
+  if (t) t.remove();
+}
+
+function mSend() {
+  const text = mInput.value.trim();
+  if (!text) return;
+  addMsg(text, true);
+  mInput.value = '';
+
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    const response = default_responses[Math.floor(Math.random() * default_responses.length)];
+    addMsg(response, false);
+  }, 1000 + Math.random() * 1000);
+}
+
+function mQuick(text) {
+  addMsg(text, true);
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    const response = clippy_responses[text] || default_responses[Math.floor(Math.random() * default_responses.length)];
+    addMsg(response, false);
+  }, 800 + Math.random() * 800);
+}
+</script>
 </body>
 </html>
