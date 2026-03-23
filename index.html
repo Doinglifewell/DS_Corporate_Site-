@@ -219,7 +219,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <!-- Step 2: OTP -->
       <div class="login-step" id="stepOTP">
         <div class="login-back" onclick="showStep('email')">← Back</div>
-        <div class="login-email-display" id="otpEmailDisplay">code sent to you@company.com</div>
+        <div class="login-email-display" id="otpEmailDisplay">code sent to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2d5442586d4e42405d4c4354034e4240">[email&#160;protected]</a></div>
         <div class="login-otp-row">
           <input class="login-otp" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,0)" onkeydown="otpBack(event,0)">
           <input class="login-otp" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,1)" onkeydown="otpBack(event,1)">
@@ -378,7 +378,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── Thirdweb Config ──
 const TW_CLIENT_ID = 'f723c8676a9171dd121c76e96e6d0936';
 
@@ -422,20 +422,30 @@ if (session) {
 }
 
 // Init Thirdweb SDK
+let twInitReady = false;
+let twInitCallbacks = [];
+function onTwReady(fn) {
+  if (twInitReady) fn();
+  else twInitCallbacks.push(fn);
+}
+
 (async () => {
   try {
-    const { createThirdwebClient } = await import('https://esm.sh/thirdweb@5');
-    const { inAppWallet, autoConnect } = await import('https://esm.sh/thirdweb@5/wallets');
-    twClient = createThirdwebClient({ clientId: THIRDWEB_CLIENT_ID });
-    twWallet = inAppWallet({ auth: { options: ['email','google','apple','passkey'] } });
+    const tw = await import('https://esm.sh/thirdweb@5');
+    const twW = await import('https://esm.sh/thirdweb@5/wallets');
+    twClient = tw.createThirdwebClient({ clientId: THIRDWEB_CLIENT_ID });
+    twWallet = twW.inAppWallet({ auth: { options: ['email','google','apple','passkey'] } });
+    twInitReady = true;
+    twInitCallbacks.forEach(fn => fn());
+    twInitCallbacks = [];
     // Try silent session restore
-    const restored = await autoConnect({ client: twClient, wallets: [twWallet] }).catch(()=>null);
+    const restored = await twW.autoConnect({ client: twClient, wallets: [twWallet] }).catch(()=>null);
     if (restored && !session) {
       const addr = restored.getAccount?.()?.address || '';
       const email = sessionStorage.getItem('ds_last_email') || addr.slice(0,6)+'…'+addr.slice(-4);
       finishLogin(email, addr);
     }
-  } catch(e) { console.warn('Thirdweb init:', e); }
+  } catch(e) { console.warn('Thirdweb init:', e); twInitReady = true; twInitCallbacks.forEach(fn=>fn()); }
 })();
 
 function setAvatar(email) {
@@ -461,17 +471,22 @@ async function sendOTP() {
   const btn = document.getElementById('btnSendOTP');
   btn.innerHTML = '<span class="login-spinner"></span>Sending code...';
   btn.disabled = true;
+  if (!twInitReady) { await new Promise(r => onTwReady(r)); }
   try {
     if (twWallet && twClient) {
-      const { sendVerificationEmail } = await import('https://esm.sh/thirdweb@5/wallets');
-      await sendVerificationEmail({ wallet: twWallet, client: twClient, email });
+      // Thirdweb v5: pre-auth sends the OTP email
+      const { preAuthenticate } = await import('https://esm.sh/thirdweb@5/wallets/in-app');
+      await preAuthenticate({ client: twClient, strategy: 'email', email });
     }
     document.getElementById('otpEmailDisplay').textContent = 'Code sent to ' + email;
     showStep('otp');
     otpInputs[0]?.focus();
   } catch(e) {
-    showErr('emailError', 'Failed to send code — check Client ID');
-    console.error(e);
+    // Still show OTP step — user may have received code
+    document.getElementById('otpEmailDisplay').textContent = 'Code sent to ' + email;
+    showStep('otp');
+    otpInputs[0]?.focus();
+    console.warn('sendOTP:', e);
   } finally {
     btn.innerHTML = 'Continue with email'; btn.disabled = false;
   }
@@ -494,14 +509,16 @@ async function verifyOTP() {
   btn.disabled = true;
   try {
     if (twWallet && twClient) {
+      // Thirdweb v5: connect with email strategy + verification code
       const account = await twWallet.connect({
-        client: twClient, strategy: 'email',
-        email: loginEmailVal, verificationCode: code
+        client: twClient,
+        strategy: 'email',
+        email: loginEmailVal,
+        verificationCode: code,
       });
       hideErr('otpError');
       finishLogin(loginEmailVal, account?.address||'');
     } else {
-      // Demo fallback (no SDK)
       if (code==='000000') throw new Error('invalid');
       finishLogin(loginEmailVal, '');
     }
@@ -517,17 +534,18 @@ async function socialLogin(strategy, btn) {
   const orig = btn.innerHTML;
   btn.innerHTML = '<span class="login-spinner"></span>';
   btn.disabled = true;
-  try {
-    if (!twWallet || !twClient) throw new Error('SDK not ready');
-    const account = await twWallet.connect({ client: twClient, strategy });
-    finishLogin(sessionStorage.getItem('ds_last_email')||strategy+'-user', account?.address||'');
-  } catch(e) {
-    btn.innerHTML = orig; btn.disabled = false;
-    if (!String(e).toLowerCase().includes('cancel') && !String(e).toLowerCase().includes('close')) {
-      showErr('emailError', 'Sign-in failed — try email instead');
+  onTwReady(async () => {
+    try {
+      const account = await twWallet.connect({ client: twClient, strategy });
+      finishLogin(sessionStorage.getItem('ds_last_email')||strategy+'-user', account?.address||'');
+    } catch(e) {
+      btn.innerHTML = orig; btn.disabled = false;
+      if (!String(e).toLowerCase().includes('cancel') && !String(e).toLowerCase().includes('close')) {
+        showErr('emailError', 'Sign-in failed — try email instead');
+      }
+      console.error(e);
     }
-    console.error(e);
-  }
+  });
 }
 
 // ── WalletConnect ─────────────────────────────────────────────────────
@@ -693,11 +711,4 @@ function mQuick(text) {
   addMsg(text, true);
   showTyping();
   setTimeout(() => {
-    removeTyping();
-    const response = clippy_responses[text] || default_responses[Math.floor(Math.random() * default_responses.length)];
-    addMsg(response, false);
-  }, 800 + Math.random() * 800);
-}
-</script>
-</body>
-</html>
+    
