@@ -9,7 +9,7 @@
 <style>
 @property --angle{syntax:'<angle>';initial-value:0deg;inherits:false}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--d3);border-radius:2px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#0a0a0d}::-webkit-scrollbar-thumb{background:#2e2e38;border-radius:2px}
 :root{--royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;--green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--pink:#FF1B9A;--d0:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;--bdr:#2e2e38;--muted:#6b6b80;--dim:#9999b0}
 [data-theme="light"]{
   --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
@@ -26,8 +26,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--d0);color:#fff;
 .header{background:var(--royal);padding:14px 24px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .header::before{content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(179,84,241,.12),transparent 70%);pointer-events:none}
 .header-inner{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
-.header-divider{width:1px;height:20px;background:rgba(106, 20, 219, 0.15)}
-.header-tool{font-size:12px;font-weight:700;letter-spacing:.06em;color:rgba(240, 240, 245, 0.85)}
+.header-divider{width:1px;height:20px;background:rgba(255,255,255,.2)}
+.header-tool{font-size:12px;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.7)}
 .header-bar{height:3px;background:linear-gradient(90deg,var(--violet),var(--orchid),transparent)}
 
 /* ── Layout ── */
@@ -83,7 +83,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%
 
 /* ── Preview ── */
 .preview-panel{position:sticky;top:24px}
-.preview-zone{background: var(--d2);border-radius:14px;display:flex;align-items:center;justify-content:center;min-height:380px;margin-bottom:12px;position:relative;overflow:hidden;padding:16px}
+.preview-zone{background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;min-height:380px;margin-bottom:12px;position:relative;overflow:hidden;padding:16px}
 .preview-zone canvas,.preview-zone img,.preview-zone svg{display:block;max-width:100%;height:auto}
 .quiet-zone-info{font-size:10px;color:var(--muted);text-align:center;margin-bottom:12px;font-weight:600}
 .gs1-badge{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:800;color:var(--green);padding:8px 12px;background:rgba(40,183,157,.08);border:1px solid rgba(40,183,157,.2);border-radius:8px;margin-bottom:16px}
@@ -117,7 +117,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%
 .tour-tooltip{
   position:fixed;z-index:3002;background:var(--d2);border:1px solid var(--violet);
   border-radius:16px;padding:24px;width:320px;max-width:calc(100vw - 32px);
-  box-shadow:0 8px 40px rgba(10, 10, 13, 0.65),0 0 0 1px rgba(179,84,241,.2);
+  box-shadow:0 8px 40px rgba(0,0,0,.6),0 0 0 1px rgba(179,84,241,.2);
   opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s;
   display:none;
 }
@@ -178,9 +178,9 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%
 
 <!-- Colours -->
 <div class="panel" id="stylePanel" style="animation-delay:.06s;margin-top:14px"><div class="panel-title">Step 2 · Colours</div>
-<div class="field"><label>Foreground (dots)</label><div class="color-row"><div class="color-swatch" id="fgSwatch" style="background:var(--royal)"><input type="color" id="fgColor" value="#321B68" oninput="updateSwatch('fg');renderQR()"></div><input type="text" class="color-hex" id="fgHex" value="#321B68" maxlength="7" oninput="syncHex('fg');renderQR()"></div></div>
-<div class="field"><label>Background</label><div class="color-row"><div class="color-swatch" id="bgSwatch" style="background: var(--d2)"><input type="color" id="bgColor" value="#FFFFFF" oninput="updateSwatch('bg');renderQR()"></div><input type="text" class="color-hex" id="bgHex" value="#FFFFFF" maxlength="7" oninput="syncHex('bg');renderQR()"></div></div>
-<div class="field"><label>Corner eyes</label><div class="color-row"><div class="color-swatch" id="eyeSwatch" style="background:var(--orchid)"><input type="color" id="eyeColor" value="#6A14DB" oninput="updateSwatch('eye');renderQR()"></div><input type="text" class="color-hex" id="eyeHex" value="#6A14DB" maxlength="7" oninput="syncHex('eye');renderQR()"></div></div></div>
+<div class="field"><label>Foreground (dots)</label><div class="color-row"><div class="color-swatch" id="fgSwatch" style="background:#321B68"><input type="color" id="fgColor" value="#321B68" oninput="updateSwatch('fg');renderQR()"></div><input type="text" class="color-hex" id="fgHex" value="#321B68" maxlength="7" oninput="syncHex('fg');renderQR()"></div></div>
+<div class="field"><label>Background</label><div class="color-row"><div class="color-swatch" id="bgSwatch" style="background:#FFFFFF"><input type="color" id="bgColor" value="#FFFFFF" oninput="updateSwatch('bg');renderQR()"></div><input type="text" class="color-hex" id="bgHex" value="#FFFFFF" maxlength="7" oninput="syncHex('bg');renderQR()"></div></div>
+<div class="field"><label>Corner eyes</label><div class="color-row"><div class="color-swatch" id="eyeSwatch" style="background:#6A14DB"><input type="color" id="eyeColor" value="#6A14DB" oninput="updateSwatch('eye');renderQR()"></div><input type="text" class="color-hex" id="eyeHex" value="#6A14DB" maxlength="7" oninput="syncHex('eye');renderQR()"></div></div></div>
 
 <!-- Dot Style -->
 <div class="panel" style="animation-delay:.1s;margin-top:14px"><div class="panel-title">Dot Style</div><div class="style-grid" id="dotStyles"><div class="style-opt active" data-val="square" onclick="setOpt('dot',this)">Square</div><div class="style-opt" data-val="rounded" onclick="setOpt('dot',this)">Rounded</div><div class="style-opt" data-val="dots" onclick="setOpt('dot',this)">Circle</div><div class="style-opt" data-val="classy-rounded" onclick="setOpt('dot',this)">Diamond</div></div></div>
@@ -481,14 +481,15 @@ function applyConfig(c){setColor('fg',c.fgColor||'#321B68');setColor('bg',c.bgCo
 function saveTemplate(){const name=document.getElementById('templateName').value.trim();if(!name){document.getElementById('templateName').style.borderColor='var(--pink)';setTimeout(()=>document.getElementById('templateName').style.borderColor='var(--bdr)',1500);return}const ts=getTemplates(),ex=ts.findIndex(t=>t.name===name),entry={name,config:getCurrentConfig(),savedAt:new Date().toISOString()};if(ex>=0)ts[ex]=entry;else ts.push(entry);saveTemplates(ts);document.getElementById('templateName').value='';renderTemplateList()}
 function loadTemplate(n){const t=getTemplates().find(t=>t.name===n);if(t)applyConfig(t.config);renderTemplateList(n)}
 function deleteTemplate(n,e){e.stopPropagation();saveTemplates(getTemplates().filter(t=>t.name!==n));renderTemplateList()}
-function renderTemplateList(active){const ts=getTemplates(),list=document.getElementById('templateList');if(!ts.length){list.innerHTML='<div style="font-size:11px;color:var(--muted);padding:8px 0">No saved templates yet.</div>';return}list.innerHTML=ts.map(t=>{const e=t.name.replace(/'/g,"\\'").replace(/"/g,'&quot;');return'<div class="template-row'+(t.name===active?' active':'')+'" onclick="loadTemplate(\''+e+'\')"><span class="name">'+t.name+'</span><span class="del" onclick="deleteTemplate(\''+e+'\',event)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span></div>'}).join('')}
+function renderTemplateList(active){const ts=getTemplates(),list=document.getElementById('templateList');if(!ts.length){list.innerHTML='<div style="font-size:11px;color:var(--muted);padding:8px 0">No saved templates yet.</div>';return}list.innerHTML=ts.map(t=>{const e=t.name.replace(/'/g,"\\'").replace(/"/g,'&quot;');return'<div class="template-row'+(t.name===active?' active':'')+'" onclick="loadTemplate(\''+e+'\')"><span class="name">'+t.name+'</span><span class="del" onclick="deleteTemplate(\''+e+'\',event)">✕</span></div>'}).join('')}
 
 // ─── SEED DEFAULTS ───
 (function(){if(getTemplates().length>0)return;const d=[
+{name:'Monochrome',config:{fgColor:'#000000',bgColor:'#FFFFFF',eyeColor:'#000000',dotStyle:'square',eyeStyle:'square',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}},
+{name:'Monochrome Rounded',config:{fgColor:'#000000',bgColor:'#FFFFFF',eyeColor:'#000000',dotStyle:'rounded',eyeStyle:'extra-rounded',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}},
 {name:'DeStore Royal',config:{fgColor:'#321B68',bgColor:'#FFFFFF',eyeColor:'#6A14DB',dotStyle:'square',eyeStyle:'square',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}},
 {name:'DeStore Violet',config:{fgColor:'#6A14DB',bgColor:'#FFFFFF',eyeColor:'#B354F1',dotStyle:'rounded',eyeStyle:'extra-rounded',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}},
-{name:'DeStore Green',config:{fgColor:'#1a9a84',bgColor:'#FFFFFF',eyeColor:'#28B79D',dotStyle:'dots',eyeStyle:'dot',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}},
-{name:'Monochrome',config:{fgColor:'#000000',bgColor:'#FFFFFF',eyeColor:'#000000',dotStyle:'square',eyeStyle:'square',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}}
+{name:'DeStore Green',config:{fgColor:'#1a9a84',bgColor:'#FFFFFF',eyeColor:'#28B79D',dotStyle:'dots',eyeStyle:'dot',ecLevel:'H',qrSize:300,logoSize:20,quietZone:4}}
 ];d.forEach(x=>x.savedAt=new Date().toISOString());saveTemplates(d)})();
 renderTemplateList();
 

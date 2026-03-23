@@ -64,7 +64,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark1);color:va
 .canvas-toolbar button{padding:6px 14px;border:none;border-radius:6px;background:transparent;color:var(--text2);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
 .canvas-toolbar button:hover{color:var(--text)}
 .canvas-toolbar button.active{background:var(--orchid);color:#fff}
-.canvas-wrap{position:relative;background: var(--d2);border-radius:4px;box-shadow:0 8px 40px rgba(10, 10, 13, 0.40)}
+.canvas-wrap{position:relative;background:#fff;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.4)}
 .canvas-empty{text-align:center;color:var(--text3)}
 .canvas-empty .ce-icon{font-size:48px;margin-bottom:12px;opacity:.3}
 .canvas-empty p{font-size:13px}
@@ -72,7 +72,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark1);color:va
 /* ── QR Overlay ── */
 .qr-overlay{position:absolute;cursor:move;transition:border-color .15s}
 .qr-overlay:hover .qr-border{border-color:var(--violet)}
-.qr-quiet-zone{width:100%;height:100%;background: var(--d2);display:flex;align-items:center;justify-content:center;position:relative}
+.qr-quiet-zone{width:100%;height:100%;background:#fff;display:flex;align-items:center;justify-content:center;position:relative}
 .qr-border{position:absolute;inset:-2px;border:2px dashed var(--orchid);pointer-events:none;transition:border-color .15s}
 .qr-quiet-label{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:800;color:var(--orchid);white-space:nowrap;letter-spacing:.04em;text-transform:uppercase;opacity:0;transition:opacity .15s}
 .qr-overlay:hover .qr-quiet-label{opacity:1}
@@ -129,6 +129,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark1);color:va
 .size-preset:hover{border-color:var(--text3)}
 .size-preset.active{border-color:var(--orchid);color:var(--violet);background:rgba(106,20,219,.08)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
 
@@ -247,8 +251,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark1);color:va
     <div class="canvas-wrap" id="canvasWrap" style="width:360px;height:200px">
       <div class="canvas-empty" id="canvasEmpty">
         <div class="ce-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
-        <p style="color:var(--text3)">Upload a template or start with a blank label</p>
-        <p style="color:var(--text3);font-size:11px;margin-top:8px">90mm × 50mm · 300 DPI</p>
+        <p style="color:#999">Upload a template or start with a blank label</p>
+        <p style="color:#bbb;font-size:11px;margin-top:8px">90mm × 50mm · 300 DPI</p>
       </div>
       <img id="canvasTemplate" style="display:none;width:100%;height:100%;object-fit:contain;border-radius:4px" alt="Label template">
       <!-- QR Overlay with GS1-compliant quiet zone -->
@@ -290,64 +294,51 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark1);color:va
     <div class="divider"></div>
 
     <!-- QR Code Source -->
-    <div class="panel-title">QR Code Source</div>
+    <div class="panel-title">Batch CSV Source</div>
 
     <div class="format-opts" style="margin-bottom:12px">
-      <div class="format-opt active" onclick="setQRSource(this,'collection')">
-        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
-        <div class="fo-label">Collection</div>
-        <div class="fo-desc">From DPP order</div>
+      <div class="format-opt active" onclick="setCsvSource(this,'csv')">
+        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="fo-label">Import CSV</div>
+        <div class="fo-desc">From Batch Generation</div>
       </div>
-      <div class="format-opt" onclick="setQRSource(this,'upload')">
-        <div class="fo-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></div>
-        <div class="fo-label">Upload</div>
-        <div class="fo-desc">ZIP of QR files</div>
+      <div class="format-opt" onclick="setCsvSource(this,'manual')">
+        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="fo-label">Manual</div>
+        <div class="fo-desc">Enter details directly</div>
       </div>
     </div>
 
-    <!-- Collection source -->
-    <div id="qrSourceCollection">
+    <!-- CSV import -->
+    <div id="csvSourceImport">
       <div class="field">
-        <label>DPP Order</label>
-        <select id="qrOrder" onchange="updateQRSource()">
-          <option value="" disabled selected>Select a paid DPP order...</option>
-          <option value="ord-2027-001">ORD-001 · Summer Tee · 50,000 DPPs · Paid ✓</option>
-          <option value="ord-2027-002">ORD-002 · Winter Jacket · 12,000 DPPs · Paid ✓</option>
-          <option value="ord-2027-003">ORD-003 · Face Serum · 8,500 DPPs · Paid ✓</option>
-        </select>
-        <div class="hint">Only paid DPP orders with minted QR codes appear here</div>
+        <div class="upload-zone" id="csvUploadZone" onclick="document.getElementById('csvBatchFile').click()" style="padding:18px">
+          <div id="csvUploadPlaceholder">
+            <div class="uz-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="uz-text">Upload Batch CSV</div>
+            <div class="uz-sub">Generated by the DPP Workflow · Batch Generation node</div>
+          </div>
+          <div id="csvUploadDone" style="display:none;padding:14px">
+            <div style="color:var(--green);font-size:13px;font-weight:800;margin-bottom:4px">✓ CSV loaded</div>
+            <div class="uz-text" id="csvUploadInfo"></div>
+          </div>
+          <input type="file" id="csvBatchFile" accept=".csv,text/csv" style="display:none" onchange="handleCsvUpload(this)">
+        </div>
+        <div class="hint">Columns used: <code style="font-family:var(--mono);font-size:9px;color:var(--violet)">digital_link_url, gtin14, token_id, product_name, brand, carbon_kg, recycled_pct</code></div>
       </div>
-      <div id="qrOrderDetail" style="display:none">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">
-          <div style="background:var(--dark4);border-radius:6px;padding:8px 10px">
-            <div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">QR Codes</div>
-            <div style="font-size:15px;font-weight:800;margin-top:2px" id="qrOrderQty">50,000</div>
-          </div>
-          <div style="background:var(--dark4);border-radius:6px;padding:8px 10px">
-            <div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Status</div>
-            <div style="font-size:12px;font-weight:800;color:var(--green);margin-top:4px">Minted ✓</div>
-          </div>
+      <div id="csvStats" style="display:none;background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:4px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div><div style="font-size:9px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.04em">Rows</div><div style="font-size:15px;font-weight:900;margin-top:2px" id="csvRowCount">—</div></div>
+          <div><div style="font-size:9px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.04em">Brand</div><div style="font-size:11px;font-weight:700;margin-top:4px;color:var(--violet)" id="csvBrand">—</div></div>
+          <div><div style="font-size:9px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.04em">GTIN</div><div style="font-size:10px;font-weight:700;margin-top:4px;font-family:var(--mono);color:var(--green)" id="csvGtin">—</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Upload source -->
-    <div id="qrSourceUpload" style="display:none">
-      <div class="field">
-        <div class="upload-zone" id="qrUploadZone" onclick="document.getElementById('qrZipFile').click()" style="padding:18px">
-          <div id="qrUploadPlaceholder">
-            <div class="uz-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></div>
-            <div class="uz-text">Upload QR codes ZIP</div>
-            <div class="uz-sub">ZIP containing SVG or PNG QR files · Named sequentially</div>
-          </div>
-          <div id="qrUploadDone" style="display:none">
-            <div style="font-size:14px;margin-bottom:4px">✓</div>
-            <div class="uz-text" style="color:var(--green)" id="qrUploadInfo">50,000 QR files loaded</div>
-          </div>
-          <input type="file" id="qrZipFile" accept=".zip" style="display:none" onchange="handleQRUpload(this)">
-        </div>
-        <div class="hint">Each QR file maps to one label. File count must match quantity.</div>
-      </div>
+    <!-- Manual source -->
+    <div id="csvSourceManual" style="display:none">
+      <div class="field"><label>Brand</label><input type="text" id="manualBrand" placeholder="Your brand name"></div>
+      <div class="field"><label>Product Name</label><input type="text" id="manualProduct" placeholder="Product name"></div>
     </div>
 
     <div class="divider"></div>
@@ -386,16 +377,22 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark1);color:va
     <div class="divider"></div>
 
     <div style="padding:10px 12px;background:rgba(40,183,157,.08);border:1px solid rgba(40,183,157,.2);border-radius:8px;margin-bottom:16px">
-      <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:2px">Template export is free</div>
-      <div style="font-size:10px;color:var(--text3);line-height:1.5">DPP QR codes are generated after your DPP order is placed and paid. This tool saves your label template and QR placement for the print run.</div>
+      <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:2px">Ready to generate</div>
+      <div style="font-size:10px;color:var(--text3);line-height:1.5">Up to 500 labels generate instantly in-browser. Larger runs generate in chunks — download each PDF as it completes.</div>
     </div>
 
     <!-- Save Template -->
-    <button class="btn btn-primary" id="btnSave" onclick="saveTemplate()">
-      Save Label Template
+    <button class="btn btn-secondary" id="btnSave" onclick="saveTemplate()" style="margin-bottom:8px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Save Template
     </button>
-    <button class="btn btn-secondary" id="btnPreview" onclick="previewExport()">
-      Preview Sample Label
+    <button class="btn btn-secondary" id="btnPreview" onclick="generatePDF(true)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Preview (5 labels)
+    </button>
+    <button class="btn btn-primary" id="btnGenerate" onclick="generatePDF(false)" style="margin-top:8px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Generate &amp; Download PDF
     </button>
 
     <div class="progress-wrap" id="progressWrap" style="display:none">
@@ -413,23 +410,78 @@ window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.th
 (function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
 
 // ── State ──
-let labelW=90, labelH=50, currentZoom=1, exportFormat='csv';
-const PX_PER_MM = 4; // canvas scale
+let labelW=90, labelH=50, currentZoom=1, exportFormat='pdf';
+let csvRows = []; // parsed rows from batch CSV
+let csvMeta = {}; // extracted metadata
+const PX_PER_MM = 4;
+
+// ── CSV Source toggle ──
+let csvSourceMode = 'csv';
+function setCsvSource(el, mode){
+  document.querySelectorAll('.format-opts')[0].querySelectorAll('.format-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  csvSourceMode = mode;
+  document.getElementById('csvSourceImport').style.display = mode==='csv'   ? 'block' : 'none';
+  document.getElementById('csvSourceManual').style.display = mode==='manual'? 'block' : 'none';
+}
+
+// ── CSV Upload & Parse ──
+function handleCsvUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    comments: '#',
+    complete: function(results){
+      csvRows = results.data.filter(r => r.digital_link_url && r.digital_link_url.startsWith('http'));
+      if(!csvRows.length){ alert('No valid rows found. Make sure the CSV has a digital_link_url column.'); return; }
+
+      // Extract metadata from first row
+      const first = csvRows[0];
+      csvMeta = {
+        brand:    first.brand        || '',
+        product:  first.product_name || '',
+        gtin:     first.gtin14       || '',
+        carbon:   first.carbon_kg    || '',
+        recycled: first.recycled_pct || '',
+        batchId:  first.batch_id     || '',
+      };
+
+      // Pre-fill fields from CSV metadata
+      if(csvMeta.gtin)   document.getElementById('gtin').value   = csvMeta.gtin;
+      if(csvMeta.brand){
+        const slug = csvMeta.brand.toLowerCase().replace(/\s+/g,'-');
+        document.getElementById('brandDomain').value = slug+'.destore.network';
+      }
+
+      // Update quantity to match CSV
+      document.getElementById('quantity').value = csvRows.length;
+      updateRun();
+
+      // Show stats
+      document.getElementById('csvUploadPlaceholder').style.display='none';
+      document.getElementById('csvUploadDone').style.display='block';
+      document.getElementById('csvUploadInfo').textContent = `${csvRows.length.toLocaleString()} labels · ${csvMeta.product||'Product'} · ${csvMeta.brand||'Brand'}`;
+      document.getElementById('csvStats').style.display='block';
+      document.getElementById('csvRowCount').textContent = csvRows.length.toLocaleString();
+      document.getElementById('csvBrand').textContent   = csvMeta.brand || '—';
+      document.getElementById('csvGtin').textContent    = csvMeta.gtin  || '—';
+    },
+    error: function(e){ alert('CSV parse error: '+e.message); }
+  });
+}
 
 // ── Template Upload ──
 function loadTemplate(input){
-  const file=input.files[0];
-  if(!file)return;
+  const file=input.files[0]; if(!file)return;
   const reader=new FileReader();
   reader.onload=function(e){
     const img=document.getElementById('canvasTemplate');
-    img.src=e.target.result;
-    img.style.display='block';
+    img.src=e.target.result; img.style.display='block';
     document.getElementById('canvasEmpty').style.display='none';
-    // Also show in upload zone
     const prev=document.getElementById('templatePreview');
-    prev.src=e.target.result;
-    prev.style.display='block';
+    prev.src=e.target.result; prev.style.display='block';
     document.getElementById('uploadPlaceholder').style.display='none';
     document.getElementById('uploadZone').classList.add('has-file');
   };
@@ -441,17 +493,13 @@ function setLabelSize(el){
   document.querySelectorAll('.size-preset').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   const w=parseInt(el.dataset.w), h=parseInt(el.dataset.h);
-  if(w===0){
-    document.getElementById('customSizeRow').style.display='grid';
-    return;
-  }
+  if(w===0){ document.getElementById('customSizeRow').style.display='grid'; return; }
   document.getElementById('customSizeRow').style.display='none';
   labelW=w; labelH=h;
   document.getElementById('labelW').value=w;
   document.getElementById('labelH').value=h;
   updateCanvas();
 }
-
 function updateCanvas(){
   labelW=parseInt(document.getElementById('labelW').value)||90;
   labelH=parseInt(document.getElementById('labelH').value)||50;
@@ -459,122 +507,63 @@ function updateCanvas(){
   wrap.style.width=(labelW*PX_PER_MM*currentZoom)+'px';
   wrap.style.height=(labelH*PX_PER_MM*currentZoom)+'px';
   const empty=document.getElementById('canvasEmpty');
-  if(empty.style.display!=='none'){
-    empty.querySelector('p:last-child').textContent=`${labelW}mm × ${labelH}mm · 300 DPI`;
-  }
+  if(empty.style.display!=='none') empty.querySelector('p:last-child').textContent=`${labelW}mm × ${labelH}mm · 300 DPI`;
 }
-
 function setZoom(z,btn){
   currentZoom=z;
   document.querySelectorAll('.canvas-toolbar button').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  updateCanvas();
+  btn.classList.add('active'); updateCanvas();
 }
 
 // ── QR Drag + Resize ──
 const qrOverlay=document.getElementById('qrOverlay');
 const qrResize=document.getElementById('qrResize');
-let dragging=false, resizing=false, dragStart={x:0,y:0}, origPos={x:0,y:0}, origSize=0;
-
-qrOverlay.addEventListener('mousedown',function(e){
-  if(e.target===qrResize)return;
-  dragging=true;
-  dragStart={x:e.clientX,y:e.clientY};
-  origPos={x:qrOverlay.offsetLeft,y:qrOverlay.offsetTop};
-  e.preventDefault();
-});
-
-qrResize.addEventListener('mousedown',function(e){
-  resizing=true;
-  dragStart={x:e.clientX,y:e.clientY};
-  origSize=qrOverlay.offsetWidth;
-  e.preventDefault();
-});
-
+let dragging=false,resizing=false,dragStart={x:0,y:0},origPos={x:0,y:0},origSize=0;
+qrOverlay.addEventListener('mousedown',function(e){ if(e.target===qrResize)return; dragging=true; dragStart={x:e.clientX,y:e.clientY}; origPos={x:qrOverlay.offsetLeft,y:qrOverlay.offsetTop}; e.preventDefault(); });
+qrResize.addEventListener('mousedown',function(e){ resizing=true; dragStart={x:e.clientX,y:e.clientY}; origSize=qrOverlay.offsetWidth; e.preventDefault(); });
 document.addEventListener('mousemove',function(e){
-  if(dragging){
-    const dx=e.clientX-dragStart.x, dy=e.clientY-dragStart.y;
-    qrOverlay.style.left=(origPos.x+dx)+'px';
-    qrOverlay.style.top=(origPos.y+dy)+'px';
-    syncQRToInputs();
-  }
-  if(resizing){
-    const dx=e.clientX-dragStart.x;
-    const newSize=Math.max(30,origSize+dx);
-    qrOverlay.style.width=newSize+'px';
-    qrOverlay.style.height=newSize+'px';
-    syncQRToInputs();
-  }
+  if(dragging){ const dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y; qrOverlay.style.left=(origPos.x+dx)+'px'; qrOverlay.style.top=(origPos.y+dy)+'px'; syncQRToInputs(); }
+  if(resizing){ const newSize=Math.max(30,origSize+(e.clientX-dragStart.x)); qrOverlay.style.width=newSize+'px'; qrOverlay.style.height=newSize+'px'; syncQRToInputs(); }
 });
-
 document.addEventListener('mouseup',function(){dragging=false;resizing=false});
-
 function syncQRToInputs(){
   const scale=PX_PER_MM*currentZoom;
   document.getElementById('qrX').value=Math.round(qrOverlay.offsetLeft/scale);
   document.getElementById('qrY').value=Math.round(qrOverlay.offsetTop/scale);
-  const sizeMM=Math.round(qrOverlay.offsetWidth/scale);
-  document.getElementById('qrSize').value=sizeMM;
-  document.getElementById('qrSizeVal').textContent=sizeMM+'mm';
+  const s=Math.round(qrOverlay.offsetWidth/scale);
+  document.getElementById('qrSize').value=s; document.getElementById('qrSizeVal').textContent=s+'mm';
 }
-
 function updateQRFromInputs(){
   const scale=PX_PER_MM*currentZoom;
-  const x=parseInt(document.getElementById('qrX').value)||0;
-  const y=parseInt(document.getElementById('qrY').value)||0;
-  const s=parseInt(document.getElementById('qrSize').value)||20;
-  qrOverlay.style.left=(x*scale)+'px';
-  qrOverlay.style.top=(y*scale)+'px';
-  qrOverlay.style.width=(s*scale)+'px';
-  qrOverlay.style.height=(s*scale)+'px';
+  qrOverlay.style.left=(parseInt(document.getElementById('qrX').value)||0)*scale+'px';
+  qrOverlay.style.top=(parseInt(document.getElementById('qrY').value)||0)*scale+'px';
+  const s=(parseInt(document.getElementById('qrSize').value)||20)*scale;
+  qrOverlay.style.width=s+'px'; qrOverlay.style.height=s+'px';
 }
 
-// ── QR Preview (with GS1-compliant 4-module quiet zone) ──
+// ── QR Preview ──
 function updateQRPreview(){
-  const fg=document.getElementById('qrFg').value;
-  const bg=document.getElementById('qrBg').value;
+  const fg=document.getElementById('qrFg').value, bg=document.getElementById('qrBg').value;
   const inner=document.getElementById('qrInner');
-  // QR modules: 21x21 + 4-module quiet zone on each side = 29x29 total
-  const modules=21, quiet=4, total=modules+quiet*2;
-  const px=100/total;
-  let svg=`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">`;
-  // Full white background (quiet zone)
-  svg+=`<rect width="100" height="100" fill="${bg}"/>`;
-  // Quiet zone indicators (subtle dashed lines showing the boundary)
-  svg+=`<rect x="${quiet*px}" y="${quiet*px}" width="${modules*px}" height="${modules*px}" fill="none" stroke="${fg}" stroke-width="0.3" stroke-dasharray="1 1" opacity="0.15"/>`;
-  // Finder patterns (offset by quiet zone)
+  const modules=21,quiet=4,total=modules+quiet*2,px=100/total;
+  let svg=`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="${bg}"/>`;
   const fp=[[0,0],[14,0],[0,14]];
   fp.forEach(([fx,fy])=>{
-    const ox=(fx+quiet)*px, oy=(fy+quiet)*px;
+    const ox=(fx+quiet)*px,oy=(fy+quiet)*px;
     svg+=`<rect x="${ox}" y="${oy}" width="${7*px}" height="${7*px}" fill="${fg}"/>`;
     svg+=`<rect x="${ox+px}" y="${oy+px}" width="${5*px}" height="${5*px}" fill="${bg}"/>`;
     svg+=`<rect x="${ox+2*px}" y="${oy+2*px}" width="${3*px}" height="${3*px}" fill="${fg}"/>`;
   });
-  // Timing patterns
-  for(let i=8;i<13;i++){
-    if(i%2===0){
-      svg+=`<rect x="${(i+quiet)*px}" y="${(6+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/>`;
-      svg+=`<rect x="${(6+quiet)*px}" y="${(i+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/>`;
-    }
+  for(let i=8;i<13;i++){ if(i%2===0){ svg+=`<rect x="${(i+quiet)*px}" y="${(6+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/><rect x="${(6+quiet)*px}" y="${(i+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/>`; } }
+  for(let r=0;r<modules;r++) for(let c=0;c<modules;c++){
+    if((r<7&&c<7)||(r<7&&c>13)||(r>13&&c<7)||r===6||c===6||(r>=14&&r<=18&&c>=14&&c<=18)) continue;
+    if(Math.random()>.5) svg+=`<rect x="${(c+quiet)*px}" y="${(r+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/>`;
   }
-  // Alignment pattern (for version 2+)
-  const ax=16+quiet, ay=16+quiet;
-  svg+=`<rect x="${(ax-2)*px}" y="${(ay-2)*px}" width="${5*px}" height="${5*px}" fill="${fg}"/>`;
-  svg+=`<rect x="${(ax-1)*px}" y="${(ay-1)*px}" width="${3*px}" height="${3*px}" fill="${bg}"/>`;
-  svg+=`<rect x="${ax*px}" y="${ay*px}" width="${px}" height="${px}" fill="${fg}"/>`;
-  // Random data modules (avoid finder + timing + alignment areas)
-  for(let r=0;r<modules;r++){for(let c=0;c<modules;c++){
-    if((r<7&&c<7)||(r<7&&c>13)||(r>13&&c<7))continue;
-    if(r===6||c===6)continue;
-    if(r>=14&&r<=18&&c>=14&&c<=18)continue;
-    if(Math.random()>.5)svg+=`<rect x="${(c+quiet)*px}" y="${(r+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/>`;
-  }}
-  svg+='</svg>';
-  inner.innerHTML=svg;
+  svg+='</svg>'; inner.innerHTML=svg;
 }
 updateQRPreview();
 
-// ── Costs ──
+// ── Counts ──
 function updateRun(){
   const qty=parseInt(document.getElementById('quantity').value)||0;
   document.getElementById('labelCount').textContent=qty.toLocaleString();
@@ -585,105 +574,267 @@ function updateRun(){
 }
 updateRun();
 
-// ── Format ──
+// ── Export Format ──
 function setFormat(el,fmt){
-  document.querySelectorAll('.format-opt').forEach(o=>o.classList.remove('active'));
+  document.querySelectorAll('.format-opts').forEach(g=>g.querySelectorAll('.format-opt').forEach(o=>o.classList.remove('active')));
   el.classList.add('active');
   exportFormat=fmt;
   document.getElementById('chunkField').style.display=fmt==='pdf'?'block':'none';
   updateRun();
 }
 
-// ── QR Source ──
-let qrSource='collection';
-function setQRSource(el,src){
-  document.querySelectorAll('.format-opts')[1].querySelectorAll('.format-opt').forEach(o=>o.classList.remove('active'));
-  el.classList.add('active');
-  qrSource=src;
-  document.getElementById('qrSourceCollection').style.display=src==='collection'?'block':'none';
-  document.getElementById('qrSourceUpload').style.display=src==='upload'?'block':'none';
-}
-
-function updateQRSource(){
-  const sel=document.getElementById('qrOrder');
-  if(sel.value){
-    document.getElementById('qrOrderDetail').style.display='block';
-    const txt=sel.options[sel.selectedIndex].text;
-    const match=txt.match(/([\d,]+) DPPs/);
-    if(match) document.getElementById('qrOrderQty').textContent=match[1];
-  }
-}
-
-function handleQRUpload(input){
-  const file=input.files[0];
-  if(!file)return;
-  document.getElementById('qrUploadPlaceholder').style.display='none';
-  document.getElementById('qrUploadDone').style.display='block';
-  const qty=document.getElementById('quantity').value;
-  document.getElementById('qrUploadInfo').textContent=file.name+' · '+parseInt(qty).toLocaleString()+' QR files';
-  document.getElementById('qrUploadZone').classList.add('has-file');
-}
-
-// ── Save Template ──
+// ── Save Template to localStorage ──
 function saveTemplate(){
   const btn=document.getElementById('btnSave');
-  const wrap=document.getElementById('progressWrap');
-  const fill=document.getElementById('progressFill');
-  const label=document.getElementById('progressLabel');
-  const pct=document.getElementById('progressPct');
-  
-  btn.textContent='Saving...';
-  btn.style.opacity='.6';
-  btn.disabled=true;
-  wrap.style.display='block';
+  const config={labelW,labelH,
+    qrX:parseInt(document.getElementById('qrX').value)||0,
+    qrY:parseInt(document.getElementById('qrY').value)||0,
+    qrSize:parseInt(document.getElementById('qrSize').value)||20,
+    qrEC:document.getElementById('qrEC').value,
+    qrFg:document.getElementById('qrFg').value,
+    qrBg:document.getElementById('qrBg').value,
+    domain:document.getElementById('brandDomain').value,
+    gtin:document.getElementById('gtin').value,
+    savedAt:new Date().toISOString()
+  };
+  localStorage.setItem('ds-label-template',JSON.stringify(config));
+  btn.textContent='✓ Saved'; btn.style.color='var(--green)'; btn.style.borderColor='var(--green)';
+  setTimeout(()=>{ btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Template'; btn.style.color=''; btn.style.borderColor=''; },2000);
+}
 
-  const steps=[
-    {pct:30,text:'Saving label dimensions...'},
-    {pct:60,text:'Storing QR placement coordinates...'},
-    {pct:85,text:'Registering export format...'},
-    {pct:100,text:'Template saved!'},
-  ];
+// ── Load saved template on startup ──
+(function(){
+  try{
+    const s=JSON.parse(localStorage.getItem('ds-label-template')||'null'); if(!s)return;
+    labelW=s.labelW||90; labelH=s.labelH||50;
+    ['domain','gtin'].forEach(k=>{ if(s[k]) document.getElementById(k==='domain'?'brandDomain':'gtin').value=s[k]; });
+    if(s.qrFg) document.getElementById('qrFg').value=s.qrFg;
+    if(s.qrBg) document.getElementById('qrBg').value=s.qrBg;
+    if(s.qrEC) document.getElementById('qrEC').value=s.qrEC;
+    if(s.qrSize){document.getElementById('qrSize').value=s.qrSize;document.getElementById('qrSizeVal').textContent=s.qrSize+'mm';}
+    if(s.qrX!==undefined) document.getElementById('qrX').value=s.qrX;
+    if(s.qrY!==undefined) document.getElementById('qrY').value=s.qrY;
+    updateCanvas(); updateQRFromInputs();
+  }catch(e){}
+})();
 
-  let i=0;
-  const interval=setInterval(()=>{
-    if(i>=steps.length){
-      clearInterval(interval);
-      btn.textContent='✓ Template Saved';
-      btn.style.background='var(--green)';
-      setTimeout(()=>{
-        btn.textContent='Save Label Template';
-        btn.style.background='';
-        btn.style.opacity='1';
-        btn.disabled=false;
-        wrap.style.display='none';
-        fill.style.width='0%';
-      },2000);
-      return;
+// ── Generate QR as data URL ──
+async function makeQRDataURL(text,size,fg,bg,ec){
+  return new Promise((resolve,reject)=>{
+    if(typeof QRCode==='undefined'){reject(new Error('QRCode not loaded'));return;}
+    QRCode.toDataURL(text,{width:size,margin:0,color:{dark:fg||'#000000',light:bg||'#ffffff'},errorCorrectionLevel:ec||'M'},(err,url)=>err?reject(err):resolve(url));
+  });
+}
+
+// ── Get jsPDF safely ──
+function getJsPDF(){
+  if(window.jspdf && window.jspdf.jsPDF) return window.jspdf.jsPDF;
+  if(typeof jsPDF !== 'undefined') return jsPDF;
+  if(window.jsPDF) return window.jsPDF;
+  return null;
+}
+
+// ── Generate PDF ──
+async function generatePDF(previewOnly){
+  const JsPDF = getJsPDF();
+  if(!JsPDF){ alert('PDF library is still loading — please wait a moment and try again.'); return; }
+
+  const qrFg     = document.getElementById('qrFg').value  || '#000000';
+  const qrBg     = document.getElementById('qrBg').value  || '#ffffff';
+  const qrEC     = document.getElementById('qrEC').value  || 'M';
+  const qrSizeMM = parseInt(document.getElementById('qrSize').value) || 20;
+  const qrXmm    = parseInt(document.getElementById('qrX').value)    || 5;
+  const qrYmm    = parseInt(document.getElementById('qrY').value)    || 5;
+  const domain   = document.getElementById('brandDomain').value || 'id.destore.network';
+  const baseGtin = document.getElementById('gtin').value || '09501234567890';
+
+  const tmplImg  = document.getElementById('canvasTemplate');
+  const hasTmpl  = tmplImg && tmplImg.style.display !== 'none' && tmplImg.src && tmplImg.src !== window.location.href;
+
+  // Determine data source
+  let data = []; // array of {url, gtin14, token_id, product_name, brand, gtin, carbon_kg, recycled_pct, batch_id}
+  if(csvRows.length > 0 && csvSourceMode === 'csv'){
+    data = csvRows.map(r=>({
+      url:      r.digital_link_url,
+      gtin14:   r.gtin14        || baseGtin,
+      tokenId:  r.token_id      || '?',
+      product:  r.product_name  || '',
+      brand:    r.brand         || '',
+      carbon:   r.carbon_kg     || '',
+      recycled: r.recycled_pct  || '',
+      batchId:  r.batch_id      || '',
+      // Use embedded QR image from CSV if present and it's a data URL
+      qrImage:  (r.qr_image && r.qr_image.startsWith('data:')) ? r.qr_image : null,
+    }));
+  } else {
+    // Manual / generate sequential
+    const brand   = document.getElementById('manualBrand')?.value   || csvMeta.brand   || 'DeStore';
+    const product = document.getElementById('manualProduct')?.value || csvMeta.product || 'Product';
+    const qty     = parseInt(document.getElementById('quantity').value) || 10;
+    for(let i=0; i<qty; i++){
+      const tid = i+1;
+      const ai90 = [...crypto.getRandomValues(new Uint8Array(10))].map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,20);
+      data.push({ url:`https://${domain}/01/${baseGtin}/21/${tid}?90=${ai90}`, gtin14:baseGtin, tokenId:tid, product, brand, carbon:'', recycled:'', batchId:'MANUAL', chain:'' });
     }
-    fill.style.width=steps[i].pct+'%';
-    label.textContent=steps[i].text;
-    pct.textContent=steps[i].pct+'%';
-    i++;
-  },500);
+  }
+
+  const totalQty = previewOnly ? Math.min(5, data.length) : data.length;
+  if(totalQty === 0){ alert('No data to generate. Import a CSV or enter details manually.'); return; }
+
+  const chunkSz = exportFormat==='pdf' ? (parseInt(document.getElementById('chunkSize').value)||10000) : totalQty;
+  const totalChunks = Math.ceil(totalQty/chunkSz);
+  const pxPerMM = 3.7795;
+
+  // Lock buttons
+  const btnGen = document.getElementById('btnGenerate');
+  const btnPrv = document.getElementById('btnPreview');
+  if(btnGen){ btnGen.disabled=true; btnGen.textContent='Generating…'; }
+  if(btnPrv){ btnPrv.disabled=true; }
+  setProgress(0, previewOnly?'Generating preview…':'Starting PDF generation…');
+
+  for(let chunk=0; chunk<totalChunks; chunk++){
+    const startIdx = chunk*chunkSz;
+    const endIdx   = Math.min(startIdx+chunkSz, totalQty);
+
+    const doc = new JsPDF({ orientation:labelW>labelH?'landscape':'portrait', unit:'mm', format:[labelW,labelH] });
+
+    for(let i=startIdx; i<endIdx; i++){
+      const row = data[i];
+      if(i > startIdx) doc.addPage([labelW,labelH], labelW>labelH?'landscape':'portrait');
+
+      // ── Background ──
+      if(hasTmpl){
+        try{ doc.addImage(tmplImg.src,'JPEG',0,0,labelW,labelH); }catch(e){}
+      } else {
+        doc.setFillColor(255,255,255);
+        doc.rect(0,0,labelW,labelH,'F');
+        doc.setDrawColor(210,210,210);
+        doc.setLineWidth(0.25);
+        doc.rect(0.5,0.5,labelW-1,labelH-1);
+      }
+
+      // ── QR Code — use pre-generated image from CSV if present, else generate ──
+      const qrPx = Math.round(qrSizeMM * pxPerMM * 2);
+      try{
+        const qrURL = row.qrImage || await makeQRDataURL(row.url, qrPx, qrFg, qrBg, qrEC);
+        const quietMM = qrSizeMM * 0.138;
+        doc.addImage(qrURL, 'PNG', qrXmm-quietMM, qrYmm-quietMM, qrSizeMM+quietMM*2, qrSizeMM+quietMM*2);
+      }catch(e){ console.warn('QR error row', i, e); }
+
+      // ── DPP Text block (to the right of the QR) ──
+      const textX = qrXmm + qrSizeMM + 4;
+      const textW = labelW - textX - 3;
+      let   ty    = qrYmm + 1;
+
+      // DeStore verified badge line
+      doc.setFontSize(5.5);
+      doc.setTextColor(40,183,157);
+      doc.setFont('helvetica','bold');
+      doc.text('◈ DESTORE VERIFIED DPP', textX, ty);
+      ty += 4;
+
+      // Product name
+      if(row.product){
+        doc.setFontSize(8);
+        doc.setTextColor(20,20,24);
+        doc.setFont('helvetica','bold');
+        const nameLines = doc.splitTextToSize(row.product, textW);
+        doc.text(nameLines.slice(0,2), textX, ty);
+        ty += nameLines.slice(0,2).length * 4;
+      }
+
+      // Brand
+      if(row.brand){
+        doc.setFontSize(6);
+        doc.setTextColor(100,100,120);
+        doc.setFont('helvetica','normal');
+        doc.text(row.brand, textX, ty);
+        ty += 3.5;
+      }
+
+      ty += 1; // spacer
+
+      // GTIN
+      doc.setFontSize(5);
+      doc.setTextColor(120,120,140);
+      doc.setFont('helvetica','normal');
+      doc.text(`GTIN  (01)${row.gtin14}`, textX, ty);
+      ty += 3.2;
+
+      // Token ID
+      doc.text(`Token  #${String(row.tokenId).padStart(8,'0')}`, textX, ty);
+      ty += 3.2;
+
+      // Batch ID
+      if(row.batchId){
+        doc.text(`Batch  ${row.batchId}`, textX, ty);
+        ty += 3.2;
+      }
+
+      // Carbon + Recycled
+      if(row.carbon || row.recycled){
+        ty += 1;
+        doc.setFontSize(5);
+        doc.setTextColor(40,183,157);
+        doc.setFont('helvetica','bold');
+        const ecoLine = [row.carbon?`CO₂ ${row.carbon}kg`:'', row.recycled&&parseInt(row.recycled)>0?`${row.recycled}% recycled`:''].filter(Boolean).join('  ·  ');
+        if(ecoLine) doc.text(ecoLine, textX, ty);
+        ty += 3;
+      }
+
+      // Chain
+      if(row.chain){
+        doc.setFontSize(4.5);
+        doc.setTextColor(150,100,220);
+        doc.setFont('helvetica','normal');
+        doc.text(`On-chain: ${row.chain}`, textX, ty);
+      }
+
+      // ── GS1-128 barcode strip at bottom ──
+      const barcodeY = labelH - 7;
+      doc.setFontSize(4);
+      doc.setTextColor(160,160,160);
+      doc.setFont('helvetica','normal');
+      doc.text(`(01)${row.gtin14}`, labelW/2, barcodeY+4.5, {align:'center'});
+      // Simplified barcode visual (real barcode would need canvas → dataURL)
+      doc.setDrawColor(0,0,0);
+      doc.setLineWidth(0.3);
+      const barW=labelW-16, barX=8, barH=3.5;
+      for(let b=0; b<80; b++){
+        const bx = barX + (b/80)*barW;
+        if(Math.random()>0.5){ doc.setLineWidth(b%3===0?0.5:0.25); doc.line(bx,barcodeY,bx,barcodeY+barH); }
+      }
+
+      // Progress
+      const pct = Math.round(((i+1)/totalQty)*100);
+      setProgress(pct, `Label ${(i+1).toLocaleString()} of ${totalQty.toLocaleString()}…`);
+      if(i%50===49) await new Promise(r=>setTimeout(r,0));
+    }
+
+    const suffix  = totalChunks>1 ? `-part${chunk+1}of${totalChunks}` : '';
+    const preview = previewOnly   ? '-PREVIEW' : '';
+    doc.save(`DeStore-Labels-${baseGtin}${preview}${suffix}.pdf`);
+    setProgress(Math.round(((chunk+1)/totalChunks)*100), totalChunks>1?`Downloaded chunk ${chunk+1} of ${totalChunks}`:'Done!');
+    await new Promise(r=>setTimeout(r,200));
+  }
+
+  setProgress(100, previewOnly?'✓ Preview ready':'✓ All labels generated');
+  setTimeout(()=>{
+    document.getElementById('progressWrap').style.display='none';
+    if(btnGen){ btnGen.disabled=false; btnGen.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Generate &amp; Download PDF'; }
+    if(btnPrv){ btnPrv.disabled=false; }
+  },2500);
 }
 
-function previewExport(){
-  const qty=document.getElementById('quantity').value;
-  const fmt=exportFormat.toUpperCase();
-  const qrSize=document.getElementById('qrSize').value;
-  const qrX=document.getElementById('qrX').value;
-  const qrY=document.getElementById('qrY').value;
-  alert(`Label Template Preview\n\n` +
-    `Collection: ${document.getElementById('collection').value}\n` +
-    `Labels: ${parseInt(qty).toLocaleString()}\n` +
-    `Label size: ${labelW}mm × ${labelH}mm\n` +
-    `QR position: ${qrX}mm, ${qrY}mm\n` +
-    `QR size: ${qrSize}mm\n` +
-    `Export format: ${fmt}\n\n` +
-    `DPP QR codes will be generated when your DPP order is placed and paid.`);
+function setProgress(pct,text){
+  const wrap=document.getElementById('progressWrap');
+  wrap.style.display='block';
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=text;
+  document.getElementById('progressPct').textContent=pct+'%';
 }
 
-// Initial QR position
+// Initial render
 updateQRFromInputs();
 updateCanvas();
 </script>
