@@ -1,0 +1,14 @@
+name = "id-resolver"
+main = "index.js"
+compatibility_date = "2026-03-23"
+account_id = "0aea812fa2cca191c0468f51f30955c1"
+
+kv_namespaces = [
+  { binding = "DPP_RESOLVER_ROUTING", id = "2fd89587c339408bb2c2e59cdb76dedd" }
+]
+
+
+routes = [
+  { pattern = "id.destore.network/*", zone_name = "destore.network" },
+  { pattern = "put-your-domain-here.com/*", zone_name = "put-your-domain-here.com" }
+]
