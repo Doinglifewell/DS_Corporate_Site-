@@ -1,35 +1,20 @@
 {
   "version": 2,
-  "name": "destore-platform",
   "public": true,
   "headers": [
     {
-      "source": "/(.*\\.html)",
+      "source": "/(.*)",
       "headers": [
-        { "key": "X-Frame-Options",           "value": "SAMEORIGIN" },
-        { "key": "X-Content-Type-Options",     "value": "nosniff" },
-        { "key": "Referrer-Policy",            "value": "strict-origin-when-cross-origin" },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.anthropic.com https://mint.destore.network https://id.destore.network; worker-src blob:; frame-ancestors 'self'"
-        }
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     },
     {
-      "source": "/(.*\\.(js|css|woff2|woff|ttf))",
+      "source": "/(.+\\.js|.+\\.css|.+\\.woff2|.+\\.woff|.+\\.ttf)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
-    },
-    {
-      "source": "/",
-      "headers": [
-        { "key": "X-Frame-Options",       "value": "SAMEORIGIN" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
-      ]
     }
-  ],
-  "rewrites": [
-    { "source": "/", "destination": "/index.html" }
   ]
 }
