@@ -2,406 +2,372 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-  <link rel="icon" type="image/svg+xml" href="/destore-favicon.svg">
+<link rel="icon" type="image/svg+xml" href="/destore-favicon.svg">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DeStore · Label Template Exporter</title>
+<title>DeStore · Label Exporter</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <style>
 :root{
   --royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;
-  --dark1:#0d0d10;--dark2:#141418;--dark3:#1a1a20;--dark4:#202128;--dark5:#2a2b34;
-  --border:#2e2f3a;--border2:#3a3b48;
-  --text:#f0f0f5;--text2:#a0a0b0;--text3:#666678;
-  --green:#28B79D;--green2:#2FB457;--orange:#FF9F46;--red:#e74c3c;
+  --green:#28B79D;--orange:#FF9F46;--red:#e74c3c;
+  --d0:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;
+  --bdr:#2e2e38;--muted:#6b6b80;--dim:#9999b0;
   --mono:'JetBrains Mono',monospace;
 }
-[data-theme="light"]{
-  --bg:#f5f5f8;--d1:#ffffff;--d2:#ffffff;--d3:#f0f0f4;--d4:#e8e8ee;
-  --border:#e0e0e8;--border2:#d0d0da;
-  --text:#1a1a22;--text2:#555566;--text3:#888898;
-  --green:#1a9a82;--green2:#229a48;--orange:#e08830;--red:#d44332;--blue:#2563eb;
-}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark1);color:var(--text);min-height:100vh}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--d0);color:#e8e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-/* ── Header ── */
-.header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:var(--dark2)}
-.header-left{display:flex;align-items:center;gap:14px}
-.header-logo{height:22px;opacity:.8}
-.header-sep{width:1px;height:20px;background:var(--border)}
-.header-title{font-size:14px;font-weight:800;letter-spacing:-.2px}
-.header-badge{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:rgba(106,20,219,.2);color:var(--violet)}
+/* ── Nav ── */
+nav{height:52px;background:var(--royal);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+nav svg.logo{height:18px}
+nav .nav-sep{width:1px;height:22px;background:rgba(255,255,255,.15)}
+nav .nav-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.75);letter-spacing:.04em}
+nav .nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+nav .nav-badge{font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:5px;background:rgba(40,183,157,.15);color:var(--green);border:1px solid rgba(40,183,157,.25)}
+.grad-bar{height:3px;background:linear-gradient(90deg,var(--green),var(--violet),var(--orchid));flex-shrink:0}
 
-/* ── Layout ── */
-.main{display:grid;grid-template-columns:340px 1fr 280px;height:calc(100vh - 57px)}
-.panel{border-right:1px solid var(--border);overflow-y:auto;padding:20px}
+/* ── 3-col layout ── */
+.workspace{display:grid;grid-template-columns:300px 1fr 280px;flex:1;overflow:hidden;min-height:0}
+
+/* ── Panels ── */
+.panel{border-right:1px solid var(--bdr);overflow-y:auto;display:flex;flex-direction:column}
 .panel:last-child{border-right:none}
-.panel-title{font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+.panel-head{padding:16px 18px 12px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.panel-title{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.panel-body{padding:16px 18px;flex:1;overflow-y:auto}
+.panel-body::-webkit-scrollbar{width:4px}
+.panel-body::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
 
-/* ── Form Elements ── */
-.field{margin-bottom:16px}
-.field label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px}
-.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--dark3);color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border .15s}
-.field input:focus,.field select:focus{border-color:var(--orchid)}
-.field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666678'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.field .hint{font-size:10px;color:var(--text3);margin-top:4px}
-.field .mono-val{font-family:var(--mono);font-size:12px;color:var(--violet)}
+/* ── Fields ── */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.field input,.field select{width:100%;padding:8px 12px;border:1.5px solid var(--bdr);border-radius:8px;background:var(--d3);color:#e8e8f0;font-family:inherit;font-size:12px;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--green)}
+.field .hint{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
-/* ── Upload Zone ── */
-.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.upload-zone:hover{border-color:var(--orchid);background:rgba(106,20,219,.04)}
-.upload-zone.has-file{border-style:solid;border-color:var(--green);padding:0}
-.upload-zone .uz-icon{font-size:28px;margin-bottom:8px;opacity:.5}
-.upload-zone .uz-text{font-size:12px;color:var(--text2)}
-.upload-zone .uz-sub{font-size:10px;color:var(--text3);margin-top:4px}
-.upload-zone img{width:100%;display:block;border-radius:10px}
+/* ── Upload zone ── */
+.upload-zone{border:2px dashed var(--bdr);border-radius:12px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--green);background:rgba(40,183,157,.04)}
+.upload-zone.loaded{border-style:solid;border-color:var(--green);background:rgba(40,183,157,.04)}
 .upload-zone input{display:none}
+.uz-icon{font-size:26px;margin-bottom:8px;opacity:.5}
+.uz-text{font-size:12px;font-weight:700;color:var(--dim)}
+.uz-sub{font-size:10px;color:var(--muted);margin-top:4px}
 
-/* ── Canvas (center) ── */
-.canvas-area{background:var(--dark3);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.canvas-toolbar{position:absolute;top:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:var(--dark2);border:1px solid var(--border);border-radius:8px;padding:4px;z-index:10}
-.canvas-toolbar button{padding:6px 14px;border:none;border-radius:6px;background:transparent;color:var(--text2);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
-.canvas-toolbar button:hover{color:var(--text)}
-.canvas-toolbar button.active{background:var(--orchid);color:#fff}
-.canvas-wrap{position:relative;background:#fff;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.4)}
-.canvas-empty{text-align:center;color:var(--text3)}
-.canvas-empty .ce-icon{font-size:48px;margin-bottom:12px;opacity:.3}
-.canvas-empty p{font-size:13px}
+/* ── QR style chips ── */
+.dot-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.dot-chip{padding:5px 10px;border-radius:7px;border:1.5px solid var(--bdr);background:var(--d3);color:var(--dim);font-size:10px;font-weight:800;cursor:pointer;transition:all .15s;font-family:inherit}
+.dot-chip:hover{border-color:rgba(40,183,157,.4);color:#fff}
+.dot-chip.active{background:rgba(40,183,157,.1);border-color:var(--green);color:var(--green)}
 
-/* ── QR Overlay ── */
-.qr-overlay{position:absolute;cursor:move;transition:border-color .15s}
-.qr-overlay:hover .qr-border{border-color:var(--violet)}
-.qr-quiet-zone{width:100%;height:100%;background:#fff;display:flex;align-items:center;justify-content:center;position:relative}
-.qr-border{position:absolute;inset:-2px;border:2px dashed var(--orchid);pointer-events:none;transition:border-color .15s}
-.qr-quiet-label{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:800;color:var(--orchid);white-space:nowrap;letter-spacing:.04em;text-transform:uppercase;opacity:0;transition:opacity .15s}
-.qr-overlay:hover .qr-quiet-label{opacity:1}
-.qr-inner{width:calc(100% - 16.6%);height:calc(100% - 16.6%);display:flex;align-items:center;justify-content:center}
-.qr-inner svg{width:100%;height:100%}
-.qr-resize{position:absolute;bottom:-4px;right:-4px;width:10px;height:10px;background:var(--orchid);border-radius:2px;cursor:nwse-resize;z-index:2}
+/* ── Color swatch row ── */
+.color-row{display:flex;align-items:center;gap:8px}
+.color-swatch{width:28px;height:28px;border-radius:6px;border:2px solid var(--bdr);cursor:pointer;flex-shrink:0}
+.color-row input[type=text]{flex:1}
 
-/* ── Print Run Config (right panel) ── */
-.run-card{background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
-.run-card .rc-label{font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.run-card .rc-value{font-size:22px;font-weight:900;color:var(--text);letter-spacing:-.5px}
-.run-card .rc-sub{font-size:11px;color:var(--text2);margin-top:2px}
+/* ── Toggle ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(46,46,56,.4)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-left .tl-label{font-size:12px;font-weight:700}
+.toggle-left .tl-desc{font-size:10px;color:var(--muted);margin-top:2px}
+.toggle-sw{width:40px;height:22px;border-radius:11px;background:var(--bdr);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle-sw::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s}
+.toggle-sw.on{background:var(--green)}
+.toggle-sw.on::after{transform:translateX(18px)}
+
+/* ── Size presets ── */
+.size-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.size-chip{padding:5px 10px;border-radius:7px;border:1.5px solid var(--bdr);background:var(--d3);color:var(--dim);font-size:10px;font-weight:800;cursor:pointer;transition:all .15s;font-family:inherit}
+.size-chip:hover{border-color:rgba(40,183,157,.3);color:#fff}
+.size-chip.active{background:rgba(40,183,157,.1);border-color:var(--green);color:var(--green)}
+
+/* ── Section divider ── */
+.sect{margin-top:18px;padding-top:14px;border-top:1px solid var(--bdr)}
+.sect-label{font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* ── Canvas area ── */
+.canvas-area{background:var(--d3);display:flex;flex-direction:column;align-items:center;overflow:hidden;position:relative}
+.canvas-toolbar{padding:10px 16px;background:var(--d2);border-bottom:1px solid var(--bdr);width:100%;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.ct-btn{padding:5px 12px;border:1.5px solid var(--bdr);border-radius:6px;background:transparent;color:var(--dim);font-family:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:all .15s}
+.ct-btn:hover{border-color:var(--green);color:var(--green)}
+.ct-btn.active{background:var(--green);border-color:var(--green);color:#fff}
+.ct-sep{width:1px;height:20px;background:var(--bdr)}
+.ct-info{font-size:10px;color:var(--muted);font-weight:700;margin-left:auto}
+.canvas-scroll{flex:1;overflow:auto;width:100%;padding:24px;display:flex;justify-content:center;align-items:flex-start}
+.canvas-scroll::-webkit-scrollbar{width:6px;height:6px}
+.canvas-scroll::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:60px 24px;color:var(--muted)}
+.empty-state .es-icon{font-size:48px;margin-bottom:16px;opacity:.3}
+.empty-state .es-title{font-size:15px;font-weight:800;margin-bottom:6px;color:var(--dim)}
+.empty-state .es-sub{font-size:12px;line-height:1.6}
+
+/* ── Label grid ── */
+.label-grid{display:grid;gap:12px;width:fit-content}
+.label-card{background:#fff;border-radius:4px;position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.35);cursor:pointer;transition:box-shadow .15s}
+.label-card:hover{box-shadow:0 4px 20px rgba(40,183,157,.3)}
+.label-card.selected{outline:2px solid var(--green);outline-offset:2px}
+
+/* ── Label inner layout ── */
+.label-inner{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;background:#fff;position:relative}
+.label-qr-slot{display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.label-barcode-slot{display:flex;flex-direction:column;align-items:center;margin-top:3px;flex-shrink:0}
+.label-barcode-slot svg{max-width:100%}
+.label-barcode-num{font-family:'JetBrains Mono',monospace;font-size:7px;color:#333;letter-spacing:.1em;margin-top:1px}
+.label-token{position:absolute;bottom:3px;right:5px;font-family:'JetBrains Mono',monospace;font-size:6px;color:#999;letter-spacing:.04em}
+.label-index{position:absolute;top:3px;left:4px;font-family:'JetBrains Mono',monospace;font-size:6px;color:#bbb}
+
+/* ── Progress overlay ── */
+.gen-overlay{position:absolute;inset:0;background:rgba(10,10,13,.85);backdrop-filter:blur(8px);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:50}
+.gen-overlay.show{display:flex}
+.gen-overlay .go-title{font-size:16px;font-weight:900;margin-bottom:8px}
+.gen-overlay .go-sub{font-size:12px;color:var(--dim);margin-bottom:24px}
+.gen-bar-wrap{width:320px;background:var(--bdr);border-radius:4px;height:6px;overflow:hidden;margin-bottom:12px}
+.gen-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--violet));border-radius:4px;transition:width .2s;width:0%}
+.gen-stats-row{display:flex;gap:24px}
+.gen-stat{text-align:center}
+.gen-stat .gv{font-size:20px;font-weight:900;color:var(--green);font-family:var(--mono)}
+.gen-stat .gl{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+
+/* ── Right panel stats ── */
+.stat-card{background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.stat-card .sv{font-size:22px;font-weight:900;letter-spacing:-.5px;color:#e8e8f0}
+.stat-card .sl{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:2px}
 
 /* ── Buttons ── */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:all .15s}
-.btn-primary{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff}
-.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
-.btn-secondary{background:var(--dark3);border:1px solid var(--border);color:var(--text)}
-.btn-secondary:hover{border-color:var(--orchid);color:var(--violet)}
-.btn+.btn{margin-top:8px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:all .15s;margin-bottom:8px}
+.btn:last-child{margin-bottom:0}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-green{background:linear-gradient(135deg,#1a9a84,var(--green));color:#fff}
+.btn-violet{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff}
+.btn-ghost{background:var(--d3);border:1.5px solid var(--bdr);color:#e8e8f0}
+.btn-ghost:hover{border-color:var(--green);color:var(--green)}
+.btn:disabled{opacity:.4;pointer-events:none}
 
-/* ── Progress ── */
-.progress-wrap{margin:16px 0}
-.progress-bar{height:6px;background:var(--dark4);border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--orchid),var(--green));border-radius:3px;width:0%;transition:width .3s}
-.progress-text{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px}
-
-/* ── Divider ── */
-.divider{height:1px;background:var(--border);margin:16px 0}
-
-/* ── Status ── */
-.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:800}
-.status-badge.ready{background:rgba(40,183,157,.12);color:var(--green)}
-.status-badge.pending{background:rgba(255,159,70,.12);color:var(--orange)}
-.status-badge.error{background:rgba(231,76,60,.12);color:var(--red)}
-
-/* ── Scrollbar ── */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-
-/* ── Format Selector ── */
-.format-opts{display:flex;gap:6px;margin-bottom:16px}
-.format-opt{flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;text-align:center;cursor:pointer;transition:all .15s}
-.format-opt:hover{border-color:var(--text3)}
-.format-opt.active{border-color:var(--orchid);background:rgba(106,20,219,.08)}
-.format-opt .fo-icon{font-size:20px;margin-bottom:4px}
-.format-opt .fo-label{font-size:11px;font-weight:800;color:var(--text)}
-.format-opt .fo-desc{font-size:9px;color:var(--text3);margin-top:2px}
-
-/* ── Label Size Presets ── */
-.size-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.size-preset{padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:10px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s}
-.size-preset:hover{border-color:var(--text3)}
-.size-preset.active{border-color:var(--orchid);color:var(--violet);background:rgba(106,20,219,.08)}
+/* ── Print styles ── */
+@media print{
+  nav,.grad-bar,.workspace > .panel:first-child,.workspace > .panel:last-child,.canvas-toolbar{display:none!important}
+  .workspace{grid-template-columns:1fr;display:block}
+  .canvas-area{overflow:visible}
+  .canvas-scroll{padding:0;overflow:visible}
+  .label-grid{gap:6mm}
+  .label-card{box-shadow:none;break-inside:avoid}
+  body{background:#fff;color:#000}
+}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
 
-<!-- ═══ HEADER ═══ -->
-<div class="header">
-  <div class="header-left">
-    <svg class="header-logo" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#B354F1"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#f0f0f5"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#f0f0f5"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#f0f0f5"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#f0f0f5"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#f0f0f5"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#f0f0f5"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#f0f0f5"/></svg>
-    <div class="header-sep"></div>
-    <div class="header-title">Label Template Exporter</div>
-  </div>
-  <div class="header-badge">Print Run Generator</div>
+<!-- ═══ NAV ═══ -->
+<nav>
+<svg class="logo" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#fff"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#fff"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#fff"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#fff"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#fff"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#fff"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#fff"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#fff"/></svg>
+<div class="nav-sep"></div>
+<span class="nav-label">Label Exporter</span>
+<div class="nav-right">
+  <span class="nav-badge" id="navBadge">No CSV loaded</span>
 </div>
+</nav>
+<div class="grad-bar"></div>
 
-<!-- ═══ MAIN 3-COLUMN LAYOUT ═══ -->
-<div class="main">
+<!-- ═══ WORKSPACE ═══ -->
+<div class="workspace">
 
-  <!-- ═══ LEFT PANEL: Template Config ═══ -->
+  <!-- LEFT: Import + Settings -->
   <div class="panel">
-    <div class="panel-title">Label Template</div>
+    <div class="panel-head"><div class="panel-title">Import & Settings</div></div>
+    <div class="panel-body">
 
-    <!-- Upload -->
-    <div class="field">
-      <label>Template File</label>
-      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('templateFile').click()">
-        <div id="uploadPlaceholder">
-          <div class="uz-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
-          <div class="uz-text">Drop label template here</div>
-          <div class="uz-sub">PNG, JPG, PDF, SVG · Max 10MB</div>
-        </div>
-        <img id="templatePreview" style="display:none" alt="Template">
-        <input type="file" id="templateFile" accept="image/*,.pdf,.svg" onchange="loadTemplate(this)">
-      </div>
-    </div>
-
-    <!-- Label Size -->
-    <div class="field">
-      <label>Label Size</label>
-      <div class="size-presets" id="sizePresets">
-        <div class="size-preset active" data-w="90" data-h="50" onclick="setLabelSize(this)">90×50mm</div>
-        <div class="size-preset" data-w="70" data-h="40" onclick="setLabelSize(this)">70×40mm</div>
-        <div class="size-preset" data-w="50" data-h="30" onclick="setLabelSize(this)">50×30mm</div>
-        <div class="size-preset" data-w="100" data-h="60" onclick="setLabelSize(this)">Hang Tag</div>
-        <div class="size-preset" data-w="60" data-h="40" onclick="setLabelSize(this)">Care Label</div>
-        <div class="size-preset" data-w="0" data-h="0" onclick="setLabelSize(this)">Custom</div>
-      </div>
-      <div class="field-row" id="customSizeRow" style="display:none">
-        <div class="field"><label>Width (mm)</label><input type="number" id="labelW" value="90" onchange="updateCanvas()"></div>
-        <div class="field"><label>Height (mm)</label><input type="number" id="labelH" value="50" onchange="updateCanvas()"></div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- QR Code Settings -->
-    <div class="panel-title">QR Code Placement</div>
-
-    <div class="field-row">
-      <div class="field"><label>X Position (mm)</label><input type="number" id="qrX" value="62" min="0" oninput="updateQRFromInputs()"></div>
-      <div class="field"><label>Y Position (mm)</label><input type="number" id="qrY" value="8" min="0" oninput="updateQRFromInputs()"></div>
-    </div>
-    <div class="field">
-      <label>QR Size (mm)</label>
-      <input type="range" id="qrSize" min="10" max="50" value="20" oninput="updateQRFromInputs();document.getElementById('qrSizeVal').textContent=this.value+'mm'">
-      <div style="display:flex;justify-content:space-between;margin-top:4px">
-        <span class="hint">Min 10mm incl. 4-module quiet zone (GS1)</span>
-        <span class="hint" id="qrSizeVal" style="color:var(--violet)">20mm</span>
-      </div>
-    </div>
-    <div class="field">
-      <label>Error Correction</label>
-      <select id="qrEC">
-        <option value="L">Low (7%) — smallest QR</option>
-        <option value="M" selected>Medium (15%) — recommended</option>
-        <option value="Q">Quartile (25%) — logo-safe</option>
-        <option value="H">High (30%) — maximum resilience</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>QR Colour</label>
-      <div class="field-row">
-        <div class="field"><label>Foreground</label><input type="color" id="qrFg" value="#000000" style="height:34px;padding:2px" onchange="updateQRPreview()"></div>
-        <div class="field"><label>Background</label><input type="color" id="qrBg" value="#ffffff" style="height:34px;padding:2px" onchange="updateQRPreview()"></div>
-      </div>
-    </div>
-
-    <div style="padding:8px 10px;background:rgba(106,20,219,.06);border:1px solid rgba(106,20,219,.15);border-radius:6px;margin-bottom:16px">
-      <div style="font-size:9px;font-weight:800;color:var(--violet);letter-spacing:.04em;margin-bottom:2px">GS1 QR COMPLIANCE</div>
-      <div style="font-size:9px;color:var(--text3);line-height:1.5">4-module quiet zone included automatically. White border around QR is mandatory per ISO/IEC 18004 and GS1 Digital Link spec. Do not place design elements within the quiet zone boundary.</div>
-    </div>
-
-    <div class="divider"></div>
-    <div class="panel-title">GS1 Digital Link</div>
-    <div class="field">
-      <label>Brand Domain</label>
-      <input type="text" id="brandDomain" value="id.destore.network" placeholder="id.yourbrand.com">
-      <div class="hint">White-label domain for the resolver</div>
-    </div>
-    <div class="field">
-      <label>GTIN-14</label>
-      <input type="text" id="gtin" value="09501234567890" maxlength="14" placeholder="14-digit GTIN" style="font-family:var(--mono)">
-    </div>
-    <div class="field">
-      <label>Collection Contract</label>
-      <input type="text" id="contractAddr" value="0x7a3B...8f2C" placeholder="0x..." style="font-family:var(--mono);color:var(--green)">
-    </div>
-  </div>
-
-  <!-- ═══ CENTER: Canvas Preview ═══ -->
-  <div class="canvas-area" id="canvasArea">
-    <div class="canvas-toolbar">
-      <button class="active" onclick="setZoom(1,this)">100%</button>
-      <button onclick="setZoom(1.5,this)">150%</button>
-      <button onclick="setZoom(2,this)">200%</button>
-      <button onclick="setZoom(0.75,this)">75%</button>
-    </div>
-    <div class="canvas-wrap" id="canvasWrap" style="width:360px;height:200px">
-      <div class="canvas-empty" id="canvasEmpty">
-        <div class="ce-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
-        <p style="color:#999">Upload a template or start with a blank label</p>
-        <p style="color:#bbb;font-size:11px;margin-top:8px">90mm × 50mm · 300 DPI</p>
-      </div>
-      <img id="canvasTemplate" style="display:none;width:100%;height:100%;object-fit:contain;border-radius:4px" alt="Label template">
-      <!-- QR Overlay with GS1-compliant quiet zone -->
-      <div class="qr-overlay" id="qrOverlay" style="width:80px;height:80px;left:248px;top:32px">
-        <div class="qr-quiet-zone">
-          <div class="qr-border"></div>
-          <div class="qr-quiet-label">4-module quiet zone</div>
-          <div class="qr-inner" id="qrInner"></div>
-        </div>
-        <div class="qr-resize" id="qrResize"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ RIGHT PANEL: Print Run ═══ -->
-  <div class="panel">
-    <div class="panel-title">Print Run</div>
-
-    <div class="field">
-      <label>Collection</label>
-      <select id="collection">
-        <option>Summer Tee 2027 — Organic Cotton</option>
-        <option>Winter Jacket 2027 — Merino Blend</option>
-        <option>Face Serum — Natural Range</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Quantity</label>
-      <input type="number" id="quantity" value="50000" min="1" max="5000000" onchange="updateRun()">
-      <div class="hint">Max 5,000,000 per print run</div>
-    </div>
-
-    <div class="run-card">
-      <div class="rc-label">Labels</div>
-      <div class="rc-value" id="labelCount">50,000</div>
-      <div class="rc-sub">Unique GS1 QR codes per label</div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- QR Code Source -->
-    <div class="panel-title">Batch CSV Source</div>
-
-    <div class="format-opts" style="margin-bottom:12px">
-      <div class="format-opt active" onclick="setCsvSource(this,'csv')">
-        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-        <div class="fo-label">Import CSV</div>
-        <div class="fo-desc">From Batch Generation</div>
-      </div>
-      <div class="format-opt" onclick="setCsvSource(this,'manual')">
-        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
-        <div class="fo-label">Manual</div>
-        <div class="fo-desc">Enter details directly</div>
-      </div>
-    </div>
-
-    <!-- CSV import -->
-    <div id="csvSourceImport">
+      <!-- CSV import -->
       <div class="field">
-        <div class="upload-zone" id="csvUploadZone" onclick="document.getElementById('csvBatchFile').click()" style="padding:18px">
-          <div id="csvUploadPlaceholder">
-            <div class="uz-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-            <div class="uz-text">Upload Batch CSV</div>
-            <div class="uz-sub">Generated by the DPP Workflow · Batch Generation node</div>
+        <label>Batch CSV</label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('csvFile').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+          <input type="file" id="csvFile" accept=".csv" onchange="loadCSV(this.files[0])">
+          <div id="uzDefault">
+            <div class="uz-icon">📋</div>
+            <div class="uz-text">Drop CSV or click to browse</div>
+            <div class="uz-sub">From Batch Generation · digital_link_url + gtin14 columns</div>
           </div>
-          <div id="csvUploadDone" style="display:none;padding:14px">
-            <div style="color:var(--green);font-size:13px;font-weight:800;margin-bottom:4px">✓ CSV loaded</div>
-            <div class="uz-text" id="csvUploadInfo"></div>
+          <div id="uzLoaded" style="display:none;padding:14px">
+            <div style="font-size:11px;font-weight:900;color:var(--green);margin-bottom:4px">✓ CSV Loaded</div>
+            <div id="uzInfo" style="font-size:10px;color:var(--dim)"></div>
           </div>
-          <input type="file" id="csvBatchFile" accept=".csv,text/csv" style="display:none" onchange="handleCsvUpload(this)">
-        </div>
-        <div class="hint">Columns used: <code style="font-family:var(--mono);font-size:9px;color:var(--violet)">digital_link_url, gtin14, token_id, product_name, brand, carbon_kg, recycled_pct</code></div>
-      </div>
-      <div id="csvStats" style="display:none;background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:4px">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-          <div><div style="font-size:9px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.04em">Rows</div><div style="font-size:15px;font-weight:900;margin-top:2px" id="csvRowCount">—</div></div>
-          <div><div style="font-size:9px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.04em">Brand</div><div style="font-size:11px;font-weight:700;margin-top:4px;color:var(--violet)" id="csvBrand">—</div></div>
-          <div><div style="font-size:9px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:.04em">GTIN</div><div style="font-size:10px;font-weight:700;margin-top:4px;font-family:var(--mono);color:var(--green)" id="csvGtin">—</div></div>
         </div>
       </div>
-    </div>
 
-    <!-- Manual source -->
-    <div id="csvSourceManual" style="display:none">
-      <div class="field"><label>Brand</label><input type="text" id="manualBrand" placeholder="Your brand name"></div>
-      <div class="field"><label>Product Name</label><input type="text" id="manualProduct" placeholder="Product name"></div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- Export Format -->
-    <div class="panel-title">Export Format</div>
-    <div class="format-opts">
-      <div class="format-opt active" onclick="setFormat(this,'csv')">
-        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-        <div class="fo-label">CSV</div>
-        <div class="fo-desc">For VDP printers</div>
+      <!-- Label size -->
+      <div class="sect">
+        <div class="sect-label">🏷️ Label Size</div>
+        <div class="size-chips">
+          <button class="size-chip" onclick="setSize(50,25,this)">50×25mm</button>
+          <button class="size-chip active" onclick="setSize(100,50,this)">100×50mm</button>
+          <button class="size-chip" onclick="setSize(100,100,this)">100×100mm</button>
+          <button class="size-chip" onclick="setSize(70,30,this)">70×30mm</button>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Width (mm)</label><input type="number" id="labelW" value="100" min="20" max="300" oninput="updateLayout()"></div>
+          <div class="field"><label>Height (mm)</label><input type="number" id="labelH" value="50" min="10" max="300" oninput="updateLayout()"></div>
+        </div>
+        <div class="field"><label>Preview Scale</label>
+          <select id="previewScale" onchange="updateLayout()">
+            <option value="2">2× (small)</option>
+            <option value="3" selected>3× (medium)</option>
+            <option value="4">4× (large)</option>
+          </select>
+        </div>
+        <div class="field"><label>Labels per row</label>
+          <select id="perRow">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
       </div>
-      <div class="format-opt" onclick="setFormat(this,'pdf')">
-        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
-        <div class="fo-label">PDF</div>
-        <div class="fo-desc">Chunked files</div>
+
+      <!-- QR style -->
+      <div class="sect">
+        <div class="sect-label">◈ QR Code Style</div>
+        <div class="field">
+          <label>Dot Style</label>
+          <div class="dot-chips">
+            <button class="dot-chip active" onclick="setDotStyle('square',this)">Square</button>
+            <button class="dot-chip" onclick="setDotStyle('rounded',this)">Rounded</button>
+            <button class="dot-chip" onclick="setDotStyle('dots',this)">Circle</button>
+            <button class="dot-chip" onclick="setDotStyle('classy-rounded',this)">Diamond</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Foreground</label>
+          <div class="color-row">
+            <div class="color-swatch" id="fgSwatch" style="background:#000000" onclick="document.getElementById('fgPick').click()"></div>
+            <input type="color" id="fgPick" value="#000000" style="display:none" oninput="document.getElementById('fgHex').value=this.value;document.getElementById('fgSwatch').style.background=this.value">
+            <input type="text" id="fgHex" value="#000000" maxlength="7" oninput="syncColor('fg',this.value)">
+          </div>
+        </div>
+        <div class="field">
+          <label>Eye Colour</label>
+          <div class="color-row">
+            <div class="color-swatch" id="eyeSwatch" style="background:#000000" onclick="document.getElementById('eyePick').click()"></div>
+            <input type="color" id="eyePick" value="#000000" style="display:none" oninput="document.getElementById('eyeHex').value=this.value;document.getElementById('eyeSwatch').style.background=this.value">
+            <input type="text" id="eyeHex" value="#000000" maxlength="7" oninput="syncColor('eye',this.value)">
+          </div>
+        </div>
+        <div class="field">
+          <label>QR Size (% of label width)</label>
+          <input type="range" id="qrPct" min="30" max="90" value="60" oninput="document.getElementById('qrPctVal').textContent=this.value+'%';updateLayout()" style="width:100%;accent-color:var(--green)">
+          <div style="font-size:10px;color:var(--green);font-weight:800;margin-top:3px" id="qrPctVal">60%</div>
+        </div>
       </div>
-      <div class="format-opt" onclick="setFormat(this,'zpl')">
-        <div class="fo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg></div>
-        <div class="fo-label">ZPL</div>
-        <div class="fo-desc">Zebra printers</div>
+
+      <!-- Barcode -->
+      <div class="sect">
+        <div class="sect-label">▐ GS1-128 Barcode</div>
+        <div class="toggle-row" style="border:none;padding:8px 0">
+          <div class="toggle-left">
+            <div class="tl-label">Show 1D Barcode</div>
+            <div class="tl-desc">Renders GS1-128 below the QR using gtin14 column</div>
+          </div>
+          <div class="toggle-sw" id="barcodeToggle" onclick="this.classList.toggle('on');updateLayout()"></div>
+        </div>
+      </div>
+
+      <!-- Show limit -->
+      <div class="sect">
+        <div class="sect-label">⚡ Performance</div>
+        <div class="field">
+          <label>Render limit (labels shown)</label>
+          <select id="renderLimit" onchange="renderLabels()">
+            <option value="25">25 labels</option>
+            <option value="50" selected>50 labels</option>
+            <option value="100">100 labels</option>
+            <option value="250">250 labels</option>
+            <option value="999999">All</option>
+          </select>
+          <div class="hint">QR generation is CPU-intensive. Limit preview for large batches.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CENTRE: Label canvas -->
+  <div class="canvas-area">
+    <div class="canvas-toolbar">
+      <button class="ct-btn active" id="viewBtn" onclick="setView('grid',this)">Grid View</button>
+      <button class="ct-btn" id="singleBtn" onclick="setView('single',this)">Single</button>
+      <div class="ct-sep"></div>
+      <button class="ct-btn" onclick="prevPage()" id="prevBtn" disabled>← Prev</button>
+      <span style="font-size:10px;color:var(--dim);font-weight:700" id="pageInfo">—</span>
+      <button class="ct-btn" onclick="nextPage()" id="nextBtn" disabled>Next →</button>
+      <div class="ct-sep"></div>
+      <button class="ct-btn" onclick="window.print()">🖨 Print</button>
+      <span class="ct-info" id="ctInfo">Load a CSV to begin</span>
+    </div>
+
+    <div class="canvas-scroll" id="canvasScroll">
+      <div class="empty-state">
+        <div class="es-icon">◈</div>
+        <div class="es-title">No labels yet</div>
+        <div class="es-sub">Import a CSV from Batch Generation.<br>Each row becomes a label with its own QR code.</div>
       </div>
     </div>
 
-    <div class="field" id="chunkField" style="display:none">
-      <label>Pages per PDF chunk</label>
-      <select id="chunkSize">
-        <option value="1000">1,000</option>
-        <option value="5000">5,000</option>
-        <option value="10000" selected>10,000</option>
-        <option value="25000">25,000</option>
-      </select>
-      <div class="hint" id="chunkCount">5 PDF files</div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div style="padding:10px 12px;background:rgba(40,183,157,.08);border:1px solid rgba(40,183,157,.2);border-radius:8px;margin-bottom:16px">
-      <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:2px">Ready to generate</div>
-      <div style="font-size:10px;color:var(--text3);line-height:1.5">Up to 500 labels generate instantly in-browser. Larger runs generate in chunks — download each PDF as it completes.</div>
-    </div>
-
-    <!-- Save Template -->
-    <button class="btn btn-secondary" id="btnSave" onclick="saveTemplate()" style="margin-bottom:8px">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-      Save Template
-    </button>
-    <button class="btn btn-secondary" id="btnPreview" onclick="generatePDF(true)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      Preview (5 labels)
-    </button>
-    <button class="btn btn-primary" id="btnGenerate" onclick="generatePDF(false)" style="margin-top:8px">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Generate &amp; Download PDF
-    </button>
-
-    <div class="progress-wrap" id="progressWrap" style="display:none">
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-text">
-        <span id="progressLabel">Saving template...</span>
-        <span id="progressPct">0%</span>
+    <!-- Generation progress overlay -->
+    <div class="gen-overlay" id="genOverlay">
+      <div class="go-title">Generating QR Codes</div>
+      <div class="go-sub" id="goSub">Building labels…</div>
+      <div class="gen-bar-wrap"><div class="gen-bar-fill" id="genBarFill"></div></div>
+      <div class="gen-stats-row">
+        <div class="gen-stat"><div class="gv" id="goCount">0</div><div class="gl">Generated</div></div>
+        <div class="gen-stat"><div class="gv" id="goTotal">—</div><div class="gl">Total</div></div>
+        <div class="gen-stat"><div class="gv" id="goEta">—</div><div class="gl">Remaining</div></div>
       </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Stats + export -->
+  <div class="panel">
+    <div class="panel-head"><div class="panel-title">Print Run</div></div>
+    <div class="panel-body">
+
+      <div class="stat-card"><div class="sv" id="statTotal">0</div><div class="sl">Total Labels</div></div>
+      <div class="stat-card"><div class="sv" id="statRendered">0</div><div class="sl">Rendered</div></div>
+      <div class="stat-card"><div class="sv" id="statBatch">—</div><div class="sl">Batch ID</div></div>
+      <div class="stat-card"><div class="sv" id="statGtin">—</div><div class="sl">GTIN-14</div></div>
+
+      <div class="sect" style="margin-top:16px">
+        <div class="sect-label">Export</div>
+        <button class="btn btn-green" id="btnGenerate" onclick="generateAll()" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Generate All Labels
+        </button>
+        <button class="btn btn-violet" onclick="window.print()" id="btnPrint" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print Labels
+        </button>
+        <button class="btn btn-ghost" onclick="exportPNG()" id="btnPNG" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export First Label PNG
+        </button>
+      </div>
+
+      <div class="sect">
+        <div class="sect-label">Selected Label</div>
+        <div style="font-size:11px;color:var(--muted);font-style:italic" id="selectedInfo">Click a label to inspect</div>
+        <div id="selectedDetail" style="display:none;margin-top:8px">
+          <div style="font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:6px">Digital Link</div>
+          <div id="selLink" style="font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--dim);word-break:break-all;line-height:1.6"></div>
+          <div style="font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:8px 0 4px">GTIN-14</div>
+          <div id="selGtin" style="font-size:12px;font-family:'JetBrains Mono',monospace;color:#e8e8f0;font-weight:700"></div>
+          <div style="font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:8px 0 4px">Token ID</div>
+          <div id="selToken" style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--green);font-weight:700"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -410,434 +376,318 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--dark1);color:va
 window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
 (function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
 
-// ── State ──
-let labelW=90, labelH=50, currentZoom=1, exportFormat='pdf';
-let csvRows = []; // parsed rows from batch CSV
-let csvMeta = {}; // extracted metadata
-const PX_PER_MM = 4;
+// ── State ───────────────────────────────────────────────────────
+let csvRows = [];       // parsed CSV rows
+let labelDivs = [];     // rendered label DOM nodes (one per row)
+let currentPage = 0;
+let viewMode = 'grid';  // 'grid' | 'single'
+let dotStyle = 'square';
+let labelW = 100, labelH = 50; // mm
+let scale = 3;          // px per mm
+let perRow = 2;
+let isGenerating = false;
+let selectedIdx = -1;
 
-// ── CSV Source toggle ──
-let csvSourceMode = 'csv';
-function setCsvSource(el, mode){
-  document.querySelectorAll('.format-opts')[0].querySelectorAll('.format-opt').forEach(o=>o.classList.remove('active'));
-  el.classList.add('active');
-  csvSourceMode = mode;
-  document.getElementById('csvSourceImport').style.display = mode==='csv'   ? 'block' : 'none';
-  document.getElementById('csvSourceManual').style.display = mode==='manual'? 'block' : 'none';
+// ── CSV parsing ──────────────────────────────────────────────────
+function parseCSV(text){
+  const lines = text.split('\n').filter(l => l.trim() && !l.startsWith('#'));
+  if(!lines.length) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
+  const rows = [];
+  for(let i=1;i<lines.length;i++){
+    const cols = splitCSVLine(lines[i]);
+    if(cols.length < 2) continue;
+    const row = {};
+    headers.forEach((h,j) => row[h] = (cols[j]||'').replace(/^"|"$/g,'').trim());
+    if(row.digital_link_url || row.gs1digitallink) rows.push(row);
+  }
+  return rows;
 }
 
-// ── CSV Upload & Parse ──
-function handleCsvUpload(input){
-  const file = input.files[0];
+function splitCSVLine(line){
+  const result=[], re=/("(?:[^"]|"")*"|[^,]*)/g;
+  let m;
+  while((m=re.exec(line))!==null){
+    if(m.index===re.lastIndex){re.lastIndex++;continue;}
+    result.push(m[1]);
+  }
+  return result;
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(file && file.name.endsWith('.csv')) loadCSV(file);
+}
+
+function loadCSV(file){
   if(!file) return;
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    comments: '#',
-    complete: function(results){
-      csvRows = results.data.filter(r => r.digital_link_url && r.digital_link_url.startsWith('http'));
-      if(!csvRows.length){ alert('No valid rows found. Make sure the CSV has a digital_link_url column.'); return; }
-
-      // Extract metadata from first row
-      const first = csvRows[0];
-      csvMeta = {
-        brand:    first.brand        || '',
-        product:  first.product_name || '',
-        gtin:     first.gtin14       || '',
-        carbon:   first.carbon_kg    || '',
-        recycled: first.recycled_pct || '',
-        batchId:  first.batch_id     || '',
-      };
-
-      // Pre-fill fields from CSV metadata
-      if(csvMeta.gtin)   document.getElementById('gtin').value   = csvMeta.gtin;
-      if(csvMeta.brand){
-        const slug = csvMeta.brand.toLowerCase().replace(/\s+/g,'-');
-        document.getElementById('brandDomain').value = slug+'.destore.network';
-      }
-
-      // Update quantity to match CSV
-      document.getElementById('quantity').value = csvRows.length;
-      updateRun();
-
-      // Show stats
-      document.getElementById('csvUploadPlaceholder').style.display='none';
-      document.getElementById('csvUploadDone').style.display='block';
-      document.getElementById('csvUploadInfo').textContent = `${csvRows.length.toLocaleString()} labels · ${csvMeta.product||'Product'} · ${csvMeta.brand||'Brand'}`;
-      document.getElementById('csvStats').style.display='block';
-      document.getElementById('csvRowCount').textContent = csvRows.length.toLocaleString();
-      document.getElementById('csvBrand').textContent   = csvMeta.brand || '—';
-      document.getElementById('csvGtin').textContent    = csvMeta.gtin  || '—';
-    },
-    error: function(e){ alert('CSV parse error: '+e.message); }
-  });
-}
-
-// ── Template Upload ──
-function loadTemplate(input){
-  const file=input.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const img=document.getElementById('canvasTemplate');
-    img.src=e.target.result; img.style.display='block';
-    document.getElementById('canvasEmpty').style.display='none';
-    const prev=document.getElementById('templatePreview');
-    prev.src=e.target.result; prev.style.display='block';
-    document.getElementById('uploadPlaceholder').style.display='none';
-    document.getElementById('uploadZone').classList.add('has-file');
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    csvRows = parseCSV(text);
+    if(!csvRows.length){ alert('No valid rows found. Make sure the CSV has a digital_link_url column.'); return; }
+    onCSVLoaded(file.name);
   };
-  reader.readAsDataURL(file);
+  reader.readAsText(file);
 }
 
-// ── Label Size ──
-function setLabelSize(el){
-  document.querySelectorAll('.size-preset').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  const w=parseInt(el.dataset.w), h=parseInt(el.dataset.h);
-  if(w===0){ document.getElementById('customSizeRow').style.display='grid'; return; }
-  document.getElementById('customSizeRow').style.display='none';
-  labelW=w; labelH=h;
-  document.getElementById('labelW').value=w;
-  document.getElementById('labelH').value=h;
-  updateCanvas();
-}
-function updateCanvas(){
-  labelW=parseInt(document.getElementById('labelW').value)||90;
-  labelH=parseInt(document.getElementById('labelH').value)||50;
-  const wrap=document.getElementById('canvasWrap');
-  wrap.style.width=(labelW*PX_PER_MM*currentZoom)+'px';
-  wrap.style.height=(labelH*PX_PER_MM*currentZoom)+'px';
-  const empty=document.getElementById('canvasEmpty');
-  if(empty.style.display!=='none') empty.querySelector('p:last-child').textContent=`${labelW}mm × ${labelH}mm · 300 DPI`;
-}
-function setZoom(z,btn){
-  currentZoom=z;
-  document.querySelectorAll('.canvas-toolbar button').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); updateCanvas();
+function onCSVLoaded(filename){
+  // Update UI
+  document.getElementById('uploadZone').classList.add('loaded');
+  document.getElementById('uzDefault').style.display='none';
+  document.getElementById('uzLoaded').style.display='block';
+  const batch = csvRows[0]?.batch_id || '—';
+  const gtin  = csvRows[0]?.gtin14   || csvRows[0]?.gtin  || '—';
+  document.getElementById('uzInfo').textContent = `${csvRows.length.toLocaleString()} labels · ${filename}`;
+  document.getElementById('navBadge').textContent = csvRows.length.toLocaleString()+' labels';
+  document.getElementById('statTotal').textContent = csvRows.length.toLocaleString();
+  document.getElementById('statBatch').textContent = batch.slice(0,14)+(batch.length>14?'…':'');
+  document.getElementById('statGtin').textContent  = gtin;
+  document.getElementById('btnGenerate').disabled = false;
+  document.getElementById('btnPrint').disabled = false;
+  document.getElementById('btnPNG').disabled = false;
+  renderLabels();
 }
 
-// ── QR Drag + Resize ──
-const qrOverlay=document.getElementById('qrOverlay');
-const qrResize=document.getElementById('qrResize');
-let dragging=false,resizing=false,dragStart={x:0,y:0},origPos={x:0,y:0},origSize=0;
-qrOverlay.addEventListener('mousedown',function(e){ if(e.target===qrResize)return; dragging=true; dragStart={x:e.clientX,y:e.clientY}; origPos={x:qrOverlay.offsetLeft,y:qrOverlay.offsetTop}; e.preventDefault(); });
-qrResize.addEventListener('mousedown',function(e){ resizing=true; dragStart={x:e.clientX,y:e.clientY}; origSize=qrOverlay.offsetWidth; e.preventDefault(); });
-document.addEventListener('mousemove',function(e){
-  if(dragging){ const dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y; qrOverlay.style.left=(origPos.x+dx)+'px'; qrOverlay.style.top=(origPos.y+dy)+'px'; syncQRToInputs(); }
-  if(resizing){ const newSize=Math.max(30,origSize+(e.clientX-dragStart.x)); qrOverlay.style.width=newSize+'px'; qrOverlay.style.height=newSize+'px'; syncQRToInputs(); }
-});
-document.addEventListener('mouseup',function(){dragging=false;resizing=false});
-function syncQRToInputs(){
-  const scale=PX_PER_MM*currentZoom;
-  document.getElementById('qrX').value=Math.round(qrOverlay.offsetLeft/scale);
-  document.getElementById('qrY').value=Math.round(qrOverlay.offsetTop/scale);
-  const s=Math.round(qrOverlay.offsetWidth/scale);
-  document.getElementById('qrSize').value=s; document.getElementById('qrSizeVal').textContent=s+'mm';
-}
-function updateQRFromInputs(){
-  const scale=PX_PER_MM*currentZoom;
-  qrOverlay.style.left=(parseInt(document.getElementById('qrX').value)||0)*scale+'px';
-  qrOverlay.style.top=(parseInt(document.getElementById('qrY').value)||0)*scale+'px';
-  const s=(parseInt(document.getElementById('qrSize').value)||20)*scale;
-  qrOverlay.style.width=s+'px'; qrOverlay.style.height=s+'px';
-}
+// ── Label rendering ───────────────────────────────────────────────
+const CHUNK = 10; // render N labels per animation frame
 
-// ── QR Preview ──
-function updateQRPreview(){
-  const fg=document.getElementById('qrFg').value, bg=document.getElementById('qrBg').value;
-  const inner=document.getElementById('qrInner');
-  const modules=21,quiet=4,total=modules+quiet*2,px=100/total;
-  let svg=`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="${bg}"/>`;
-  const fp=[[0,0],[14,0],[0,14]];
-  fp.forEach(([fx,fy])=>{
-    const ox=(fx+quiet)*px,oy=(fy+quiet)*px;
-    svg+=`<rect x="${ox}" y="${oy}" width="${7*px}" height="${7*px}" fill="${fg}"/>`;
-    svg+=`<rect x="${ox+px}" y="${oy+px}" width="${5*px}" height="${5*px}" fill="${bg}"/>`;
-    svg+=`<rect x="${ox+2*px}" y="${oy+2*px}" width="${3*px}" height="${3*px}" fill="${fg}"/>`;
-  });
-  for(let i=8;i<13;i++){ if(i%2===0){ svg+=`<rect x="${(i+quiet)*px}" y="${(6+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/><rect x="${(6+quiet)*px}" y="${(i+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/>`; } }
-  for(let r=0;r<modules;r++) for(let c=0;c<modules;c++){
-    if((r<7&&c<7)||(r<7&&c>13)||(r>13&&c<7)||r===6||c===6||(r>=14&&r<=18&&c>=14&&c<=18)) continue;
-    if(Math.random()>.5) svg+=`<rect x="${(c+quiet)*px}" y="${(r+quiet)*px}" width="${px}" height="${px}" fill="${fg}"/>`;
-  }
-  svg+='</svg>'; inner.innerHTML=svg;
-}
-updateQRPreview();
+async function renderLabels(){
+  if(!csvRows.length) return;
+  const limit = parseInt(document.getElementById('renderLimit').value);
+  const rows  = csvRows.slice(0, limit);
+  scale   = parseInt(document.getElementById('previewScale').value);
+  perRow  = parseInt(document.getElementById('perRow').value);
+  labelW  = parseInt(document.getElementById('labelW').value)||100;
+  labelH  = parseInt(document.getElementById('labelH').value)||50;
 
-// ── Counts ──
-function updateRun(){
-  const qty=parseInt(document.getElementById('quantity').value)||0;
-  document.getElementById('labelCount').textContent=qty.toLocaleString();
-  if(exportFormat==='pdf'){
-    const chunk=parseInt(document.getElementById('chunkSize').value);
-    document.getElementById('chunkCount').textContent=Math.ceil(qty/chunk)+' PDF files';
-  }
-}
-updateRun();
+  const pxW = labelW * scale;
+  const pxH = labelH * scale;
+  const qrPct = parseInt(document.getElementById('qrPct').value)/100;
+  const qrPx  = Math.round(pxW * qrPct);
+  const fgColor  = document.getElementById('fgHex').value||'#000000';
+  const eyeColor = document.getElementById('eyeHex').value||'#000000';
+  const showBarcode = document.getElementById('barcodeToggle').classList.contains('on');
 
-// ── Export Format ──
-function setFormat(el,fmt){
-  document.querySelectorAll('.format-opts').forEach(g=>g.querySelectorAll('.format-opt').forEach(o=>o.classList.remove('active')));
-  el.classList.add('active');
-  exportFormat=fmt;
-  document.getElementById('chunkField').style.display=fmt==='pdf'?'block':'none';
-  updateRun();
-}
+  // Show overlay
+  const overlay = document.getElementById('genOverlay');
+  overlay.classList.add('show');
+  document.getElementById('goTotal').textContent = rows.length;
+  document.getElementById('ctInfo').textContent = 'Generating…';
 
-// ── Save Template to localStorage ──
-function saveTemplate(){
-  const btn=document.getElementById('btnSave');
-  const config={labelW,labelH,
-    qrX:parseInt(document.getElementById('qrX').value)||0,
-    qrY:parseInt(document.getElementById('qrY').value)||0,
-    qrSize:parseInt(document.getElementById('qrSize').value)||20,
-    qrEC:document.getElementById('qrEC').value,
-    qrFg:document.getElementById('qrFg').value,
-    qrBg:document.getElementById('qrBg').value,
-    domain:document.getElementById('brandDomain').value,
-    gtin:document.getElementById('gtin').value,
-    savedAt:new Date().toISOString()
-  };
-  localStorage.setItem('ds-label-template',JSON.stringify(config));
-  btn.textContent='✓ Saved'; btn.style.color='var(--green)'; btn.style.borderColor='var(--green)';
-  setTimeout(()=>{ btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Template'; btn.style.color=''; btn.style.borderColor=''; },2000);
-}
+  // Build grid container
+  const grid = document.createElement('div');
+  grid.className = 'label-grid';
+  grid.style.gridTemplateColumns = `repeat(${perRow}, ${pxW}px)`;
+  labelDivs = [];
 
-// ── Load saved template on startup ──
-(function(){
-  try{
-    const s=JSON.parse(localStorage.getItem('ds-label-template')||'null'); if(!s)return;
-    labelW=s.labelW||90; labelH=s.labelH||50;
-    ['domain','gtin'].forEach(k=>{ if(s[k]) document.getElementById(k==='domain'?'brandDomain':'gtin').value=s[k]; });
-    if(s.qrFg) document.getElementById('qrFg').value=s.qrFg;
-    if(s.qrBg) document.getElementById('qrBg').value=s.qrBg;
-    if(s.qrEC) document.getElementById('qrEC').value=s.qrEC;
-    if(s.qrSize){document.getElementById('qrSize').value=s.qrSize;document.getElementById('qrSizeVal').textContent=s.qrSize+'mm';}
-    if(s.qrX!==undefined) document.getElementById('qrX').value=s.qrX;
-    if(s.qrY!==undefined) document.getElementById('qrY').value=s.qrY;
-    updateCanvas(); updateQRFromInputs();
-  }catch(e){}
-})();
+  for(let i=0; i<rows.length; i++){
+    const row = rows[i];
+    const url = row.digital_link_url || row.gs1digitallink || row.link || '';
+    const gtin14 = row.gtin14 || row.gtin || '';
+    const tokenId = row.token_id || row.tokenid || (i+1);
 
-// ── Generate QR as data URL ──
-async function makeQRDataURL(text,size,fg,bg,ec){
-  return new Promise((resolve,reject)=>{
-    if(typeof QRCode==='undefined'){reject(new Error('QRCode not loaded'));return;}
-    QRCode.toDataURL(text,{width:size,margin:0,color:{dark:fg||'#000000',light:bg||'#ffffff'},errorCorrectionLevel:ec||'M'},(err,url)=>err?reject(err):resolve(url));
-  });
-}
+    // Label card
+    const card = document.createElement('div');
+    card.className = 'label-card';
+    card.style.width  = pxW+'px';
+    card.style.height = pxH+'px';
+    card.dataset.idx  = i;
+    card.onclick = () => selectLabel(i, url, gtin14, tokenId);
 
-// ── Get jsPDF safely ──
-function getJsPDF(){
-  if(window.jspdf && window.jspdf.jsPDF) return window.jspdf.jsPDF;
-  if(typeof jsPDF !== 'undefined') return jsPDF;
-  if(window.jsPDF) return window.jsPDF;
-  return null;
-}
+    const inner = document.createElement('div');
+    inner.className = 'label-inner';
 
-// ── Generate PDF ──
-async function generatePDF(previewOnly){
-  const JsPDF = getJsPDF();
-  if(!JsPDF){ alert('PDF library is still loading — please wait a moment and try again.'); return; }
+    // QR slot
+    const qrSlot = document.createElement('div');
+    qrSlot.className = 'label-qr-slot';
+    qrSlot.style.width  = qrPx+'px';
+    qrSlot.style.height = qrPx+'px';
+    inner.appendChild(qrSlot);
 
-  const qrFg     = document.getElementById('qrFg').value  || '#000000';
-  const qrBg     = document.getElementById('qrBg').value  || '#ffffff';
-  const qrEC     = document.getElementById('qrEC').value  || 'M';
-  const qrSizeMM = parseInt(document.getElementById('qrSize').value) || 20;
-  const qrXmm    = parseInt(document.getElementById('qrX').value)    || 5;
-  const qrYmm    = parseInt(document.getElementById('qrY').value)    || 5;
-  const domain   = document.getElementById('brandDomain').value || 'id.destore.network';
-  const baseGtin = document.getElementById('gtin').value || '09501234567890';
-
-  const tmplImg  = document.getElementById('canvasTemplate');
-  const hasTmpl  = tmplImg && tmplImg.style.display !== 'none' && tmplImg.src && tmplImg.src !== window.location.href;
-
-  // Determine data source
-  let data = []; // array of {url, gtin14, token_id, product_name, brand, gtin, carbon_kg, recycled_pct, batch_id}
-  if(csvRows.length > 0 && csvSourceMode === 'csv'){
-    data = csvRows.map(r=>({
-      url:      r.digital_link_url,
-      gtin14:   r.gtin14        || baseGtin,
-      tokenId:  r.token_id      || '?',
-      product:  r.product_name  || '',
-      brand:    r.brand         || '',
-      carbon:   r.carbon_kg     || '',
-      recycled: r.recycled_pct  || '',
-      batchId:  r.batch_id      || '',
-      // Use embedded QR image from CSV if present and it's a data URL
-      qrImage:  (r.qr_image && r.qr_image.startsWith('data:')) ? r.qr_image : null,
-    }));
-  } else {
-    // Manual / generate sequential
-    const brand   = document.getElementById('manualBrand')?.value   || csvMeta.brand   || 'DeStore';
-    const product = document.getElementById('manualProduct')?.value || csvMeta.product || 'Product';
-    const qty     = parseInt(document.getElementById('quantity').value) || 10;
-    for(let i=0; i<qty; i++){
-      const tid = i+1;
-      const ai90 = [...crypto.getRandomValues(new Uint8Array(10))].map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,20);
-      data.push({ url:`https://${domain}/01/${baseGtin}/21/${tid}?90=${ai90}`, gtin14:baseGtin, tokenId:tid, product, brand, carbon:'', recycled:'', batchId:'MANUAL', chain:'' });
-    }
-  }
-
-  const totalQty = previewOnly ? Math.min(5, data.length) : data.length;
-  if(totalQty === 0){ alert('No data to generate. Import a CSV or enter details manually.'); return; }
-
-  const chunkSz = exportFormat==='pdf' ? (parseInt(document.getElementById('chunkSize').value)||10000) : totalQty;
-  const totalChunks = Math.ceil(totalQty/chunkSz);
-  const pxPerMM = 3.7795;
-
-  // Lock buttons
-  const btnGen = document.getElementById('btnGenerate');
-  const btnPrv = document.getElementById('btnPreview');
-  if(btnGen){ btnGen.disabled=true; btnGen.textContent='Generating…'; }
-  if(btnPrv){ btnPrv.disabled=true; }
-  setProgress(0, previewOnly?'Generating preview…':'Starting PDF generation…');
-
-  for(let chunk=0; chunk<totalChunks; chunk++){
-    const startIdx = chunk*chunkSz;
-    const endIdx   = Math.min(startIdx+chunkSz, totalQty);
-
-    const doc = new JsPDF({ orientation:labelW>labelH?'landscape':'portrait', unit:'mm', format:[labelW,labelH] });
-
-    for(let i=startIdx; i<endIdx; i++){
-      const row = data[i];
-      if(i > startIdx) doc.addPage([labelW,labelH], labelW>labelH?'landscape':'portrait');
-
-      // ── Background ──
-      if(hasTmpl){
-        try{ doc.addImage(tmplImg.src,'JPEG',0,0,labelW,labelH); }catch(e){}
-      } else {
-        doc.setFillColor(255,255,255);
-        doc.rect(0,0,labelW,labelH,'F');
-        doc.setDrawColor(210,210,210);
-        doc.setLineWidth(0.25);
-        doc.rect(0.5,0.5,labelW-1,labelH-1);
-      }
-
-      // ── QR Code — use pre-generated image from CSV if present, else generate ──
-      const qrPx = Math.round(qrSizeMM * pxPerMM * 2);
+    // Barcode slot (always create, show/hide based on toggle)
+    if(showBarcode && gtin14){
+      const bcSlot = document.createElement('div');
+      bcSlot.className = 'label-barcode-slot';
+      const maxBcW = Math.round(pxW * 0.88);
+      const bcH    = Math.max(14, Math.round(pxH * 0.22));
+      const svg    = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.style.width  = maxBcW+'px';
+      svg.style.height = bcH+'px';
       try{
-        const qrURL = row.qrImage || await makeQRDataURL(row.url, qrPx, qrFg, qrBg, qrEC);
-        const quietMM = qrSizeMM * 0.138;
-        doc.addImage(qrURL, 'PNG', qrXmm-quietMM, qrYmm-quietMM, qrSizeMM+quietMM*2, qrSizeMM+quietMM*2);
-      }catch(e){ console.warn('QR error row', i, e); }
-
-      // ── DPP Text block (to the right of the QR) ──
-      const textX = qrXmm + qrSizeMM + 4;
-      const textW = labelW - textX - 3;
-      let   ty    = qrYmm + 1;
-
-      // DeStore verified badge line
-      doc.setFontSize(5.5);
-      doc.setTextColor(40,183,157);
-      doc.setFont('helvetica','bold');
-      doc.text('◈ DESTORE VERIFIED DPP', textX, ty);
-      ty += 4;
-
-      // Product name
-      if(row.product){
-        doc.setFontSize(8);
-        doc.setTextColor(20,20,24);
-        doc.setFont('helvetica','bold');
-        const nameLines = doc.splitTextToSize(row.product, textW);
-        doc.text(nameLines.slice(0,2), textX, ty);
-        ty += nameLines.slice(0,2).length * 4;
-      }
-
-      // Brand
-      if(row.brand){
-        doc.setFontSize(6);
-        doc.setTextColor(100,100,120);
-        doc.setFont('helvetica','normal');
-        doc.text(row.brand, textX, ty);
-        ty += 3.5;
-      }
-
-      ty += 1; // spacer
-
-      // GTIN
-      doc.setFontSize(5);
-      doc.setTextColor(120,120,140);
-      doc.setFont('helvetica','normal');
-      doc.text(`GTIN  (01)${row.gtin14}`, textX, ty);
-      ty += 3.2;
-
-      // Token ID
-      doc.text(`Token  #${String(row.tokenId).padStart(8,'0')}`, textX, ty);
-      ty += 3.2;
-
-      // Batch ID
-      if(row.batchId){
-        doc.text(`Batch  ${row.batchId}`, textX, ty);
-        ty += 3.2;
-      }
-
-      // Carbon + Recycled
-      if(row.carbon || row.recycled){
-        ty += 1;
-        doc.setFontSize(5);
-        doc.setTextColor(40,183,157);
-        doc.setFont('helvetica','bold');
-        const ecoLine = [row.carbon?`CO₂ ${row.carbon}kg`:'', row.recycled&&parseInt(row.recycled)>0?`${row.recycled}% recycled`:''].filter(Boolean).join('  ·  ');
-        if(ecoLine) doc.text(ecoLine, textX, ty);
-        ty += 3;
-      }
-
-      // Chain
-      if(row.chain){
-        doc.setFontSize(4.5);
-        doc.setTextColor(150,100,220);
-        doc.setFont('helvetica','normal');
-        doc.text(`On-chain: ${row.chain}`, textX, ty);
-      }
-
-      // ── GS1-128 barcode strip at bottom ──
-      const barcodeY = labelH - 7;
-      doc.setFontSize(4);
-      doc.setTextColor(160,160,160);
-      doc.setFont('helvetica','normal');
-      doc.text(`(01)${row.gtin14}`, labelW/2, barcodeY+4.5, {align:'center'});
-      // Simplified barcode visual (real barcode would need canvas → dataURL)
-      doc.setDrawColor(0,0,0);
-      doc.setLineWidth(0.3);
-      const barW=labelW-16, barX=8, barH=3.5;
-      for(let b=0; b<80; b++){
-        const bx = barX + (b/80)*barW;
-        if(Math.random()>0.5){ doc.setLineWidth(b%3===0?0.5:0.25); doc.line(bx,barcodeY,bx,barcodeY+barH); }
-      }
-
-      // Progress
-      const pct = Math.round(((i+1)/totalQty)*100);
-      setProgress(pct, `Label ${(i+1).toLocaleString()} of ${totalQty.toLocaleString()}…`);
-      if(i%50===49) await new Promise(r=>setTimeout(r,0));
+        JsBarcode(svg, '01'+gtin14, {
+          format:'CODE128', lineColor:'#000000', background:'#ffffff',
+          width:1.2, height:bcH*0.8, displayValue:false, margin:2
+        });
+      }catch(e){ svg.style.display='none'; }
+      const lbl = document.createElement('div');
+      lbl.className = 'label-barcode-num';
+      lbl.textContent = '(01)'+gtin14;
+      bcSlot.appendChild(svg);
+      bcSlot.appendChild(lbl);
+      inner.appendChild(bcSlot);
     }
 
-    const suffix  = totalChunks>1 ? `-part${chunk+1}of${totalChunks}` : '';
-    const preview = previewOnly   ? '-PREVIEW' : '';
-    doc.save(`DeStore-Labels-${baseGtin}${preview}${suffix}.pdf`);
-    setProgress(Math.round(((chunk+1)/totalChunks)*100), totalChunks>1?`Downloaded chunk ${chunk+1} of ${totalChunks}`:'Done!');
-    await new Promise(r=>setTimeout(r,200));
+    // Token / index labels
+    const idxEl = document.createElement('div');
+    idxEl.className = 'label-index';
+    idxEl.textContent = '#'+(i+1);
+    inner.appendChild(idxEl);
+
+    if(tokenId){
+      const tokEl = document.createElement('div');
+      tokEl.className = 'label-token';
+      tokEl.textContent = 'TK'+String(tokenId).padStart(4,'0');
+      inner.appendChild(tokEl);
+    }
+
+    card.appendChild(inner);
+    grid.appendChild(card);
+    labelDivs.push({ card, qrSlot, url, gtin14, tokenId });
+
+    // Update progress every chunk
+    if(i % CHUNK === CHUNK-1 || i === rows.length-1){
+      const pct = Math.round(((i+1)/rows.length)*100);
+      document.getElementById('genBarFill').style.width = (pct/2)+'%'; // first half: DOM build
+      document.getElementById('goCount').textContent = i+1;
+      document.getElementById('goEta').textContent = i < rows.length-1 ? Math.ceil((rows.length-i-1)/CHUNK*0.016)+'s' : '✓';
+      document.getElementById('goSub').textContent = 'Building label templates…';
+      await new Promise(r=>setTimeout(r,0));
+    }
   }
 
-  setProgress(100, previewOnly?'✓ Preview ready':'✓ All labels generated');
-  setTimeout(()=>{
-    document.getElementById('progressWrap').style.display='none';
-    if(btnGen){ btnGen.disabled=false; btnGen.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Generate &amp; Download PDF'; }
-    if(btnPrv){ btnPrv.disabled=false; }
-  },2500);
+  // Swap into DOM
+  const scroll = document.getElementById('canvasScroll');
+  scroll.innerHTML = '';
+  scroll.appendChild(grid);
+
+  // Now generate QR codes in chunks
+  document.getElementById('goSub').textContent = 'Rendering QR codes…';
+  for(let i=0; i<labelDivs.length; i++){
+    const { qrSlot, url } = labelDivs[i];
+    if(!url){ i++; continue; }
+    qrSlot.innerHTML='';
+    try{
+      new QRCodeStyling({
+        width: qrPx, height: qrPx,
+        data: url,
+        margin: Math.max(4, Math.round(qrPx*0.06)),
+        dotsOptions:         { color: fgColor,  type: dotStyle },
+        backgroundOptions:   { color: '#ffffff' },
+        cornersSquareOptions:{ color: eyeColor, type: 'square' },
+        qrOptions:           { errorCorrectionLevel: 'H' }
+      }).append(qrSlot);
+    }catch(e){ qrSlot.innerHTML='<div style="font-size:8px;color:#999;text-align:center;padding:4px">QR error</div>'; }
+
+    if(i % CHUNK === CHUNK-1 || i === labelDivs.length-1){
+      const pct = 50 + Math.round(((i+1)/labelDivs.length)*50);
+      document.getElementById('genBarFill').style.width = pct+'%';
+      document.getElementById('goCount').textContent = i+1;
+      document.getElementById('goSub').textContent = `QR codes: ${i+1} / ${labelDivs.length}`;
+      await new Promise(r=>setTimeout(r,0));
+    }
+  }
+
+  // Done
+  overlay.classList.remove('show');
+  document.getElementById('statRendered').textContent = labelDivs.length.toLocaleString();
+  document.getElementById('ctInfo').textContent = `${labelDivs.length.toLocaleString()} labels rendered`;
+  document.getElementById('pageInfo').textContent = `${labelDivs.length} labels`;
 }
 
-function setProgress(pct,text){
-  const wrap=document.getElementById('progressWrap');
-  wrap.style.display='block';
-  document.getElementById('progressFill').style.width=pct+'%';
-  document.getElementById('progressLabel').textContent=text;
-  document.getElementById('progressPct').textContent=pct+'%';
+async function generateAll(){
+  if(!csvRows.length) return;
+  // Remove limit for full generation
+  document.getElementById('renderLimit').value = '999999';
+  await renderLabels();
 }
 
-// Initial render
-updateQRFromInputs();
-updateCanvas();
+// ── View modes ────────────────────────────────────────────────────
+function setView(mode, el){
+  viewMode = mode;
+  document.querySelectorAll('.ct-btn').forEach(b=>{
+    if(b.id==='viewBtn'||b.id==='singleBtn') b.classList.remove('active');
+  });
+  el.classList.add('active');
+  if(labelDivs.length) renderLabels();
+}
+
+function prevPage(){} // pagination placeholder
+function nextPage(){}
+
+function selectLabel(i, url, gtin14, tokenId){
+  // Deselect previous
+  if(selectedIdx>=0 && labelDivs[selectedIdx]) labelDivs[selectedIdx].card.classList.remove('selected');
+  selectedIdx = i;
+  if(labelDivs[i]) labelDivs[i].card.classList.add('selected');
+
+  document.getElementById('selectedInfo').style.display='none';
+  document.getElementById('selectedDetail').style.display='block';
+  document.getElementById('selLink').textContent = url;
+  document.getElementById('selGtin').textContent = gtin14 || '—';
+  document.getElementById('selToken').textContent = tokenId || '—';
+}
+
+// ── Settings changes ──────────────────────────────────────────────
+function updateLayout(){
+  if(csvRows.length) renderLabels();
+}
+
+function setSize(w, h, el){
+  document.querySelectorAll('.size-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('labelW').value = w;
+  document.getElementById('labelH').value = h;
+  labelW=w; labelH=h;
+  updateLayout();
+}
+
+function setDotStyle(style, el){
+  document.querySelectorAll('.dot-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  dotStyle = style;
+  updateLayout();
+}
+
+function syncColor(which, val){
+  if(!/^#[0-9a-fA-F]{6}$/.test(val)) return;
+  if(which==='fg'){
+    document.getElementById('fgPick').value = val;
+    document.getElementById('fgSwatch').style.background = val;
+  } else {
+    document.getElementById('eyePick').value = val;
+    document.getElementById('eyeSwatch').style.background = val;
+  }
+  if(csvRows.length) renderLabels();
+}
+
+// ── Export PNG (first label) ──────────────────────────────────────
+async function exportPNG(){
+  if(!labelDivs.length){ alert('Generate labels first.'); return; }
+  const { qrSlot, url, gtin14 } = labelDivs[selectedIdx>=0?selectedIdx:0];
+  const canvas = document.createElement('canvas');
+  const s = parseInt(document.getElementById('previewScale').value);
+  const w = parseInt(document.getElementById('labelW').value)*s;
+  const h = parseInt(document.getElementById('labelH').value)*s;
+  canvas.width=w; canvas.height=h;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+
+  // Draw QR from slot
+  const qrImg = qrSlot.querySelector('canvas') || qrSlot.querySelector('img');
+  if(qrImg){
+    const qrPx = parseInt(document.getElementById('qrPct').value)/100*w;
+    const ox = (w-qrPx)/2, oy = (h-qrPx)/2;
+    ctx.drawImage(qrImg instanceof HTMLCanvasElement ? qrImg : qrImg, ox, oy, qrPx, qrPx);
+  }
+
+  const link=document.createElement('a');
+  link.href=canvas.toDataURL('image/png');
+  link.download=`label-${gtin14||'export'}.png`;
+  link.click();
+}
 </script>
 </body>
 </html>
