@@ -1358,7 +1358,7 @@ function scAddrSearch(input, uid){
   clearTimeout(_scSearchTimer);
   _scSearchTimer = setTimeout(async ()=>{
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&addressdetails=1`,{headers:{'Accept-Language':'en'}});
+      const res = await fetch(`/api/places?q=${encodeURIComponent(q)}&type=autocomplete`,{headers:{'Accept-Language':'en'}});
       const data = await res.json();
       if(!data.length){ box.style.display='none'; return; }
       box.innerHTML = data.map(r=>`
