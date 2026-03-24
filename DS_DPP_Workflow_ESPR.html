@@ -473,6 +473,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
   <strong>Purchase URL</strong>
   The URL where this product can be bought. Used in schema.org/Offer structured data so search engines can show a "Buy" action directly in results. Leave blank to omit the buy action from structured data.
 </div>
+<div class="info-popup" id="popupEnergyClass">
+  <span class="info-popup-close" onclick="closePopup('popupEnergyClass')">✕</span>
+  <strong>Energy Efficiency Class — What is this?</strong>
+  The EU Energy Label (Regulation 2021/341) requires products like appliances, electronics, tyres, lamps and displays to carry an A–G energy class. Class A is most efficient; G is least. The label must appear on the product, packaging, and DPP.
+  <br><br>
+  Not applicable for gemstones, raw materials, and non-energy-related products.
+  <br><br>
+  <a href="https://energy.ec.europa.eu/topics/energy-efficiency/energy-efficient-products/eu-energy-label_en" target="_blank" rel="noopener">EU Energy Label official guidance →</a>
+</div>
 <div class="info-popup" id="popupCanonical">
   <span class="info-popup-close" onclick="closePopup('popupCanonical')">✕</span>
   <strong>Canonical URL</strong>
@@ -994,7 +1003,7 @@ function modalMaterials(){
     <div class="form-grid">
       <div class="field"><label>Carbon Footprint (kg CO₂e)</label><input type="number" id="f-carbon" placeholder="13.6" step="0.1"><div class="field-hint">Product carbon footprint — cradle to gate. GWP value.</div></div>
       <div class="field"><label>Calculation Method</label><select id="f-carbon-method"><option value="">Select...</option><option>PEF (EU)</option><option>ISO 14067</option><option>GHG Protocol</option><option>Estimated</option><option>Other</option></select></div>
-      <div class="field"><label>Energy Efficiency Class</label><select id="f-energy"><option value="">Not applicable</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+      <div class="field"><div class="label-row"><label>Energy Efficiency Class</label><button class="info-btn" onclick="showPopup('popupEnergyClass',event)">i</button></div><select id="f-energy"><option value="">Not applicable</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select><div class="field-hint">EU Regulation 2021/341. Required for appliances, electronics, tyres, lighting &amp; more.</div></div>
       <div class="field"><label>Water Usage (litres)</label><input type="number" id="f-water" placeholder="Optional" step="0.1"></div>
     </div>
   </div>
@@ -1236,15 +1245,22 @@ function modalMarketing(){
 
       <div class="field form-full">
         <label>Social Share Image</label>
-        <div class="seo-img-upload">
+        <div id="seoImgPreviewWrap" style="display:none;margin-bottom:10px;position:relative">
+          <img id="seoImgBig" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1.5px solid var(--bdr);display:block">
+          <button onclick="clearSeoImage()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">✕ Remove</button>
+          <div style="background:var(--d3);border:1.5px solid var(--bdr);border-radius:0 0 10px 10px;padding:8px 12px;border-top:none;margin-top:-2px">
+            <div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">OG:IMAGE PREVIEW</div>
+            <div id="seoImgLabel" style="font-size:11px;font-weight:700;color:var(--dim)">No image</div>
+          </div>
+        </div>
+        <div class="seo-img-upload" id="seoImgUploadArea">
           <div class="seo-img-thumb" id="seoImgThumb" onclick="document.getElementById('seoImgFile').click()" title="Click to upload">
             <span id="seoImgPlaceholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
           </div>
           <input type="file" id="seoImgFile" accept="image/*" style="display:none" onchange="handleSeoImage(event)">
           <div style="flex:1">
-            <div style="font-size:12px;font-weight:700;margin-bottom:3px" id="seoImgLabel">No image — defaults to product hero</div>
-            <div class="field-hint">Shown when the DPP link is shared on social media (og:image). Recommended: 1200×630px.</div>
-            <button class="btn-custom-addr" style="margin-top:6px" onclick="clearSeoImage()">Remove image</button>
+            <button class="btn btn-ghost" style="padding:7px 14px;font-size:11px" onclick="document.getElementById('seoImgFile').click()">Upload Image</button>
+            <div class="field-hint" style="margin-top:4px">Shown when the DPP link is shared on social (og:image). Recommended: 1200×630px.</div>
           </div>
         </div>
       </div>
@@ -1314,19 +1330,60 @@ function addSubstanceRow(){
 function addSCEntry(){
   const tl = document.getElementById('scTimeline');
   const stages = ['Raw Material','Processing','Assembly','Distribution','Retail'];
+  const uid = 'sc-addr-'+Date.now();
   const entry = document.createElement('div');
   entry.className = 'sc-entry';
   entry.innerHTML = `<div class="sc-dot-col"><div class="sc-dot"></div><div class="sc-line"></div></div>
     <div class="sc-content">
       <div class="sc-fields">
         <select style="min-width:120px">${stages.map(s=>`<option>${s}</option>`).join('')}</select>
-        <input type="text" placeholder="Country">
-        <input type="text" placeholder="Supplier (optional, Tier 2/3)">
+        <input type="text" placeholder="Country / Region">
+        <input type="text" placeholder="Supplier (Tier 2/3)">
         <button class="sc-del" onclick="this.closest('.sc-entry').remove()">✕</button>
+      </div>
+      <div style="position:relative;margin-top:6px">
+        <input type="text" class="sc-addr-input" data-uid="${uid}" placeholder="🔍 Search facility address..." style="width:100%;background:var(--d0);border:1.5px solid var(--bdr);border-radius:8px;padding:8px 12px;color:#fff;font-size:11px;font-weight:500;outline:none;font-family:'Plus Jakarta Sans',sans-serif" oninput="scAddrSearch(this,'${uid}')" autocomplete="off">
+        <div class="sc-addr-results" id="${uid}" style="display:none;position:absolute;left:0;right:0;top:100%;margin-top:2px;background:var(--d2);border:1.5px solid var(--violet);border-radius:10px;z-index:9999;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5)"></div>
       </div>
     </div>`;
   tl.appendChild(entry);
 }
+
+let _scSearchTimer = null;
+function scAddrSearch(input, uid){
+  const q = input.value.trim();
+  const box = document.getElementById(uid);
+  if(!box) return;
+  if(q.length < 3){ box.style.display='none'; return; }
+  clearTimeout(_scSearchTimer);
+  _scSearchTimer = setTimeout(async ()=>{
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&addressdetails=1`,{headers:{'Accept-Language':'en'}});
+      const data = await res.json();
+      if(!data.length){ box.style.display='none'; return; }
+      box.innerHTML = data.map(r=>`
+        <div onclick="scAddrPick(this,'${uid}')" data-addr="${r.display_name.replace(/"/g,'&quot;')}"
+          style="padding:9px 14px;font-size:11px;cursor:pointer;border-bottom:1px solid var(--bdr);color:var(--dim);transition:background .15s"
+          onmouseover="this.style.background='var(--d3)'" onmouseout="this.style.background=''">
+          <div style="font-weight:700;color:#e8e8f0;margin-bottom:2px">${r.display_name.split(',')[0]}</div>
+          <div style="font-size:10px">${r.display_name.split(',').slice(1,3).join(',')}</div>
+        </div>`).join('');
+      box.style.display='block';
+    } catch(e){ box.style.display='none'; }
+  }, 350);
+}
+function scAddrPick(el, uid){
+  const addr = el.dataset.addr;
+  const box = document.getElementById(uid);
+  const input = document.querySelector(`[data-uid="${uid}"]`);
+  if(input) input.value = addr;
+  if(box){ box.style.display='none'; box.innerHTML=''; }
+}
+document.addEventListener('click', e=>{
+  document.querySelectorAll('.sc-addr-results').forEach(b=>{
+    if(!b.contains(e.target) && !e.target.classList.contains('sc-addr-input')) b.style.display='none';
+  });
+});
 
 // ─── COLLECTIONS ───
 function getColls(){try{return JSON.parse(localStorage.getItem('ds-colls')||'[]')}catch(e){return[]}}
@@ -1502,16 +1559,19 @@ function populateResultScreen(){
   if(el('rs-carbon')) el('rs-carbon').textContent=carbon?carbon+' kg CO₂e':'—';
   if(el('rs-recycled')){el('rs-recycled').textContent=recycled?recycled+'%':'—';el('rs-recycled').style.color=parseInt(recycled)>0?'var(--green)':''}
 }
-function renderPhone(){
+function buildPhoneHTML(){
   const nm=getVal('f-name')||'Product',br=(selColl&&selColl.brand)||'Brand',co=(selColl&&selColl.name)||'';
   const pr=getVal('f-price')||'0.00',cu=getVal('f-currency')||'AUD',ds=getVal('f-pdesc')||'';
   const sk=getVal('f-sku')||'',wt=getVal('f-weight')||'',og=getVal('f-origin')||'';
   const carbon=getVal('f-carbon'),recycled=getVal('f-recycled-pct');
+  // Banner — read from Growth tier field
+  const banner=getVal('f-banner');
+  const accent=getVal('f-accent')||'#6A14DB';
   const hero=prodImages.length?'<div style="height:80px;border-radius:10px;overflow:hidden;margin-bottom:8px"><img src="'+prodImages[0]+'" style="width:100%;height:100%;object-fit:cover"></div>':'<div style="height:60px;background:var(--d3);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:18px;color:var(--muted);opacity:.3">◈</div>';
   const acts=[];
   document.querySelectorAll('#circToggles .toggle-switch.on').forEach(t=>{const a=t.dataset.a;const ic={trade:'💸',gift:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',recycle:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg>',return:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>',repair:'🔧'};const lb={trade:'Trade',gift:'Gift',recycle:'Recycle',return:'Return',repair:'Repair'};acts.push('<div class="pai"><em>'+(ic[a]||'')+'</em>'+(lb[a]||a)+'</div>')});
-  const ps=document.getElementById('phoneScreen');if(!ps)return;
-  ps.innerHTML=`${hero}
+  return `${banner?`<div style="margin-bottom:8px;padding:8px 10px;border-radius:8px;background:${accent}22;border:1px solid ${accent}55;font-size:10px;font-weight:800;color:${accent};text-align:center;letter-spacing:.04em">${banner}</div>`:''}
+    ${hero}
     <span class="pb pb-g">◈ Verified</span><span class="pb pb-v">Base · DPP</span>
     ${carbon?'<span class="pb" style="background:rgba(40,183,157,.08);color:var(--green);border:1px solid rgba(40,183,157,.15)">'+carbon+' kg CO₂e</span>':''}
     ${parseInt(recycled)>0?'<span class="pb" style="background:rgba(40,183,157,.08);color:var(--green);border:1px solid rgba(40,183,157,.15)">'+recycled+'% Recycled</span>':''}
@@ -1526,6 +1586,10 @@ function renderPhone(){
     <div style="margin-top:6px;background:rgba(40,183,157,.06);border:1px solid rgba(40,183,157,.15);border-radius:8px;padding:6px;text-align:center">
       <div style="font-size:8px;font-weight:800;color:var(--green)">◈ Ownership transfers on purchase</div>
     </div>`;
+}
+function renderPhone(){
+  const ps=document.getElementById('phoneScreen');if(!ps)return;
+  ps.innerHTML=buildPhoneHTML();
 }
 
 // ─── REVIEW ───
@@ -1595,7 +1659,10 @@ function renderTestQR(){
     qrOptions:{errorCorrectionLevel:getVal('f-qr-ec')||'H'}
   }).append(z);
 }
-function renderTestPhone(){renderPhone();const src=document.getElementById('phoneScreen');const dst=document.getElementById('testPhoneScreen');if(src&&dst)dst.innerHTML=src.innerHTML}
+function renderTestPhone(){
+  const dst=document.getElementById('testPhoneScreen');
+  if(dst) dst.innerHTML=buildPhoneHTML();
+}
 
 function downloadWorkflowPDF(){alert('PDF generation — carries over from v1. Full ESPR fields included in production build.')}
 function saveProduct(){closeReview();const pub=document.getElementById('publishBar');pub.innerHTML='<div style="font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px">◈ Product saved successfully</div><div style="font-size:12px;color:var(--dim)">DPP SBT will mint. GS1 QR batch and resolver registered.</div>'}
@@ -2000,9 +2067,13 @@ function modalBatchGeneration(){
       <div class="gen-stat"><div class="gs-val" id="genBatchSize">${batchSz.toLocaleString()||'—'}</div><div class="gs-lbl">Batch Total</div></div>
     </div>
   </div>
-  <div class="section-label" style="margin-top:16px"><span class="sl-icon">📄</span> CSV Preview (first 3 rows)</div>
-  <div class="csv-preview" id="csvPreview">digital_link_url,gtin14,token_id,contract_address,batch_id,collection_id,product_name,brand,manufacturer,carbon_kg,recycled_pct,chain
-— run generation to preview —</div>
+  <div class="section-label" style="margin-top:16px"><span class="sl-icon">📊</span> Data Preview (first 3 rows)</div>
+  <div id="csvPreview" style="overflow-x:auto;border:1px solid var(--bdr);border-radius:10px;background:var(--d0)">
+    <div style="padding:12px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7">
+      token_id · digital_link_url · gtin14 · product_name · brand · carbon_kg · recycled_pct · batch_id<br>
+      — run generation to preview rows —
+    </div>
+  </div>
   <div class="csv-row">
     <button class="btn btn-primary" onclick="startGeneration()" id="genBtn" style="flex:1">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -2088,12 +2159,17 @@ async function startGeneration(){
   };
   window._genProgress = 100;
 
-  // Show preview (first 3 rows, no QR column yet)
+  // Show preview (first 3 rows as table)
   const preview = document.getElementById('csvPreview');
   if(preview){
-    const header = 'token_id,digital_link_url,gtin14,product_name,brand,carbon_kg,recycled_pct,batch_id,qr_image';
-    const sample = entries.slice(0,3).map(e=>[e.token_id,e.digital_link_url,e.gtin14,e.product_name,e.brand,e.carbon_kg,e.recycled_pct,e.batch_id,'<generated on download>'].join(','));
-    preview.textContent = [header,...sample].join('\n');
+    const cols=['token_id','digital_link_url','gtin14','product_name','brand','carbon_kg','recycled_pct','batch_id'];
+    const labels=['#','Digital Link','GTIN-14','Product','Brand','CO₂e','Recycled%','Batch ID'];
+    const sample=entries.slice(0,3);
+    preview.innerHTML=`<table style="width:100%;border-collapse:collapse;min-width:500px">
+      <thead><tr style="background:var(--d3)">${labels.map(l=>`<th style="padding:6px 8px;text-align:left;font-size:8px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap;border-bottom:1px solid var(--bdr)">${l}</th>`).join('')}</tr></thead>
+      <tbody>${sample.map(e=>`<tr>${cols.map((c,ci)=>`<td style="padding:5px 8px;border-bottom:1px solid rgba(46,46,56,.3);font-size:9px;font-family:JetBrains Mono,monospace;color:${ci===1?'var(--violet)':'var(--dim)'};white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis">${ci===1?e[c].slice(0,30)+'…':String(e[c]||'—')}</td>`).join('')}</tr>`).join('')}
+      <tr><td colspan="${cols.length}" style="padding:6px 8px;font-size:9px;color:var(--muted);background:var(--d3);text-align:center">+ ${(total-3).toLocaleString()} more rows · qr_image column added on download</td></tr>
+      </tbody></table>`;
   }
 
   const dl = document.getElementById('downloadBtn');
@@ -2244,35 +2320,92 @@ async function downloadCSV(){
 
 // ─── NODE 11: LABEL EXPORT (DRAFT) ───
 function modalLabelExport(){
-  const lastBatch = window._batches.find(b=>b.status==='ready');
+  const lastBatch = window._batches.find(b=>b.status==='ready') || window._batches[window._batches.length-1];
+  const entries = lastBatch?.entries || [];
+  const total = entries.length;
+  const hasData = total > 0;
+
+  // Build spreadsheet preview rows (first 8)
+  const cols = ['token_id','digital_link_url','gtin14','product_name','brand','carbon_kg','recycled_pct','batch_id'];
+  const colLabels = ['#','Digital Link URL','GTIN-14','Product','Brand','CO₂e','Recycled%','Batch ID'];
+  const preview = entries.slice(0,8);
+
+  const tableRows = preview.map(e=>`
+    <tr>
+      ${cols.map((c,ci)=>`<td style="padding:5px 8px;border-bottom:1px solid var(--bdr);font-size:9px;font-family:${ci<=0||ci>=2&&ci<=3?'Plus Jakarta Sans':'JetBrains Mono'},monospace;color:${ci===1?'var(--violet)':'var(--dim)'};white-space:nowrap;max-width:${ci===1?'140px':'90px'};overflow:hidden;text-overflow:ellipsis">${ci===1?`<a href="${e[c]}" target="_blank" style="color:var(--violet);text-decoration:none">${e[c].slice(0,36)}…</a>`:String(e[c]||'—')}</td>`).join('')}
+    </tr>`).join('');
+
   return `
-  <div class="approval-band${lastBatch?' approved':' draft'}" style="margin-bottom:16px">
+  <div class="approval-band${hasData?' approved':' draft'}" style="margin-bottom:16px">
     <div class="approval-dot"></div>
-    <span>${lastBatch ? '✓ CSV ready: '+lastBatch.id : 'No ready batch found — run Batch Generation first'}</span>
+    <span>${hasData ? '✓ '+total.toLocaleString()+' rows ready — '+lastBatch.id : 'No ready batch — run Batch Generation first'}</span>
   </div>
-  <div class="section-label"><span class="sl-icon">🏷️</span> How to use the Label Tool</div>
-  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-    ${['Download your batch CSV from the Batch Generation step','Open the DeStore Label Exporter tool','Import the CSV — each row becomes a unique QR label','Customise label size, layout and print settings','Export to PDF or send directly to your printer'].map((s,i)=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--d3);border:1px solid var(--bdr);border-radius:10px">
-      <div style="width:22px;height:22px;border-radius:50%;background:rgba(179,84,241,.12);border:1px solid rgba(179,84,241,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:var(--violet);flex-shrink:0">${i+1}</div>
-      <div style="font-size:12px;font-weight:600">${s}</div>
-    </div>`).join('')}
-  </div>
-  <div class="field" style="margin-bottom:12px">
-    <label>Confirm print run dispatched</label>
-    <div class="toggle-row" style="border:none;padding:8px 0">
-      <div class="toggle-left"><div class="toggle-label">Labels sent to print</div><div class="toggle-desc">Confirm the batch CSV has been loaded into the Label Tool and print job started.</div></div>
-      <div class="toggle-switch" id="f-label-confirmed" onclick="this.classList.toggle('on');updateAllCompliance()"></div>
+
+  ${hasData ? `
+  <div style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Batch Preview · First ${Math.min(8,total)} of ${total.toLocaleString()} rows</div>
+      <div style="display:flex;gap:6px">
+        <div style="font-size:9px;padding:3px 8px;background:rgba(40,183,157,.08);border:1px solid rgba(40,183,157,.2);border-radius:5px;color:var(--green);font-weight:800">${total.toLocaleString()} ROWS</div>
+        <div style="font-size:9px;padding:3px 8px;background:rgba(179,84,241,.08);border:1px solid rgba(179,84,241,.2);border-radius:5px;color:var(--violet);font-weight:800">${cols.length} COLS</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;border:1.5px solid var(--bdr);border-radius:10px">
+      <table style="width:100%;border-collapse:collapse;min-width:600px">
+        <thead>
+          <tr style="background:var(--d3)">
+            ${colLabels.map(l=>`<th style="padding:7px 8px;text-align:left;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;border-bottom:1.5px solid var(--bdr)">${l}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+        ${total > 8 ? `<tr><td colspan="${cols.length}" style="padding:8px;text-align:center;font-size:10px;color:var(--muted);background:var(--d3);border-top:1px solid var(--bdr)">… ${(total-8).toLocaleString()} more rows in downloaded CSV</td></tr>` : ''}
+      </table>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
+      <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:16px;font-weight:900;color:var(--violet);font-family:'JetBrains Mono',monospace">${total.toLocaleString()}</div>
+        <div style="font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px">Total Units</div>
+      </div>
+      <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:16px;font-weight:900;color:var(--green);font-family:'JetBrains Mono',monospace">#${(lastBatch.tokenStart||1).toLocaleString()}</div>
+        <div style="font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px">First Token</div>
+      </div>
+      <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:16px;font-weight:900;color:var(--green);font-family:'JetBrains Mono',monospace">#${((lastBatch.tokenStart||1)+total-1).toLocaleString()}</div>
+        <div style="font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px">Last Token</div>
+      </div>
     </div>
   </div>
+  ` : `
+  <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:12px;padding:20px;text-align:center;margin-bottom:16px">
+    <div style="font-size:24px;margin-bottom:8px">📊</div>
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px">No Batch Data Yet</div>
+    <div style="font-size:11px;color:var(--muted)">Complete Batch Order → run Batch Generation → return here.</div>
+  </div>
+  `}
+
+  <div class="section-label" style="margin-top:4px"><span class="sl-icon">🏷️</span> Label Print Workflow</div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
+    ${['Download CSV from Batch Generation (node 10)','Open the DeStore Label Exporter tool below','Import CSV — each row generates a unique QR label','Choose label size: 50×25mm, 100×50mm, or custom','Export to PDF or send directly to your label printer'].map((s,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--d3);border:1px solid var(--bdr);border-radius:10px">
+      <div style="width:20px;height:20px;border-radius:50%;background:rgba(179,84,241,.12);border:1px solid rgba(179,84,241,.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:var(--violet);flex-shrink:0">${i+1}</div>
+      <div style="font-size:11px;font-weight:600;color:var(--dim)">${s}</div>
+    </div>`).join('')}
+  </div>
+
+  <div class="toggle-row" style="border:none;padding:8px 0;margin-bottom:12px">
+    <div class="toggle-left"><div class="toggle-label">Labels sent to print</div><div class="toggle-desc">Confirm the CSV has been loaded into the Label Tool and the print job has been started.</div></div>
+    <div class="toggle-switch" id="f-label-confirmed" onclick="this.classList.toggle('on');updateAllCompliance()"></div>
+  </div>
+
   <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <a href="DS_LabelExporter.html" target="_blank" class="btn btn-primary" style="flex:1;text-decoration:none">
+    <a href="DS_LabelExporter.html" target="_blank" class="btn btn-primary" style="flex:1;text-decoration:none;justify-content:center">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       Open Label Exporter
     </a>
   </div>
   <div style="margin-top:10px;font-size:10px;color:var(--muted);line-height:1.6;font-style:italic">
-    ◈ SBT minting happens automatically behind the scenes as each product is first scanned.
+    ◈ SBT minting triggers automatically on each product's first QR scan. Labels ≤500 units embed QR images as base64 PNG; larger batches reference the scan URL for print-time rendering.
   </div>`;
 }
 
@@ -2385,18 +2518,29 @@ function handleSeoImage(e){
   const r=new FileReader();
   r.onload=function(ev){
     seoImageData=ev.target.result;
+    // Big preview
+    const big=document.getElementById('seoImgBig');
+    const wrap=document.getElementById('seoImgPreviewWrap');
+    const uploadArea=document.getElementById('seoImgUploadArea');
+    const lbl=document.getElementById('seoImgLabel');
+    if(big) big.src=seoImageData;
+    if(wrap) wrap.style.display='block';
+    if(uploadArea) uploadArea.style.display='none';
+    if(lbl) lbl.textContent=f.name+' · '+Math.round(f.size/1024)+'KB';
+    // Small thumb (for backward compat)
     const thumb=document.getElementById('seoImgThumb');
-    const lbl  =document.getElementById('seoImgLabel');
     if(thumb){ thumb.innerHTML='<img src="'+seoImageData+'" style="width:100%;height:100%;object-fit:cover;border-radius:4px">'; }
-    if(lbl) lbl.textContent=f.name;
   };
   r.readAsDataURL(f);
 }
 function clearSeoImage(){
   seoImageData=null;
+  const big=document.getElementById('seoImgBig'); if(big) big.src='';
+  const wrap=document.getElementById('seoImgPreviewWrap'); if(wrap) wrap.style.display='none';
+  const uploadArea=document.getElementById('seoImgUploadArea'); if(uploadArea) uploadArea.style.display='flex';
   const thumb=document.getElementById('seoImgThumb');
-  if(thumb) thumb.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-  const lbl=document.getElementById('seoImgLabel'); if(lbl) lbl.textContent='No image — defaults to product hero';
+  if(thumb) thumb.innerHTML='<span id="seoImgPlaceholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>';
+  const lbl=document.getElementById('seoImgLabel'); if(lbl) lbl.textContent='No image';
   const fi=document.getElementById('seoImgFile'); if(fi) fi.value='';
 }
 
