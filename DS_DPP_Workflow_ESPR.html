@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-  <link rel="icon" type="image/svg+xml" href="/destore-favicon.svg">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DeStore · DPP Workflow Builder — ESPR Compliant</title>
+<title>DeStore · Digital Product Passport</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
 <style>
 @property --angle{syntax:'<angle>';initial-value:0deg;inherits:false}
 @keyframes spin-border{to{--angle:360deg}}
@@ -22,7 +20,7 @@
   --black:#000;--royal:#321B68;--pink:#FF1B9A;--elViolet:#6200E9;
   --orange:#FF9F46;--blush:#EFB4B0;--cream:#FFEFDC;--peach:#FFD0AC;
   --orchid:#6A14DB;--violet:#B354F1;
-  --green:#28B79D;--greenAlt:#2FB457;--fb:#1877F2;
+  --green:#28B79D;--greenAlt:#2FB457;--fb:#1877F2;--blue:#2563eb;
   --d0:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;
   --bdr:#2e2e38;--subtle:#3a3a4a;--muted:#6b6b80;--dim:#9999b0;
 }
@@ -36,17 +34,9 @@
 body{background:var(--d0);color:#e8e8f0;font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
 .mono{font-family:'JetBrains Mono',monospace}
 
-/* ── Nav ── */
-nav{height:52px;background:var(--royal);display:flex;align-items:center;padding:0 24px;gap:12px}
-nav svg{height:18px}
-nav .nav-sep{width:1px;height:24px;background:rgba(255,255,255,.15)}
-nav .nav-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.04em}
-.grad-bar{height:3px;background:linear-gradient(90deg,var(--orchid),var(--violet),var(--green))}
-
-/* ── Hero ── */
-.hero{text-align:center;padding:48px 24px 0}
-.hero h1{font-size:clamp(24px,4vw,36px);font-weight:900;letter-spacing:-.8px;margin-bottom:6px}
-.hero p{font-size:14px;color:var(--dim);max-width:560px;margin:0 auto;line-height:1.6}
+/* ── Slim Header ── */
+.slim-header{height:44px;background:var(--d1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 24px}
+.slim-header .tool-name{font-size:13px;font-weight:800;color:#fff}
 
 /* ── Overall Compliance Score ── */
 .overall-score{display:flex;align-items:center;justify-content:center;gap:16px;margin:28px auto 0;padding:16px 28px;background:var(--d2);border:1px solid var(--bdr);border-radius:16px;width:fit-content}
@@ -58,8 +48,9 @@ nav .nav-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);letter-
 .overall-score .score-status{font-size:13px;font-weight:700;margin-top:2px}
 
 /* ── Pipeline ── */
-.pipeline-wrap{padding:40px 24px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.pipeline{display:flex;align-items:flex-start;justify-content:center;gap:0;min-width:min-content}
+.pipeline-scroll{overflow-x:auto;width:100%;padding:20px 8px 28px;-webkit-overflow-scrolling:touch}
+.pipeline-wrap{padding:0}
+.pipeline{display:flex;align-items:flex-start;justify-content:center;gap:0;overflow:visible;padding:0 4px;width:max-content;min-width:100%}
 .node{flex-shrink:0}
 .node-card{
   width:150px;border-radius:16px;padding:18px 14px 16px;text-align:center;
@@ -100,9 +91,9 @@ nav .nav-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);letter-
 .connector.done .connector-line::after{border-left-color:var(--green)}
 .connector.next .connector-line{
   background:linear-gradient(90deg,var(--green) 0%,rgba(40,183,157,.25) 50%,var(--green) 100%);
-  background-size:200px 100%;animation:flowPulse 1.2s ease-in-out 2;
+  background-size:200px 100%;animation:flowPulse 1.2s ease-in-out infinite;
 }
-.connector.next .connector-line::after{border-left-color:var(--green);animation:arrowPulse 1.2s ease-in-out 2}
+.connector.next .connector-line::after{border-left-color:var(--green);animation:arrowPulse 1.2s ease-in-out infinite}
 
 /* ── Vertical pipeline (mobile) ── */
 @media(max-width:800px){
@@ -239,7 +230,7 @@ nav .nav-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);letter-
 .tier-ent .tier-badge{background:rgba(255,159,70,.12);color:var(--orange);border:1px solid rgba(255,159,70,.25)}
 .tier-panel{display:none}.tier-panel.show{display:block}
 .locked-row{opacity:.4;pointer-events:none;position:relative}
-.locked-row::after{content:'🔒';position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:14px}
+.locked-row::after{content:'';position:absolute;right:8px;top:50%;transform:translateY(-50%);width:14px;height:14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b6b80' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:contain}
 .tier-note{font-size:10px;color:var(--muted);padding:10px 14px;background:var(--d3);border:1px solid var(--bdr);border-radius:10px;margin-top:16px;line-height:1.6}
 
 /* ── Pixel Cards ── */
@@ -278,18 +269,6 @@ nav .nav-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);letter-
 .seo-auto-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--green);background:rgba(40,183,157,.08);border:1px solid rgba(40,183,157,.2);border-radius:4px;padding:2px 8px;margin-left:8px}
 .seo-char-count{font-size:9px;color:var(--muted);text-align:right;margin-top:2px}
 .seo-char-count.warn{color:var(--orange)}.seo-char-count.over{color:var(--pink)}
-
-/* ── QR Template Picker ── */
-.tpl-grid{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px;-webkit-overflow-scrolling:touch}
-.tpl-card{flex-shrink:0;width:88px;background:var(--d3);border:2px solid var(--bdr);border-radius:12px;padding:8px 6px 6px;text-align:center;cursor:pointer;transition:all .2s}
-.tpl-card:hover{border-color:rgba(179,84,241,.35)}
-.tpl-card.active{border-color:var(--violet);background:rgba(179,84,241,.06)}
-.tpl-card .tpl-qr{width:56px;height:56px;background:#fff;border-radius:8px;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.tpl-card .tpl-name{font-size:8px;font-weight:800;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tpl-custom{flex-shrink:0;width:88px;background:var(--d3);border:2px dashed var(--bdr);border-radius:12px;padding:8px 6px;text-align:center;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:88px}
-.tpl-custom:hover{border-color:rgba(179,84,241,.35)}
-.tpl-custom .tpl-icon{font-size:18px;color:var(--muted);margin-bottom:4px}
-.tpl-custom .tpl-name{font-size:8px;font-weight:800;color:var(--muted)}
 
 /* ── Phone Preview ── */
 .split{display:grid;grid-template-columns:1fr 260px;gap:24px}
@@ -351,158 +330,19 @@ nav .nav-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);letter-
 
 /* ── Footer ── */
 .wf-footer{text-align:center;padding:48px 24px;font-size:11px;font-weight:600;color:var(--muted)}
-
-/* ── Barcode ── */
-.barcode-wrap{margin-top:10px;background:#fff;border-radius:10px;padding:12px 16px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
-.barcode-wrap svg{max-width:100%;height:auto}
-.barcode-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:#333;letter-spacing:.12em;margin-top:2px}
-.barcode-hidden{display:none}
-.info-btn{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--d3);color:var(--dim);font-size:9px;font-weight:900;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;transition:border-color .15s,color .15s;position:relative;top:-1px;margin-left:4px}
-.info-btn:hover{border-color:var(--violet);color:var(--violet)}
-.info-popup{position:fixed;z-index:9999;background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:16px;width:280px;box-shadow:0 8px 32px rgba(0,0,0,.5);font-size:11px;color:var(--dim);line-height:1.65;display:none}
-.info-popup.show{display:block}
-.info-popup strong{color:#fff;font-size:12px;display:block;margin-bottom:6px}
-.info-popup a{color:var(--violet);text-decoration:none;font-weight:700}
-.info-popup a:hover{text-decoration:underline}
-.info-popup-close{float:right;cursor:pointer;color:var(--muted);font-weight:900;font-size:13px;line-height:1;margin:-2px -2px 0 6px}
-
-/* ── Address autocomplete ── */
-.addr-wrap{position:relative}
-.addr-suggestions{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--d2);border:1px solid var(--violet);border-radius:10px;z-index:200;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
-.addr-suggestions.show{display:block}
-.addr-suggestion{padding:9px 14px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .12s}
-.addr-suggestion:last-child{border-bottom:none}
-.addr-suggestion:hover{background:rgba(179,84,241,.08)}
-.addr-suggestion .as-main{font-weight:700;color:#fff}
-.addr-suggestion .as-sub{font-size:10px;color:var(--muted)}
-.addr-custom-row{display:flex;gap:6px;margin-top:6px}
-.addr-custom-row .btn-custom-addr{background:transparent;border:1.5px dashed var(--bdr);border-radius:8px;color:var(--dim);font-size:10px;font-weight:800;padding:6px 12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s}
-.addr-custom-row .btn-custom-addr:hover{border-color:var(--violet);color:var(--violet)}
-
-/* ── GTIN toggle ── */
-.gtin-row{display:flex;gap:8px;align-items:flex-start}
-.gtin-row input{flex:1}
-.gtin-custom-wrap{display:none;margin-top:6px}
-.gtin-mode-chips{display:flex;gap:6px;margin-bottom:8px}
-.gtin-chip{padding:5px 12px;border-radius:7px;border:1.5px solid var(--bdr);background:var(--d3);color:var(--dim);font-size:10px;font-weight:800;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
-.gtin-chip:hover{border-color:rgba(179,84,241,.3);color:#fff}
-.gtin-chip.active{background:rgba(179,84,241,.1);border-color:var(--violet);color:var(--violet)}
-
-/* ── Date picker styling ── */
-input[type="date"]{color-scheme:dark}
-input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer;opacity:.7;transition:opacity .15s}
-input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
-
-/* ── Custom CSS toggle in Result Screen ── */
-.css-override-panel{margin-top:10px;display:none}
-.css-override-panel.show{display:block}
-.result-template-dd{margin-bottom:14px}
-
-/* ── SEO social image ── */
-.seo-img-upload{display:flex;align-items:center;gap:12px;padding:10px;background:var(--d3);border:1px solid var(--bdr);border-radius:10px}
-.seo-img-thumb{width:64px;height:40px;border-radius:6px;border:1.5px dashed var(--bdr);background:var(--d0);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;cursor:pointer;transition:border-color .15s}
-.seo-img-thumb:hover{border-color:rgba(179,84,241,.35)}
-.seo-img-thumb img{width:100%;height:100%;object-fit:cover;border-radius:4px}
-.label-row{display:flex;align-items:center;gap:4px}
-
-/* ── Draft Tray ── */
-.draft-tray-wrap{padding:40px 24px 0;max-width:960px;margin:0 auto}
-.draft-tray-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.draft-tray-title{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.draft-divider{flex:1;height:1px;background:var(--bdr)}
-.draft-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-.draft-tile{background:var(--d2);border:1.5px dashed var(--bdr);border-radius:16px;padding:18px 16px;position:relative;cursor:pointer;transition:border-color .2s,transform .2s;opacity:.75}
-.draft-tile:hover{border-color:rgba(179,84,241,.35);opacity:1;transform:translateY(-2px)}
-.draft-badge{position:absolute;top:10px;right:10px;font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,159,70,.1);border:1px solid rgba(255,159,70,.25);color:var(--orange);padding:2px 8px;border-radius:5px}
-.draft-tile .node-icon{width:32px;height:32px;border-radius:10px;background:rgba(179,84,241,.06);display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:8px}
-.draft-tile .node-label{font-size:12px;font-weight:900;letter-spacing:-.1px;margin-bottom:4px}
-.draft-tile .node-desc{font-size:10px;color:var(--muted);line-height:1.4}
-
-/* ── Approval Status ── */
-.approval-band{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid;font-size:12px;font-weight:800;margin-bottom:16px}
-.approval-band.draft{background:rgba(107,107,128,.07);border-color:rgba(107,107,128,.2);color:var(--muted)}
-.approval-band.pending{background:rgba(255,159,70,.07);border-color:rgba(255,159,70,.2);color:var(--orange)}
-.approval-band.approved{background:rgba(40,183,157,.07);border-color:rgba(40,183,157,.2);color:var(--green)}
-.approval-band.rejected{background:rgba(255,27,154,.07);border-color:rgba(255,27,154,.2);color:var(--pink)}
-.approval-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
-@keyframes approvalPulse{0%,100%{opacity:1}50%{opacity:.3}}
-.approval-dot.pulse{animation:approvalPulse 1.5s ease infinite}
-
-/* ── Batch Size Chips ── */
-.size-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.size-chip{padding:7px 14px;border-radius:9px;border:1.5px solid var(--bdr);background:var(--d3);color:var(--dim);font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
-.size-chip:hover{border-color:rgba(179,84,241,.3);color:#fff}
-.size-chip.active{background:rgba(179,84,241,.1);border-color:var(--violet);color:var(--violet)}
-.size-chip.custom-chip{border-style:dashed}
-.batch-token-range{background:var(--d0);border:1px solid var(--bdr);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);margin-top:8px}
-.batch-token-range .tr-label{font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;font-family:'Plus Jakarta Sans',sans-serif}
-
-/* ── Batch Progress (Generation node) ── */
-.gen-progress-wrap{margin:16px 0}
-.gen-progress-bar{height:6px;background:var(--bdr);border-radius:3px;overflow:hidden;margin:8px 0}
-.gen-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--orchid),var(--violet));transition:width .4s ease;width:0%}
-@keyframes genFill{from{width:0%}to{width:100%}}
-.gen-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
-.gen-stat{background:var(--d3);border-radius:10px;padding:10px;text-align:center}
-.gen-stat .gs-val{font-size:18px;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--violet)}
-.gen-stat .gs-lbl{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px}
-.csv-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.csv-preview{background:var(--d0);border:1px solid var(--bdr);border-radius:10px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);line-height:1.7;overflow-x:auto;margin-top:10px;white-space:pre}
-.batch-history{margin-top:16px}
-.batch-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--d3);border:1px solid var(--bdr);border-radius:10px;font-size:11px;margin-bottom:6px}
-.batch-row .br-id{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--violet);flex:1}
-.batch-row .br-size{color:var(--dim);font-weight:700}
-.batch-row .br-status{font-size:9px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:5px}
-.br-status.ready{background:rgba(40,183,157,.1);color:var(--green)}
-.br-status.gen{background:rgba(179,84,241,.1);color:var(--violet)}
-.br-status.queued{background:rgba(255,159,70,.1);color:var(--orange)}
 </style>
 </head>
 <body>
 
-<!-- ══ INFO POPUPS ══ -->
-<div class="info-popup" id="popupReach">
-  <span class="info-popup-close" onclick="closePopup('popupReach')">✕</span>
-  <strong>REACH / SVHC — What is this?</strong>
-  REACH (Registration, Evaluation, Authorisation and Restriction of Chemicals) is EU regulation EC 1907/2006. SVHC = Substances of Very High Concern. If your product contains any SVHC above 0.1% by weight, you must disclose them in the DPP and notify ECHA's SCIP database.
-  <br><br>
-  <a href="https://echa.europa.eu/candidate-list-table" target="_blank" rel="noopener">View ECHA Candidate List →</a>
-</div>
-<div class="info-popup" id="popupPurchaseUrl">
-  <span class="info-popup-close" onclick="closePopup('popupPurchaseUrl')">✕</span>
-  <strong>Purchase URL</strong>
-  The URL where this product can be bought. Used in schema.org/Offer structured data so search engines can show a "Buy" action directly in results. Leave blank to omit the buy action from structured data.
-</div>
-<div class="info-popup" id="popupEnergyClass">
-  <span class="info-popup-close" onclick="closePopup('popupEnergyClass')">✕</span>
-  <strong>Energy Efficiency Class — What is this?</strong>
-  The EU Energy Label (Regulation 2021/341) requires products like appliances, electronics, tyres, lamps and displays to carry an A–G energy class. Class A is most efficient; G is least. The label must appear on the product, packaging, and DPP.
-  <br><br>
-  Not applicable for gemstones, raw materials, and non-energy-related products.
-  <br><br>
-  <a href="https://energy.ec.europa.eu/topics/energy-efficiency/energy-efficient-products/eu-energy-label_en" target="_blank" rel="noopener">EU Energy Label official guidance →</a>
-</div>
-<div class="info-popup" id="popupCanonical">
-  <span class="info-popup-close" onclick="closePopup('popupCanonical')">✕</span>
-  <strong>Canonical URL</strong>
-  Tells search engines which URL is the definitive version of this page. Defaults to the GS1 Digital Link (e.g. <code style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--violet)">https://qr.destore.network/01/09506000130001</code>). Override only if you have a custom domain resolver.
-</div>
-
-<!-- ══ NAV ══ -->
-<nav>
-<svg viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#fff"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#fff"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#fff"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#fff"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#fff"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#fff"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#fff"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#fff"/></svg>
-<div class="nav-sep"></div>
-<span class="nav-label">DPP Workflow Builder</span>
-</nav>
-<div class="grad-bar"></div>
-
-<!-- ══ HERO ══ -->
-<div class="hero">
-  <h1>DPP Workflow Builder</h1>
-  <p>Configure your EU ESPR-compliant Digital Product Passport. Click each node to fill in product data. Compliance score updates as you go.</p>
+<!-- ══ SLIM HEADER ══ -->
+<div class="slim-header">
+  <span class="tool-name">Digital Product Passport</span>
 </div>
 
 <!-- ══ OVERALL COMPLIANCE SCORE ══ -->
+<div style="text-align:center;padding:24px 24px 0">
+  <p style="font-size:14px;color:var(--dim);line-height:1.6;margin-bottom:16px">Build a fully ESPR-compliant Digital Product Passport. Materials, carbon, certifications, and lifecycle — permanently on record.</p>
+</div>
 <div class="overall-score" id="overallScore">
   <div class="score-ring"><svg width="52" height="52"><circle cx="26" cy="26" r="22" fill="none" stroke="var(--bdr)" stroke-width="4"/><circle id="overallRing" cx="26" cy="26" r="22" fill="none" stroke="var(--muted)" stroke-width="4" stroke-dasharray="138.2" stroke-dashoffset="138.2" stroke-linecap="round"/></svg><div class="score-pct" id="overallPct">0%</div></div>
   <div class="score-text"><div class="score-label">ESPR Compliance</div><div class="score-status" id="overallStatus">Not started</div></div>
@@ -510,8 +350,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 
 <!-- ══ PIPELINE ══ -->
 <div class="pipeline-wrap">
+<div class="pipeline-scroll">
 <div class="pipeline" id="pipelineContainer">
   <!-- Nodes rendered by JS -->
+</div>
 </div>
 </div>
 
@@ -525,27 +367,16 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 <!-- Modals rendered by JS into this container -->
 <div id="modalContainer"></div>
 
-<!-- ══ DRAFT TRAY ══ -->
-<div class="draft-tray-wrap">
-  <div class="draft-tray-header">
-    <span class="draft-tray-title">In Development · Coming up next</span>
-    <div class="draft-divider"></div>
-  </div>
-  <div class="draft-grid" id="draftGrid">
-    <!-- Rendered by JS -->
-  </div>
-</div>
-
 <!-- ══ REVIEW MODAL ══ -->
 <div class="test-modal-bg" id="testModal" onclick="if(event.target===this)closeReview()">
 <div class="test-card light" id="testCard">
   <div class="test-header">
     <div class="test-title">Review Workflow</div>
     <div class="theme-toggle">
-      <button class="active" id="ttLight" onclick="setReviewTheme('light')">☀️ Light</button>
-      <button id="ttDark" onclick="setReviewTheme('dark')">🌙 Dark</button>
+      <button class="active" id="ttLight" onclick="setReviewTheme('light')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>Light</button>
+      <button id="ttDark" onclick="setReviewTheme('dark')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>Dark</button>
     </div>
-    <button class="modal-close" onclick="closeReview()">✕</button>
+    <button class="modal-close" onclick="closeReview()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
   </div>
   <div class="review-grid" id="reviewGrid"></div>
   <div style="text-align:center;margin-bottom:16px"><div class="test-section-label">Test Your DPP</div><p style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:16px">Scan the QR code with your phone to see what your customers will see.</p></div>
@@ -573,20 +404,18 @@ window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.th
 // DeStore DPP Workflow Builder v2 — ESPR Compliant
 // ═══════════════════════════════════════════════════════
 
+// ─── SHARED ICONS ───
+const CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
 // ─── NODE DEFINITIONS ───
 const NODES = [
   { id:0, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>', label:'Collection',                desc:'Brand, category, EU market flag.',         weight:5,  espr:['brandName','productCategory','euMarket'] },
-  { id:1, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>', label:'Product Identity',           desc:'Name, GTIN, manufacturer, images.',       weight:15, espr:['productName','gtin','manufacturerName','countryMfg','dateMfg'] },
-  { id:2, icon:'🧪', label:'Materials &\nSustainability', desc:'Composition, carbon, durability.',         weight:30, espr:['materials','recycledContent','substancesToggle','carbonFootprint','durability','repairability'] },
+  { id:1, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>', label:'Product Identity',           desc:'Name, GTIN, manufacturer, images.',       weight:15, espr:['productName','gtin','manufacturerName','manufacturerContact','countryMfg','dateMfg'] },
+  { id:2, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg>', label:'Materials &\nSustainability', desc:'Composition, carbon, durability.',         weight:30, espr:['materials','recycledContent','recyclability','substancesToggle','carbonFootprint','durability','repairability'] },
   { id:3, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>', label:'Supply Chain &\nCompliance',  desc:'Provenance, certifications, registry.',   weight:20, espr:['supplyChain','reachStatus','euRegistry'] },
   { id:4, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg>', label:'End of Life &\nCircularity',  desc:'Disassembly, recycling, actions.',         weight:15, espr:['disassembly','recycling','circularActions'] },
-  { id:5, icon:'◈',  label:'QR Code',                    desc:'GS1 Digital Link QR design.',              weight:5,  espr:['qrSaved'] },
-  { id:6, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>', label:'Result Screen',              desc:'Consumer scan experience.',                weight:5,  espr:['resultSaved'] },
-  { id:7, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>', label:'Marketing\n& SEO',            desc:'Pixels, analytics, SEO.',                  weight:5,  espr:['seoSaved'] },
-  { id:8, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>', label:'Collection\nApproval',           desc:'Brand holder sign-off gate.',              weight:5,  espr:['approvalDone'] },
-  { id:9, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',         label:'Batch Order',                desc:'Name, size & token ID range.',             weight:5,  espr:['batchDone'], draft:false },
-  { id:10, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',                              label:'Batch\nGeneration',          desc:'Async CSV/JSON job — up to 5M DPPs.',    weight:2,  espr:['genDone'],  draft:true },
-  { id:11, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>', label:'Label\nExport',               desc:'Download CSV → Label Tool → print.',      weight:2,  espr:['labelDone'], draft:true },
+  { id:5, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>', label:'Result Screen',              desc:'Consumer scan experience.',                weight:10, espr:['resultSaved'] },
+  { id:6, icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>', label:'Marketing\n& SEO',            desc:'Pixels, analytics, SEO.',                  weight:5,  espr:['seoSaved'] },
 ];
 const N = NODES.length;
 
@@ -602,40 +431,24 @@ function renderPipeline(){
   const pipe = document.getElementById('pipelineContainer');
   const dots = document.getElementById('progressBar');
   let pipeHTML = '', dotsHTML = '';
-  const visible = NODES.filter(n => !n.draft);
-  visible.forEach((n,i) => {
-    pipeHTML += `<div class="node"><div class="node-card" id="node-${n.id}" onclick="openModal(${n.id})"><div class="node-inner">
+  NODES.forEach((n,i) => {
+    pipeHTML += `<div class="node"><div class="node-card" id="node-${i}" onclick="openModal(${i})"><div class="node-inner">
       <div class="node-icon">${n.icon}</div>
       <div class="node-text">
         <div class="node-label">${n.label.replace(/\n/g,'<br>')}</div>
         <div class="node-desc">${n.desc}</div>
-        <div class="node-status" id="status-${n.id}">○ Click to configure</div>
+        <div class="node-status" id="status-${i}">Click to configure</div>
       </div>
-      <div class="node-ring" id="ring-${n.id}"><svg width="32" height="32"><circle cx="16" cy="16" r="13" fill="none" stroke="var(--bdr)" stroke-width="3"/><circle id="ringCircle-${n.id}" cx="16" cy="16" r="13" fill="none" stroke="var(--muted)" stroke-width="3" stroke-dasharray="81.7" stroke-dashoffset="81.7" stroke-linecap="round"/></svg><div class="ring-pct" id="ringPct-${n.id}">0%</div></div>
+      <div class="node-ring" id="ring-${i}"><svg width="32" height="32"><circle cx="16" cy="16" r="13" fill="none" stroke="var(--bdr)" stroke-width="3"/><circle id="ringCircle-${i}" cx="16" cy="16" r="13" fill="none" stroke="var(--muted)" stroke-width="3" stroke-dasharray="81.7" stroke-dashoffset="81.7" stroke-linecap="round"/></svg><div class="ring-pct" id="ringPct-${i}">0%</div></div>
     </div></div></div>`;
-    if(i < visible.length-1) pipeHTML += `<div class="connector" id="conn-${n.id}"><div class="connector-line"></div></div>`;
-    dotsHTML += `<div class="progress-dot" id="dot-${n.id}"></div>`;
+    if(i < N-1) pipeHTML += `<div class="connector" id="conn-${i}"><div class="connector-line"></div></div>`;
+    dotsHTML += `<div class="progress-dot" id="dot-${i}"></div>`;
   });
   pipe.innerHTML = pipeHTML;
   dots.innerHTML = dotsHTML;
 }
 
-// ─── RENDER DRAFT TRAY ───
-function renderDraftTray(){
-  const tray = document.getElementById('draftGrid');
-  if(!tray) return;
-  const drafts = NODES.filter(n => n.draft);
-  if(!drafts.length){ tray.closest('.draft-tray-wrap').style.display='none'; return; }
-  tray.innerHTML = drafts.map(n => `
-    <div class="draft-tile" onclick="openModal(${n.id})">
-      <span class="draft-badge">Draft</span>
-      <div class="node-icon">${n.icon}</div>
-      <div class="node-label">${n.label.replace(/\n/g,' ')}</div>
-      <div class="node-desc">${n.desc}</div>
-    </div>`).join('');
-}
-
-
+// ─── COMPLIANCE SCORING ───
 function calcCompliance(nodeIdx){
   // Returns 0-100 for how many ESPR fields are filled for this node
   const n = NODES[nodeIdx];
@@ -652,12 +465,14 @@ function calcCompliance(nodeIdx){
       if(getVal('f-name')) filled++;
       if(getVal('f-gtin')) filled++;
       if(getVal('f-mfgname')) filled++;
+      if(getVal('f-mfgcontact')) filled++;
       if(getVal('f-countmfg')) filled++;
       if(getVal('f-datemfg')) filled++;
       break;
     case 2: // Materials
       if(document.querySelectorAll('#materialsList .repeat-row').length > 0) filled++;
       if(getVal('f-recycled-pct')) filled++;
+      if(getVal('f-recyclability')) filled++;
       if(document.getElementById('f-substances')?.dataset.set==='true') filled++;
       if(getVal('f-carbon')) filled++;
       if(getVal('f-durability')) filled++;
@@ -675,11 +490,6 @@ function calcCompliance(nodeIdx){
       break;
     case 5: return done[5] ? 100 : 0;
     case 6: return done[6] ? 100 : 0;
-    case 7: return done[7] ? 100 : 0;
-    case 8: return done[8] ? 100 : (window._approvalStatus==='approved'?80: window._approvalStatus==='pending'?40:0);
-    case 9: return done[9] ? 100 : 0;
-    case 10: return done[10] ? 100 : (window._genProgress||0);
-    case 11: return done[11] ? 100 : 0;
   }
   return Math.round((filled/total)*100);
 }
@@ -716,48 +526,45 @@ function updateAllCompliance(){
   if(oPct) oPct.textContent = overall+'%';
   if(oStatus){
     if(overall === 0) oStatus.textContent = 'Not started';
-    else if(overall < 26) { oStatus.textContent = '⚠ Low compliance'; oStatus.style.color = 'var(--orange)'; }
+    else if(overall < 26) { oStatus.textContent = 'Low compliance'; oStatus.style.color = 'var(--orange)'; }
     else if(overall < 51) { oStatus.textContent = 'Partial compliance'; oStatus.style.color = 'var(--violet)'; }
     else if(overall < 81) { oStatus.textContent = 'Good progress'; oStatus.style.color = 'var(--violet)'; }
     else if(overall < 100) { oStatus.textContent = 'Near complete'; oStatus.style.color = 'var(--green)'; }
-    else { oStatus.textContent = '✓ Full ESPR compliance'; oStatus.style.color = 'var(--green)'; }
+    else { oStatus.textContent = 'Full ESPR compliance'; oStatus.style.color = 'var(--green)'; }
   }
 }
 
 // ─── PIPELINE STATE ───
 function updatePipelineState(){
-  const visible = NODES.filter(n => !n.draft);
   let nextPending = -1;
-  for(let i=0;i<visible.length;i++) if(!done[visible[i].id]&&nextPending===-1) nextPending=visible[i].id;
+  for(let i=0;i<N;i++) if(!done[i]&&nextPending===-1) nextPending=i;
 
-  visible.forEach((n,i) => {
-    const card=document.getElementById('node-'+n.id);
-    const status=document.getElementById('status-'+n.id);
-    const dot=document.getElementById('dot-'+n.id);
-    if(!card) return;
+  for(let i=0;i<N;i++){
+    const card=document.getElementById('node-'+i);
+    const status=document.getElementById('status-'+i);
+    const dot=document.getElementById('dot-'+i);
+    if(!card) continue;
     card.classList.remove('active','done');
-    if(done[n.id]){
+    if(done[i]){
       card.classList.add('done');
-      if(status) status.textContent='✓ Saved';
+      status.textContent='Saved';
       if(dot) dot.classList.add('done');
-    } else if(n.id===nextPending){
+    } else if(i===nextPending){
       card.classList.add('active');
-      if(status) status.textContent='● Next';
+      status.textContent='Next';
     } else {
-      if(status) status.textContent='○ Pending';
+      status.textContent='Pending';
     }
-    // Connector after this node
-    const conn=document.getElementById('conn-'+n.id);
-    if(conn && i < visible.length-1){
-      const nextId = visible[i+1].id;
-      conn.classList.remove('done','next');
-      if(done[n.id]&&done[nextId]) conn.classList.add('done');
-      else if(done[n.id]&&!done[nextId]) conn.classList.add('next');
-    }
-  });
+  }
+  for(let i=0;i<N-1;i++){
+    const conn=document.getElementById('conn-'+i);
+    if(!conn) continue;
+    conn.classList.remove('done','next');
+    if(done[i]&&done[i+1]) conn.classList.add('done');
+    else if(done[i]&&!done[i+1]) conn.classList.add('next');
+  }
   const pub=document.getElementById('publishBar');
-  const allDone = visible.every(n=>done[n.id]);
-  if(pub){ if(allDone) pub.classList.add('show'); else pub.classList.remove('show'); }
+  if(done.every(Boolean)) pub.classList.add('show'); else pub.classList.remove('show');
   updateAllCompliance();
 }
 
@@ -770,11 +577,8 @@ function openModal(n){
   document.body.style.overflow='hidden';
   // Node-specific hooks
   if(n===2) updateRecycledPct();
-  if(n===5){ renderQRTemplateDD(); setTimeout(renderQR,200); }
-  if(n===6){ populateResultScreen(); setTimeout(renderPhone,100); }
-  if(n===7) populateSEO();
-  if(n===8) setTimeout(initApprovalModal,50);
-  if(n===9) setTimeout(initBatchOrderModal,50);
+  if(n===5){ populateResultScreen(); setTimeout(renderPhone,100); }
+  if(n===6) populateSEO();
   updateAllCompliance();
 }
 function closeModal(){
@@ -785,15 +589,6 @@ function closeModal(){
   updateAllCompliance();
 }
 function saveStep(n){
-  if(n===8){
-    if(window._approvalStatus!=='approved'){ alert('Collection must be approved before saving. Submit and get approval first.'); return; }
-  }
-  if(n===9){ saveBatchOrder(); return; }
-  if(n===10){ if(window._genProgress<100){ alert('Run the batch generation to completion before saving.'); return; } }
-  if(n===11){
-    const confirmed = document.getElementById('f-label-confirmed');
-    if(!confirmed?.classList.contains('on')){ alert('Please confirm labels have been sent to print.'); return; }
-  }
   done[n]=true;
   updatePipelineState();
   closeModal();
@@ -816,13 +611,8 @@ function renderModal(n){
     case 2: inner = modalMaterials(); break;
     case 3: inner = modalSupplyChain(); break;
     case 4: inner = modalEndOfLife(); break;
-    case 5: inner = modalQRCode(); break;
-    case 6: inner = modalResultScreen(); break;
-    case 7: inner = modalMarketing(); break;
-    case 8: inner = modalApproval(); break;
-    case 9: inner = modalBatchOrder(); break;
-    case 10: inner = modalBatchGeneration(); break;
-    case 11: inner = modalLabelExport(); break;
+    case 5: inner = modalResultScreen(); break;
+    case 6: inner = modalMarketing(); break;
   }
 
   div.innerHTML = `<div class="modal-card"${n===6||n===3?' style="max-width:800px"':''}>
@@ -830,7 +620,7 @@ function renderModal(n){
       <div><div class="modal-title">${node.label.replace(/\n/g,' ')}</div></div>
       <div style="display:flex;align-items:center;gap:8px">
         <div class="modal-step">Step ${n+1} of ${N}</div>
-        <button class="modal-close" onclick="closeModal()">✕</button>
+        <button class="modal-close" onclick="closeModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
       </div>
     </div>
     ${inner}
@@ -865,8 +655,21 @@ function modalCollection(){
     </div>
   </div>
   <div class="toggle-row" style="border:none;padding:8px 0">
-    <div class="toggle-left"><div class="toggle-label">🇪🇺 EU Market</div><div class="toggle-desc">This product will be sold in the EU. Activates ESPR compliance requirements and EU DPP Registry submission.</div></div>
-    <div class="toggle-switch" id="f-eumarket" onclick="this.classList.toggle('on')"></div>
+    <div class="toggle-left"><div class="toggle-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>EU Market</div><div class="toggle-desc">This product will be sold in the EU. Activates ESPR compliance requirements and EU DPP Registry submission.</div></div>
+    <div class="toggle-switch" id="f-eumarket" role="switch" aria-checked="false" onclick="this.classList.toggle('on');this.setAttribute('aria-checked',this.classList.contains('on').toString())"></div>
+  </div>
+  <div class="modal-section" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--bdr)">
+    <div class="section-label" style="color:var(--violet)"><span class="sl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span> GDPR Article 28 — Data Processing Agreement</div>
+    <div class="toggle-row" style="border:1px solid rgba(179,84,241,.25);border-radius:12px;padding:12px 16px;background:rgba(179,84,241,.04)">
+      <div class="toggle-left">
+        <div class="toggle-label">Signed DPA on file for this brand</div>
+        <div class="toggle-desc">A signed Data Processing Agreement must be in place before any brand data is collected or processed. <strong style="color:var(--orange)">Required under GDPR Article 28 — unlawful to onboard without it.</strong></div>
+      </div>
+      <div class="toggle-switch" id="f-dpa" role="switch" aria-checked="false" onclick="this.classList.toggle('on');this.setAttribute('aria-checked',this.classList.contains('on').toString())"></div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6;padding:8px 12px;background:var(--d3);border-radius:8px;border:1px solid var(--bdr)">
+      Store signed DPAs in your compliance folder. Template available in the Compliance Guide (Section 07). DeStore acts as <strong style="color:var(--dim)">data processor</strong>; the brand is the <strong style="color:var(--dim)">data controller</strong>.
+    </div>
   </div>
   <div id="collSummary" style="display:none;margin-top:12px;background:var(--d3);border:1px solid var(--bdr);border-radius:12px;padding:14px">
     <div style="font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:6px">Selected Collection</div>
@@ -884,84 +687,29 @@ function modalProduct(){
         <div class="img-thumb" onclick="document.getElementById('prodImgFile').click()"><span class="placeholder">+</span></div>
       </div>
       <input type="file" id="prodImgFile" accept="image/*" multiple style="display:none" onchange="handleProdImages(event)">
-      <div class="field-hint">Up to 6 images. First image is the hero.</div>
+      <div class="field-hint">Up to 6 images. First image is the hero. Drag to reorder (coming soon).</div>
     </div>
     <div class="field"><label>Product Name</label><input type="text" id="f-name" placeholder="Boulder Opal — Yowah QLD"></div>
     <div class="field"><label>SKU</label><input type="text" id="f-sku" placeholder="DD-Yowah-0047" class="mono" style="font-size:12px"></div>
 
     <div class="modal-section form-full" style="margin:0;padding:0;border:none"><div class="section-label" style="color:var(--violet)"><span class="sl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span> GS1 Identification</div></div>
-
-    <div class="field form-full">
-      <label>GTIN-14</label>
-      <div class="gtin-mode-chips">
-        <button class="gtin-chip active" onclick="setGtinMode('destore',this)">DeStore (default)</button>
-        <button class="gtin-chip" onclick="setGtinMode('custom',this)">Custom GS1</button>
-      </div>
-      <div id="gtinDestoreRow">
-        <input type="text" id="f-gtin" value="09506000130001" class="mono" style="font-size:12px;background:var(--d3)" readonly>
-        <div class="field-hint">Issued from DeStore GS1 prefix. Auto-assigned per product.</div>
-      </div>
-      <div id="gtinCustomRow" style="display:none">
-        <input type="text" id="f-gtin-custom" placeholder="Enter your 14-digit GS1 GTIN" class="mono" style="font-size:12px" maxlength="14" oninput="syncGtin(this.value)">
-        <div class="field-hint">Enter your own GS1-registered GTIN-14. Must be exactly 14 digits.</div>
-      </div>
-    </div>
-
-    <div class="field"><label>Batch / Lot Number <span style="color:var(--muted);font-weight:600;font-size:10px">(optional)</span></label><input type="text" id="f-batch" placeholder="Leave blank if not applicable" class="mono" style="font-size:12px"></div>
-    <div class="field"><label>Serial Number <span style="color:var(--muted);font-weight:600;font-size:10px">(optional)</span></label><input type="text" id="f-serial" placeholder="Leave blank if not applicable" class="mono" style="font-size:12px"></div>
+    <div class="field"><label>GTIN-14</label><input type="text" id="f-gtin" placeholder="09506000130001" class="mono" style="font-size:12px" maxlength="14"><div class="field-hint">Auto-generated from DeStore prefix, or enter your own GS1 GTIN.</div></div>
+    <div class="field"><label>Batch Number</label><input type="text" id="f-batch" placeholder="Optional — enables batch DPP" class="mono" style="font-size:12px"></div>
+    <div class="field"><label>Serial Number</label><input type="text" id="f-serial" placeholder="Optional — enables item DPP" class="mono" style="font-size:12px"></div>
+    <div class="field"><label>Expiry Date <span style="font-size:9px;color:var(--orange);font-weight:900;letter-spacing:.06em">AI(17)</span></label><input type="date" id="f-expiry"><div class="field-hint">GS1 AI(17). Required for perishable / food / pharma. Resolves via Digital Link.</div></div>
     <div class="field"><label>Granularity</label><select id="f-granularity"><option value="model">Model level</option><option value="batch">Batch level</option><option value="item">Item level</option><option value="full">Full traceability</option></select><div class="field-hint">Auto-set based on identifiers filled.</div></div>
 
     <div class="modal-section form-full" style="margin:0;padding:0;border:none"><div class="section-label" style="color:var(--orange)"><span class="sl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg></span> Manufacturer</div></div>
     <div class="field"><label>Manufacturer Name</label><input type="text" id="f-mfgname" placeholder="Legal name of manufacturer"></div>
     <div class="field"><label>Facility Name</label><input type="text" id="f-facility" placeholder="Factory or facility"></div>
-
-    <div class="field form-full">
-      <label>Facility Address</label>
-      <div class="addr-wrap">
-        <input type="text" id="f-facaddr" placeholder="Start typing address..." autocomplete="off" oninput="addrInput(this.value)" onfocus="addrInput(this.value)">
-        <div class="addr-suggestions" id="addrSuggestions"></div>
-      </div>
-      <div class="addr-custom-row">
-        <button class="btn-custom-addr" onclick="toggleCustomAddr()">+ Enter custom address manually</button>
-      </div>
-      <div id="customAddrWrap" style="display:none;margin-top:6px">
-        <input type="text" placeholder="Street address" id="f-addr-line1" style="margin-bottom:6px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-          <input type="text" placeholder="City" id="f-addr-city">
-          <input type="text" placeholder="State / Region" id="f-addr-state">
-          <input type="text" placeholder="Postcode" id="f-addr-post">
-          <input type="text" placeholder="Country" id="f-addr-country">
-        </div>
-      </div>
-    </div>
-
+    <div class="field form-full"><label>Facility Address</label><input type="text" id="f-facaddr" placeholder="Full address including country"></div>
     <div class="field"><label>Country of Manufacture</label><input type="text" id="f-countmfg" placeholder="Australia"></div>
+    <div class="field"><label>Manufacturer Contact</label><input type="text" id="f-mfgcontact" placeholder="contact@manufacturer.com"><div class="field-hint">Required by ESPR — name, address, and contact of manufacturer.</div></div>
     <div class="field"><label>Date of Manufacture</label><input type="date" id="f-datemfg"></div>
 
-    <div class="modal-section form-full" style="margin:0;padding:0;border:none"><div class="section-label"><span class="sl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span> Pricing</div></div>
+    <div class="modal-section form-full" style="margin:0;padding:0;border:none"><div class="section-label"><span class="sl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2z"/><path d="M7 7h.01"/></svg></span> Pricing</div></div>
     <div class="field"><label>Price</label><input type="text" id="f-price" placeholder="450.00"></div>
-    <div class="field"><label>Currency</label>
-      <select id="f-currency">
-        <optgroup label="Major">
-          <option>AUD</option><option>USD</option><option>EUR</option><option>GBP</option><option>JPY</option><option>CHF</option><option>CAD</option><option>CNY</option><option>HKD</option><option>SGD</option>
-        </optgroup>
-        <optgroup label="Asia Pacific">
-          <option>NZD</option><option>KRW</option><option>TWD</option><option>THB</option><option>MYR</option><option>IDR</option><option>PHP</option><option>INR</option><option>PKR</option><option>BDT</option><option>VND</option>
-        </optgroup>
-        <optgroup label="Europe">
-          <option>SEK</option><option>NOK</option><option>DKK</option><option>PLN</option><option>CZK</option><option>HUF</option><option>RON</option><option>TRY</option>
-        </optgroup>
-        <optgroup label="Americas">
-          <option>MXN</option><option>BRL</option><option>ARS</option><option>CLP</option><option>COP</option><option>PEN</option>
-        </optgroup>
-        <optgroup label="Middle East &amp; Africa">
-          <option>AED</option><option>SAR</option><option>QAR</option><option>KWD</option><option>ILS</option><option>ZAR</option><option>NGN</option><option>KES</option><option>EGP</option>
-        </optgroup>
-        <optgroup label="Crypto">
-          <option>ETH</option><option>BTC</option><option>USDC</option><option>USDT</option>
-        </optgroup>
-      </select>
-    </div>
+    <div class="field"><label>Currency</label><select id="f-currency"><option>AUD</option><option>USD</option><option>EUR</option><option>GBP</option></select></div>
     <div class="field"><label>Weight / Size</label><input type="text" id="f-weight" placeholder="12.4ct"></div>
     <div class="field"><label>Origin</label><input type="text" id="f-origin" placeholder="Yowah, QLD, Australia"></div>
     <div class="field form-full"><label>Description</label><textarea id="f-pdesc" placeholder="Product description..."></textarea></div>
@@ -983,12 +731,9 @@ function modalMaterials(){
   </div>
 
   <div class="modal-section">
-    <div class="section-label" style="color:var(--orange)"><span class="sl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span> Substances of Concern</div>
+    <div class="section-label" style="color:var(--orange)"><span class="sl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span> Substances of Concern</div>
     <div class="toggle-row" style="border:none;padding:0 0 12px">
-      <div class="toggle-left">
-        <div class="toggle-label">Contains Substances of Concern <button class="info-btn" onclick="showPopup('popupReach',event)">i</button></div>
-        <div class="toggle-desc">REACH / SVHC declaration. If yes, list substances below.</div>
-      </div>
+      <div class="toggle-left"><div class="toggle-label">Contains Substances of Concern</div><div class="toggle-desc">REACH / SVHC declaration. If yes, list substances below.</div></div>
       <div class="toggle-switch" id="f-substances" data-set="false" onclick="this.classList.toggle('on');this.dataset.set=this.classList.contains('on')?'true':'false';document.getElementById('substancesList').style.display=this.classList.contains('on')?'block':'none'"></div>
     </div>
     <div id="substancesList" style="display:none">
@@ -1003,13 +748,14 @@ function modalMaterials(){
     <div class="form-grid">
       <div class="field"><label>Carbon Footprint (kg CO₂e)</label><input type="number" id="f-carbon" placeholder="13.6" step="0.1"><div class="field-hint">Product carbon footprint — cradle to gate. GWP value.</div></div>
       <div class="field"><label>Calculation Method</label><select id="f-carbon-method"><option value="">Select...</option><option>PEF (EU)</option><option>ISO 14067</option><option>GHG Protocol</option><option>Estimated</option><option>Other</option></select></div>
-      <div class="field"><div class="label-row"><label>Energy Efficiency Class</label><button class="info-btn" onclick="showPopup('popupEnergyClass',event)">i</button></div><select id="f-energy"><option value="">Not applicable</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select><div class="field-hint">EU Regulation 2021/341. Required for appliances, electronics, tyres, lighting &amp; more.</div></div>
+      <div class="field"><label>Recyclability (%) <span style="font-size:9px;color:var(--pink);font-weight:900;letter-spacing:.06em">ESPR</span></label><input type="number" id="f-recyclability" placeholder="65" min="0" max="100"><div class="field-hint">% of product recyclable at end of life. Separate from recycled content — mandatory ESPR field.</div></div>
+      <div class="field"><label>Energy Efficiency Class</label><select id="f-energy"><option value="">Not applicable</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
       <div class="field"><label>Water Usage (litres)</label><input type="number" id="f-water" placeholder="Optional" step="0.1"></div>
     </div>
   </div>
 
   <div class="modal-section">
-    <div class="section-label" style="color:var(--violet)"><span class="sl-icon">🔧</span> Durability & Repair</div>
+    <div class="section-label" style="color:var(--violet)"><span class="sl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span> Durability & Repair</div>
     <div class="form-grid">
       <div class="field"><label>Durability Rating (1–10)</label><input type="number" id="f-durability" min="1" max="10" placeholder="8"></div>
       <div class="field"><label>Expected Lifetime</label><input type="text" id="f-lifetime" placeholder="5 years, 500 wash cycles"></div>
@@ -1087,11 +833,11 @@ function modalEndOfLife(){
   <div class="modal-section">
     <div class="section-label" style="color:var(--violet)"><span class="sl-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg></span> Circular Actions</div>
     <div id="circToggles">
-      <div class="toggle-row"><div class="toggle-left"><div class="toggle-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Trade</div><div class="toggle-desc">List for resale. Ownership transfers on purchase.</div></div><div class="toggle-switch on" onclick="this.classList.toggle('on')" data-a="trade"></div></div>
-      <div class="toggle-row"><div class="toggle-left"><div class="toggle-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Gift</div><div class="toggle-desc">Transfer to another person. Free ownership transfer.</div></div><div class="toggle-switch on" onclick="this.classList.toggle('on')" data-a="gift"></div></div>
-      <div class="toggle-row"><div class="toggle-left"><div class="toggle-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg> Recycle</div><div class="toggle-desc">End-of-life recycling. DPP updated with recycling record.</div></div><div class="toggle-switch on" onclick="this.classList.toggle('on')" data-a="recycle"></div></div>
-      <div class="toggle-row"><div class="toggle-left"><div class="toggle-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Return</div><div class="toggle-desc">Return to brand. Ownership back to brand wallet.</div></div><div class="toggle-switch on" onclick="this.classList.toggle('on')" data-a="return"></div></div>
-      <div class="toggle-row"><div class="toggle-left"><div class="toggle-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Repair</div><div class="toggle-desc">Submit for repair. DPP logs repair event.</div></div><div class="toggle-switch" onclick="this.classList.toggle('on')" data-a="repair"></div></div>
+      <div class="toggle-row"><div class="toggle-left"><div class="toggle-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>Trade</div><div class="toggle-desc">List for resale. Ownership transfers on purchase.</div></div><div class="toggle-switch on" onclick="this.classList.toggle('on')" data-a="trade"></div></div>
+      <div class="toggle-row"><div class="toggle-left"><div class="toggle-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Gift</div><div class="toggle-desc">Transfer to another person. Free ownership transfer.</div></div><div class="toggle-switch on" onclick="this.classList.toggle('on')" data-a="gift"></div></div>
+      <div class="toggle-row"><div class="toggle-left"><div class="toggle-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg> Recycle</div><div class="toggle-desc">End-of-life recycling. DPP updated with recycling record.</div></div><div class="toggle-switch on" onclick="this.classList.toggle('on')" data-a="recycle"></div></div>
+      <div class="toggle-row"><div class="toggle-left"><div class="toggle-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Return</div><div class="toggle-desc">Return to brand. Ownership back to brand wallet.</div></div><div class="toggle-switch on" onclick="this.classList.toggle('on')" data-a="return"></div></div>
+      <div class="toggle-row"><div class="toggle-left"><div class="toggle-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>Repair</div><div class="toggle-desc">Submit for repair. DPP logs repair event.</div></div><div class="toggle-switch" onclick="this.classList.toggle('on')" data-a="repair"></div></div>
     </div>
   </div>
 
@@ -1101,62 +847,10 @@ function modalEndOfLife(){
   </div>`;
 }
 
-// ─── NODE 5: QR CODE DESIGN ───
-function modalQRCode(){
-  return `
-  <div class="field" style="margin-bottom:20px">
-    <label>QR Template</label>
-    <div class="tpl-grid" id="tplGrid"></div>
-    <div class="field-hint">Templates saved in the QR Designer appear here. Click to apply.</div>
-  </div>
-  <div class="form-grid">
-    <div class="field"><label>Foreground Colour</label><input type="text" id="f-qr-fg" value="#000000" maxlength="7" oninput="renderQR()"></div>
-    <div class="field"><label>Eye Colour</label><input type="text" id="f-qr-eye" value="#000000" maxlength="7" oninput="renderQR()"></div>
-    <div class="field"><label>Dot Style</label><select id="f-qr-dot" onchange="renderQR()"><option value="square">Square</option><option value="rounded">Rounded</option><option value="dots">Circle</option><option value="classy-rounded">Diamond</option></select></div>
-    <div class="field"><label>Error Correction</label><select id="f-qr-ec" onchange="renderQR()"><option value="H">H — High (30%)</option><option value="Q">Q — Quartile</option><option value="M">M — Medium</option></select></div>
-    <div class="field form-full"><label>GS1 Digital Link</label><input type="text" id="f-qr-link" readonly class="mono" style="font-size:11px;background:var(--d3)"></div>
-  </div>
-
-  <div class="modal-section" style="margin-top:16px;padding-top:14px">
-    <div class="toggle-row" style="border:none;padding:0">
-      <div class="toggle-left">
-        <div class="toggle-label">Include GS1-128 Barcode</div>
-        <div class="toggle-desc">Places a 1D GS1-128 barcode directly beneath the QR code, using the GTIN-14 from Product Identity. Monochrome — required for GS1 compliance.</div>
-      </div>
-      <div class="toggle-switch" id="barcodeToggle" onclick="toggleBarcode()"></div>
-    </div>
-  </div>
-
-  <div style="text-align:center;margin-top:20px">
-    <div style="font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Preview</div>
-    <div style="background:#fff;border-radius:14px;padding:20px 24px;display:inline-block;min-width:160px">
-      <div id="qrMini"></div>
-      <div class="barcode-wrap barcode-hidden" id="barcodeWrap">
-        <svg id="barcodeSvg"></svg>
-        <div class="barcode-label" id="barcodeLabel"></div>
-      </div>
-    </div>
-    <div style="font-size:9px;color:var(--muted);margin-top:8px">GS1 Digital Link v1.6.0 · EU ESPR compliant</div>
-  </div>`;
-}
-
-// ─── NODE 6: RESULT SCREEN ───
+// ─── NODE 5: RESULT SCREEN ───
 function modalResultScreen(){
   return `
   <p style="font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:16px">Auto-populated from preceding nodes. Available options depend on tier.</p>
-
-  <div class="field result-template-dd">
-    <label>Result Screen Template</label>
-    <select id="f-rs-template" onchange="applyRsTemplate(this.value)">
-      <option value="destore-default">DeStore Default</option>
-      <option value="minimal">Minimal</option>
-      <option value="bold">Bold Brand</option>
-      <option value="dark">Dark Mode</option>
-      <option value="custom">Custom</option>
-    </select>
-    <div class="field-hint">Select a preset template. Choose Custom to paste your own code.</div>
-  </div>
-
   <div class="tier-bar">
     <div class="tier-tab tier-free active" onclick="switchTier('starter',this)">Starter<span class="tier-badge">Free</span></div>
     <div class="tier-tab tier-growth" onclick="switchTier('growth',this)">Growth<span class="tier-badge">$99/mo</span></div>
@@ -1187,21 +881,7 @@ function modalResultScreen(){
           <div class="field form-full"><label>Custom Banner Text</label><input type="text" placeholder="Authentic. Verified. Yours."></div>
           <div class="field form-full"><label>Brand Accent Colour</label><input type="text" value="#6A14DB" maxlength="7"></div>
           <div class="field form-full"><label>n8n Webhook on Scan</label><input type="text" placeholder="https://n8n.yourdomain.com/webhook/scan-event"></div>
-
-          <div class="field form-full">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <label style="margin:0">Custom CSS Override</label>
-              <div class="toggle-switch" id="cssOverrideToggle" onclick="toggleCssOverride()" style="width:36px;height:20px;flex-shrink:0"></div>
-            </div>
-            <div class="field-hint" style="margin-bottom:6px">CSS applies to the result screen. Circular action buttons and product image always remain visible.</div>
-            <div class="css-override-panel" id="cssOverridePanel">
-              <textarea id="f-custom-css" placeholder="/* Your CSS here — delete this comment and paste your styles */
-.product-name { font-family: 'Your Font', sans-serif; }
-.hero-banner { background: #your-brand-colour; }" style="height:100px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6"></textarea>
-              <div class="field-hint" style="margin-top:4px;color:var(--orange)">Note: circular action buttons and product hero image cannot be overridden.</div>
-            </div>
-          </div>
-
+          <div class="field form-full"><label>Custom CSS Override</label><textarea id="f-custom-css" placeholder=".product-name { color: #ff0000; }" style="height:60px;font-family:'JetBrains Mono',monospace;font-size:11px"></textarea></div>
           <div class="field form-full"><label>Custom HTML Block</label><textarea id="f-custom-html" placeholder="<div class='widget'>...</div>" style="height:60px;font-family:'JetBrains Mono',monospace;font-size:11px"></textarea></div>
         </div>
         <div class="tier-note">Enterprise: full white-label control. CSS/HTML injection, webhooks. Webmaster overrides per-brand.</div>
@@ -1220,9 +900,27 @@ function modalMarketing(){
   <p style="font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:20px">Enable tracking pixels and configure SEO for the DPP result screen.</p>
   <div class="pixel-grid" id="pixelGrid">
     ${['meta','ga4','gads','linkedin','x','pinterest','tiktok','custom'].map(p => {
-      const cfg = {meta:['Meta Pixel','FB & Instagram retargeting.','meta','Pixel ID e.g. 123456789'],ga4:['Google Analytics 4','Traffic, behaviour, events.','ga','Measurement ID e.g. G-XXX'],gads:['Google Ads','Conversion tracking via GTM.','gads','Conversion ID e.g. AW-123'],linkedin:['LinkedIn Insight','B2B audience tracking.','li','Partner ID e.g. 123456'],x:['X (Twitter)','Conversion tracking for X.','x','Pixel ID e.g. abc12'],pinterest:['Pinterest Tag','Visual commerce retargeting.','pin','Tag ID e.g. 261234567'],tiktok:['TikTok Pixel','Video views, purchases.','tt','Pixel ID e.g. CXXX'],custom:['Custom Script','Any tracking script.','custom','GTM ID or script']};
-      const c=cfg[p];
-      return `<div class="pixel-card" onclick="togglePixel(this,event)" data-platform="${p}"><div class="pixel-icon ${c[2]}"><span style="font-size:14px">${p==='meta'?'f':p==='ga4'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>':p==='gads'?'📈':p==='linkedin'?'in':p==='x'?'𝕏':p==='pinterest'?'📌':p==='tiktok'?'♪':'◈'}</span></div><div class="pixel-info"><div class="pixel-name">${c[0]}</div><div class="pixel-desc">${c[1]}</div><div class="pixel-id-field"><input onclick="event.stopPropagation()" type="text" placeholder="${c[3]}" data-id="${p}"></div></div><div class="pixel-check">✓</div></div>`;
+      const cfg = {
+        meta:['Meta Pixel','FB & Instagram retargeting.','meta','Pixel ID e.g. 123456789'],
+        ga4:['Google Analytics 4','Traffic, behaviour, events.','ga','Measurement ID e.g. G-XXX'],
+        gads:['Google Ads','Conversion tracking via GTM.','gads','Conversion ID e.g. AW-123'],
+        linkedin:['LinkedIn Insight','B2B audience tracking.','li','Partner ID e.g. 123456'],
+        x:['X (Twitter)','Conversion tracking for X.','x','Pixel ID e.g. abc12'],
+        pinterest:['Pinterest Tag','Visual commerce retargeting.','pin','Tag ID e.g. 261234567'],
+        tiktok:['TikTok Pixel','Video views, purchases.','tt','Pixel ID e.g. CXXX'],
+        custom:['Custom Script','Any tracking script.','custom','GTM ID or script']
+      };
+      const icons = {
+        meta:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
+        ga4:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+        gads:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>',
+        linkedin:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>',
+        x:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M20 4 4 20"/></svg>',
+        pinterest:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+        tiktok:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+        custom:'◈'
+      };
+      return `<div class="pixel-card" onclick="togglePixel(this,event)" data-platform="${p}"><div class="pixel-icon ${cfg[p][2]}">${icons[p]||'◈'}</div><div class="pixel-info"><div class="pixel-name">${cfg[p][0]}</div><div class="pixel-desc">${cfg[p][1]}</div><div class="pixel-id-field"><input onclick="event.stopPropagation()" type="text" placeholder="${cfg[p][3]}" data-id="${p}"></div></div><div class="pixel-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>`;
     }).join('')}
   </div>
 
@@ -1231,7 +929,7 @@ function modalMarketing(){
       <div style="font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">SEO & Structured Data</div>
       <div class="seo-auto-badge">◈ Auto-generated</div>
     </div>
-    <div style="font-size:11px;color:var(--dim);margin-bottom:14px;line-height:1.6">Auto-populated from product data. Edit to override. JSON-LD includes materials, carbon, certifications.</div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:14px;line-height:1.6">Auto-populated from product data. Edit to override. JSON-LD now includes materials, carbon, certifications.</div>
     <div class="seo-preview">
       <div class="seo-google">
         <div class="sg-url" id="seo-prev-url">qr.destore.network › 01 › 09506000130001</div>
@@ -1242,37 +940,8 @@ function modalMarketing(){
     <div class="form-grid">
       <div class="field form-full"><label>Page Title</label><input type="text" id="seo-title" placeholder="Auto: Product Name — Brand" oninput="updateSeoPreview()"><div class="seo-char-count" id="seo-title-count">0 / 60</div></div>
       <div class="field form-full"><label>Meta Description</label><textarea id="seo-desc" placeholder="Auto: product description" style="min-height:50px" oninput="updateSeoPreview()"></textarea><div class="seo-char-count" id="seo-desc-count">0 / 155</div></div>
-
-      <div class="field form-full">
-        <label>Social Share Image</label>
-        <div id="seoImgPreviewWrap" style="display:none;margin-bottom:10px;position:relative">
-          <img id="seoImgBig" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1.5px solid var(--bdr);display:block">
-          <button onclick="clearSeoImage()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">✕ Remove</button>
-          <div style="background:var(--d3);border:1.5px solid var(--bdr);border-radius:0 0 10px 10px;padding:8px 12px;border-top:none;margin-top:-2px">
-            <div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">OG:IMAGE PREVIEW</div>
-            <div id="seoImgLabel" style="font-size:11px;font-weight:700;color:var(--dim)">No image</div>
-          </div>
-        </div>
-        <div class="seo-img-upload" id="seoImgUploadArea">
-          <div class="seo-img-thumb" id="seoImgThumb" onclick="document.getElementById('seoImgFile').click()" title="Click to upload">
-            <span id="seoImgPlaceholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
-          </div>
-          <input type="file" id="seoImgFile" accept="image/*" style="display:none" onchange="handleSeoImage(event)">
-          <div style="flex:1">
-            <button class="btn btn-ghost" style="padding:7px 14px;font-size:11px" onclick="document.getElementById('seoImgFile').click()">Upload Image</button>
-            <div class="field-hint" style="margin-top:4px">Shown when the DPP link is shared on social (og:image). Recommended: 1200×630px.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="label-row"><label>Purchase URL</label><button class="info-btn" onclick="showPopup('popupPurchaseUrl',event)">i</button></div>
-        <input type="text" id="seo-purchase" placeholder="https://yourbrand.com/product" class="mono" style="font-size:11px">
-      </div>
-      <div class="field">
-        <div class="label-row"><label>Canonical URL</label><button class="info-btn" onclick="showPopup('popupCanonical',event)">i</button></div>
-        <input type="text" id="seo-canonical" placeholder="Auto: GS1 Digital Link" class="mono" style="font-size:11px">
-      </div>
+      <div class="field"><label>Purchase URL</label><input type="text" id="seo-purchase" placeholder="https://yourbrand.com/product" class="mono" style="font-size:11px"></div>
+      <div class="field"><label>Canonical URL</label><input type="text" id="seo-canonical" placeholder="Auto: GS1 Digital Link" class="mono" style="font-size:11px"></div>
     </div>
     <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:12px;margin-top:12px">
       <div style="font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);margin-bottom:6px">Auto-generated (read-only)</div>
@@ -1295,7 +964,7 @@ function addMaterialRow(){
     <input type="number" class="rr-num" placeholder="%" min="0" max="100" oninput="updateRecycledPct()">
     <select style="min-width:70px"><option value="no">Virgin</option><option value="yes">Recycled</option></select>
     <select style="min-width:90px"><option value="">No cert</option><option>GRS</option><option>RCS</option><option>OEKO-TEX</option><option>GOTS</option></select>
-  </div><button class="rr-del" onclick="this.parentElement.remove();updateRecycledPct()">✕</button>`;
+  </div><button class="rr-del" aria-label="Remove material" onclick="this.parentElement.remove();updateRecycledPct()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
   list.appendChild(row);
 }
 
@@ -1322,7 +991,7 @@ function addSubstanceRow(){
     <input type="text" placeholder="CAS #" style="width:90px">
     <input type="number" class="rr-num" placeholder="%" min="0" max="100" step="0.01">
     <input type="text" placeholder="Location in product" style="flex:1">
-  </div><button class="rr-del" onclick="this.parentElement.remove()">✕</button>`;
+  </div><button class="rr-del" aria-label="Remove substance" onclick="this.parentElement.remove()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
   list.appendChild(row);
 }
 
@@ -1330,60 +999,19 @@ function addSubstanceRow(){
 function addSCEntry(){
   const tl = document.getElementById('scTimeline');
   const stages = ['Raw Material','Processing','Assembly','Distribution','Retail'];
-  const uid = 'sc-addr-'+Date.now();
   const entry = document.createElement('div');
   entry.className = 'sc-entry';
   entry.innerHTML = `<div class="sc-dot-col"><div class="sc-dot"></div><div class="sc-line"></div></div>
     <div class="sc-content">
       <div class="sc-fields">
         <select style="min-width:120px">${stages.map(s=>`<option>${s}</option>`).join('')}</select>
-        <input type="text" placeholder="Country / Region">
-        <input type="text" placeholder="Supplier (Tier 2/3)">
-        <button class="sc-del" onclick="this.closest('.sc-entry').remove()">✕</button>
-      </div>
-      <div style="position:relative;margin-top:6px">
-        <input type="text" class="sc-addr-input" data-uid="${uid}" placeholder="🔍 Search facility address..." style="width:100%;background:var(--d0);border:1.5px solid var(--bdr);border-radius:8px;padding:8px 12px;color:#fff;font-size:11px;font-weight:500;outline:none;font-family:'Plus Jakarta Sans',sans-serif" oninput="scAddrSearch(this,'${uid}')" autocomplete="off">
-        <div class="sc-addr-results" id="${uid}" style="display:none;position:absolute;left:0;right:0;top:100%;margin-top:2px;background:var(--d2);border:1.5px solid var(--violet);border-radius:10px;z-index:9999;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5)"></div>
+        <input type="text" placeholder="Country">
+        <input type="text" placeholder="Supplier (optional, Tier 2/3)">
+        <button class="sc-del" aria-label="Remove supply chain stage" onclick="this.closest('.sc-entry').remove()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
       </div>
     </div>`;
   tl.appendChild(entry);
 }
-
-let _scSearchTimer = null;
-function scAddrSearch(input, uid){
-  const q = input.value.trim();
-  const box = document.getElementById(uid);
-  if(!box) return;
-  if(q.length < 3){ box.style.display='none'; return; }
-  clearTimeout(_scSearchTimer);
-  _scSearchTimer = setTimeout(async ()=>{
-    try {
-      const res = await fetch(`/api/places?q=${encodeURIComponent(q)}&type=autocomplete`,{headers:{'Accept-Language':'en'}});
-      const data = await res.json();
-      if(!data.length){ box.style.display='none'; return; }
-      box.innerHTML = data.map(r=>`
-        <div onclick="scAddrPick(this,'${uid}')" data-addr="${r.display_name.replace(/"/g,'&quot;')}"
-          style="padding:9px 14px;font-size:11px;cursor:pointer;border-bottom:1px solid var(--bdr);color:var(--dim);transition:background .15s"
-          onmouseover="this.style.background='var(--d3)'" onmouseout="this.style.background=''">
-          <div style="font-weight:700;color:#e8e8f0;margin-bottom:2px">${r.display_name.split(',')[0]}</div>
-          <div style="font-size:10px">${r.display_name.split(',').slice(1,3).join(',')}</div>
-        </div>`).join('');
-      box.style.display='block';
-    } catch(e){ box.style.display='none'; }
-  }, 350);
-}
-function scAddrPick(el, uid){
-  const addr = el.dataset.addr;
-  const box = document.getElementById(uid);
-  const input = document.querySelector(`[data-uid="${uid}"]`);
-  if(input) input.value = addr;
-  if(box){ box.style.display='none'; box.innerHTML=''; }
-}
-document.addEventListener('click', e=>{
-  document.querySelectorAll('.sc-addr-results').forEach(b=>{
-    if(!b.contains(e.target) && !e.target.classList.contains('sc-addr-input')) b.style.display='none';
-  });
-});
 
 // ─── COLLECTIONS ───
 function getColls(){try{return JSON.parse(localStorage.getItem('ds-colls')||'[]')}catch(e){return[]}}
@@ -1429,7 +1057,7 @@ function renderImageRow(){
 
 // ─── DOC UPLOAD ───
 let docData=null;
-function handleDoc(e){const f=e.target.files[0];if(!f)return;docData=f.name;document.getElementById('docThumb').innerHTML='<span style="font-size:10px;color:var(--green);font-weight:700">✓</span>';}
+function handleDoc(e){const f=e.target.files[0];if(!f)return;docData=f.name;document.getElementById('docThumb').innerHTML='<span style="color:var(--green);display:flex;align-items:center;justify-content:center">'+CHECK_SVG+'</span>';}
 
 // ─── TIER SWITCHING ───
 function switchTier(tier,el){
@@ -1472,81 +1100,6 @@ function updateSeoPreview(){
   if(dc){const l=(getVal('seo-desc')).length;dc.textContent=l+' / 155';dc.className='seo-char-count'+(l>155?' over':l>140?' warn':'');}
 }
 
-// ─── QR ───
-function getQRTemplates(){try{return JSON.parse(localStorage.getItem('destore-qr-templates')||'[]')}catch(e){return[]}}
-let activeTpl=-1;
-function renderQRTemplateDD(){
-  if(typeof QRCodeStyling==='undefined'){setTimeout(renderQRTemplateDD,300);return}
-  const grid=document.getElementById('tplGrid');if(!grid) return;
-  const ts=getQRTemplates();
-  grid.innerHTML='<div class="tpl-custom" onclick="addQRTemplate()"><div class="tpl-icon">+</div><div class="tpl-name">New</div></div>';
-  ts.forEach((t,i)=>{
-    const card=document.createElement('div');card.className='tpl-card'+(activeTpl===i?' active':'');
-    const c=t.config||{};
-    card.innerHTML=`<div class="tpl-qr" id="tplQR-${i}"></div><div class="tpl-name">${t.name||'Untitled'}</div>`;
-    card.onclick=function(){activeTpl=i;applyQRTemplate(i);document.querySelectorAll('.tpl-card').forEach(c=>c.classList.remove('active'));card.classList.add('active')};
-    grid.appendChild(card);
-    try{new QRCodeStyling({width:48,height:48,data:'https://qr.destore.network/01/0950',margin:4,dotsOptions:{color:c.fgColor||'#321B68',type:c.dotStyle||'square'},backgroundOptions:{color:'#fff'},cornersSquareOptions:{color:c.eyeColor||'#6A14DB'},qrOptions:{errorCorrectionLevel:'H'}}).append(card.querySelector('.tpl-qr'))}catch(e){}
-  });
-}
-function applyQRTemplate(i){
-  const ts=getQRTemplates();if(!ts[i])return;const c=ts[i].config;
-  if(c.fgColor)document.getElementById('f-qr-fg').value=c.fgColor;
-  if(c.eyeColor)document.getElementById('f-qr-eye').value=c.eyeColor;
-  if(c.dotStyle){const s=document.getElementById('f-qr-dot');if(s)s.value=c.dotStyle}
-  if(c.ecLevel){const s=document.getElementById('f-qr-ec');if(s)s.value=c.ecLevel}
-  renderQR();
-}
-function addQRTemplate(){alert('QR Template Designer — available in full deployment. Use colour fields below to customise.')}
-function renderQR(){
-  if(typeof QRCodeStyling==='undefined'){setTimeout(renderQR,300);return}
-  const d=(selColl&&selColl.domain)||'qr.destore.network';
-  const link='https://'+d+'/01/'+(getVal('f-gtin')||'09506000130001');
-  const linkEl=document.getElementById('f-qr-link');if(linkEl)linkEl.value=link;
-  const z=document.getElementById('qrMini');if(!z)return;z.innerHTML='';
-  new QRCodeStyling({width:140,height:140,data:link,margin:10,
-    dotsOptions:{color:getVal('f-qr-fg')||'#000000',type:getVal('f-qr-dot')||'square'},
-    backgroundOptions:{color:'#fff'},
-    cornersSquareOptions:{color:getVal('f-qr-eye')||'#000000',type:'square'},
-    qrOptions:{errorCorrectionLevel:getVal('f-qr-ec')||'H'}
-  }).append(z);
-  renderBarcode();
-}
-
-// ─── BARCODE ───
-window._barcodeOn = false;
-function toggleBarcode(){
-  window._barcodeOn = !window._barcodeOn;
-  const toggle = document.getElementById('barcodeToggle');
-  if(toggle) toggle.classList.toggle('on', window._barcodeOn);
-  renderBarcode();
-}
-function renderBarcode(){
-  const wrap  = document.getElementById('barcodeWrap');
-  const svg   = document.getElementById('barcodeSvg');
-  const lbl   = document.getElementById('barcodeLabel');
-  if(!wrap || !svg) return;
-  if(!window._barcodeOn){ wrap.classList.add('barcode-hidden'); return; }
-  wrap.classList.remove('barcode-hidden');
-  const gtin = getVal('f-gtin') || '09506000130001';
-  // GS1-128 format: Application Identifier (01) + GTIN-14
-  const gs1Value = '(01)' + gtin;
-  try {
-    JsBarcode(svg, '01' + gtin, {
-      format:       'CODE128',
-      lineColor:    '#000000',
-      background:   '#ffffff',
-      width:        1.8,
-      height:       56,
-      displayValue: false,
-      margin:       4,
-    });
-    if(lbl) lbl.textContent = gs1Value;
-  } catch(e) {
-    if(lbl) lbl.textContent = 'Invalid GTIN — check Product Identity node';
-  }
-}
-
 // ─── RESULT SCREEN ───
 function populateResultScreen(){
   const el=id=>document.getElementById(id);
@@ -1559,19 +1112,16 @@ function populateResultScreen(){
   if(el('rs-carbon')) el('rs-carbon').textContent=carbon?carbon+' kg CO₂e':'—';
   if(el('rs-recycled')){el('rs-recycled').textContent=recycled?recycled+'%':'—';el('rs-recycled').style.color=parseInt(recycled)>0?'var(--green)':''}
 }
-function buildPhoneHTML(){
+function renderPhone(){
   const nm=getVal('f-name')||'Product',br=(selColl&&selColl.brand)||'Brand',co=(selColl&&selColl.name)||'';
   const pr=getVal('f-price')||'0.00',cu=getVal('f-currency')||'AUD',ds=getVal('f-pdesc')||'';
   const sk=getVal('f-sku')||'',wt=getVal('f-weight')||'',og=getVal('f-origin')||'';
   const carbon=getVal('f-carbon'),recycled=getVal('f-recycled-pct');
-  // Banner — read from Growth tier field
-  const banner=getVal('f-banner');
-  const accent=getVal('f-accent')||'#6A14DB';
   const hero=prodImages.length?'<div style="height:80px;border-radius:10px;overflow:hidden;margin-bottom:8px"><img src="'+prodImages[0]+'" style="width:100%;height:100%;object-fit:cover"></div>':'<div style="height:60px;background:var(--d3);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:18px;color:var(--muted);opacity:.3">◈</div>';
   const acts=[];
-  document.querySelectorAll('#circToggles .toggle-switch.on').forEach(t=>{const a=t.dataset.a;const ic={trade:'💸',gift:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',recycle:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg>',return:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>',repair:'🔧'};const lb={trade:'Trade',gift:'Gift',recycle:'Recycle',return:'Return',repair:'Repair'};acts.push('<div class="pai"><em>'+(ic[a]||'')+'</em>'+(lb[a]||a)+'</div>')});
-  return `${banner?`<div style="margin-bottom:8px;padding:8px 10px;border-radius:8px;background:${accent}22;border:1px solid ${accent}55;font-size:10px;font-weight:800;color:${accent};text-align:center;letter-spacing:.04em">${banner}</div>`:''}
-    ${hero}
+  document.querySelectorAll('#circToggles .toggle-switch.on').forEach(t=>{const a=t.dataset.a;const ic={trade:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>',gift:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',recycle:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg>',return:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>',repair:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'};const lb={trade:'Trade',gift:'Gift',recycle:'Recycle',return:'Return',repair:'Repair'};acts.push('<div class="pai">'+(ic[a]||'')+(lb[a]||a)+'</div>')});
+  const ps=document.getElementById('phoneScreen');if(!ps)return;
+  ps.innerHTML=`${hero}
     <span class="pb pb-g">◈ Verified</span><span class="pb pb-v">Base · DPP</span>
     ${carbon?'<span class="pb" style="background:rgba(40,183,157,.08);color:var(--green);border:1px solid rgba(40,183,157,.15)">'+carbon+' kg CO₂e</span>':''}
     ${parseInt(recycled)>0?'<span class="pb" style="background:rgba(40,183,157,.08);color:var(--green);border:1px solid rgba(40,183,157,.15)">'+recycled+'% Recycled</span>':''}
@@ -1586,10 +1136,6 @@ function buildPhoneHTML(){
     <div style="margin-top:6px;background:rgba(40,183,157,.06);border:1px solid rgba(40,183,157,.15);border-radius:8px;padding:6px;text-align:center">
       <div style="font-size:8px;font-weight:800;color:var(--green)">◈ Ownership transfers on purchase</div>
     </div>`;
-}
-function renderPhone(){
-  const ps=document.getElementById('phoneScreen');if(!ps)return;
-  ps.innerHTML=buildPhoneHTML();
 }
 
 // ─── REVIEW ───
@@ -1630,7 +1176,7 @@ function renderReviewGrid(){
       <div class="rc-row"><span class="rc-k">Name</span><span class="rc-v">${nm}</span></div>
       <div class="rc-row"><span class="rc-k">GTIN</span><span class="rc-v mono" style="font-size:9px">${getVal('f-gtin')||'—'}</span></div>
       <div class="rc-row"><span class="rc-k">Mfg</span><span class="rc-v">${getVal('f-mfgname')||'—'}</span></div></div>
-    <div class="review-card"><div class="rc-head"><span class="rc-icon">🧪</span><span class="rc-title">Materials</span></div>
+    <div class="review-card"><div class="rc-head"><span class="rc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg></span><span class="rc-title">Materials</span></div>
       <div class="rc-row"><span class="rc-k">Carbon</span><span class="rc-v">${carbon?carbon+' kg CO₂e':'—'}</span></div>
       <div class="rc-row"><span class="rc-k">Recycled</span><span class="rc-v" style="color:${parseInt(recycled)>0?'var(--green)':''}">${recycled?recycled+'%':'—'}</span></div>
       <div class="rc-row"><span class="rc-k">Repair</span><span class="rc-v">${getVal('f-repair')||'—'}/10</span></div></div>
@@ -1640,972 +1186,31 @@ function renderReviewGrid(){
     <div class="review-card"><div class="rc-head"><span class="rc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12 3a1.784 1.784 0 0 1 1.565.9l3.978 6.886"/><path d="m17.8 12.2 1.093 3.888-3.888 1.093"/></svg></span><span class="rc-title">End of Life</span></div>
       <div class="rc-row"><span class="rc-k">Actions</span><span class="rc-v">${circ.join(' · ')||'None'}</span></div>
       <div class="rc-row"><span class="rc-k">Chain</span><span class="rc-v">${chain}</span></div></div>
-    <div class="review-card"><div class="rc-head"><span class="rc-icon">◈</span><span class="rc-title">QR Code</span></div>
-      <div class="rc-row"><span class="rc-k">FG</span><span class="rc-v"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${getVal('f-qr-fg')||'#321B68'};vertical-align:middle;margin-right:3px"></span>${getVal('f-qr-fg')||'#321B68'}</span></div>
-      <div class="rc-row"><span class="rc-k">Style</span><span class="rc-v">${getVal('f-qr-dot')||'square'}</span></div></div>
     <div class="review-card" style="grid-column:1/-1"><div class="rc-head"><span class="rc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="rc-title">Marketing & SEO · Pixel IDs</span></div>${pixelRows}</div>
   `;
 }
 function renderTestQR(){
   if(typeof QRCodeStyling==='undefined'){setTimeout(renderTestQR,300);return}
   const d=(selColl&&selColl.domain)||'qr.destore.network';
-  const link='https://'+d+'/01/'+(getVal('f-gtin')||'09506000130001');
+  const serial=getVal('f-serial')||'1';
+  const link='https://'+d+'/01/'+(getVal('f-gtin')||'09506000130001')+'/21/'+serial;
   const u=document.getElementById('testURL');if(u)u.textContent=link;
   const z=document.getElementById('testQR');if(!z)return;z.innerHTML='';
   new QRCodeStyling({width:180,height:180,data:link,margin:14,
-    dotsOptions:{color:getVal('f-qr-fg')||'#321B68',type:getVal('f-qr-dot')||'square'},
+    dotsOptions:{color:'#321B68',type:'square'},
     backgroundOptions:{color:'#fff'},
-    cornersSquareOptions:{color:getVal('f-qr-eye')||'#6A14DB'},
-    qrOptions:{errorCorrectionLevel:getVal('f-qr-ec')||'H'}
+    cornersSquareOptions:{color:'#6A14DB'},
+    qrOptions:{errorCorrectionLevel:'H'}
   }).append(z);
 }
-function renderTestPhone(){
-  const dst=document.getElementById('testPhoneScreen');
-  if(dst) dst.innerHTML=buildPhoneHTML();
-}
+function renderTestPhone(){renderPhone();const src=document.getElementById('phoneScreen');const dst=document.getElementById('testPhoneScreen');if(src&&dst)dst.innerHTML=src.innerHTML}
 
 function downloadWorkflowPDF(){alert('PDF generation — carries over from v1. Full ESPR fields included in production build.')}
 function saveProduct(){closeReview();const pub=document.getElementById('publishBar');pub.innerHTML='<div style="font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px">◈ Product saved successfully</div><div style="font-size:12px;color:var(--dim)">DPP SBT will mint. GS1 QR batch and resolver registered.</div>'}
 
-// ─── NODE 8: COLLECTION APPROVAL ───
-window._approvalStatus = 'draft';
-function modalApproval(){
-  return `
-  <div class="approval-band draft" id="approvalBand">
-    <div class="approval-dot" id="approvalDot"></div>
-    <span id="approvalLabel">Draft — not yet submitted</span>
-  </div>
-
-  <div class="field form-full" style="margin-bottom:14px">
-    <label>Your Name <span style="color:var(--muted);font-weight:600;font-size:10px">(recorded on submission — will pull from profile when auth is live)</span></label>
-    <input type="text" id="f-creator-name" placeholder="Your full name" value="${window._profileName||''}">
-  </div>
-
-  <div class="field form-full" style="margin-bottom:14px">
-    <label>DPP Summary</label>
-    <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:12px;font-size:12px;line-height:1.7" id="approvalSummary">
-      Loading collection details...
-    </div>
-  </div>
-
-  <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:14px">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--bdr);cursor:pointer" onclick="toggleReportPanel()">
-      <div style="display:flex;align-items:center;gap:8px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        <span style="font-size:11px;font-weight:900;color:var(--violet)">Preliminary Report</span>
-        <span style="font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:rgba(179,84,241,.1);border:1px solid rgba(179,84,241,.2);color:var(--violet);padding:2px 8px;border-radius:5px">Auto-generated</span>
-      </div>
-      <div style="display:flex;gap:6px">
-        <button class="btn btn-ghost" style="padding:5px 12px;font-size:10px;border-radius:8px" onclick="event.stopPropagation();downloadReport()">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download PDF
-        </button>
-        <svg id="reportChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
-    </div>
-    <div id="reportPanel" style="display:none;padding:14px">
-      <div id="reportContent" style="font-size:11px;color:var(--dim);line-height:1.8"></div>
-    </div>
-  </div>
-
-  <div class="field form-full" style="margin-bottom:14px">
-    <label>Notes for Brand Holder</label>
-    <textarea id="f-approval-notes" placeholder="Add any notes for the approver — e.g. first run of 2025 collection, materials data updated..." style="min-height:80px"></textarea>
-  </div>
-
-  <div id="notificationPreview" style="display:none;margin-bottom:14px;background:rgba(40,183,157,.05);border:1px solid rgba(40,183,157,.15);border-radius:12px;padding:14px">
-    <div style="font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:10px">What happens when you submit</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div style="display:flex;align-items:flex-start;gap:10px;font-size:11px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg>
-        <span><strong style="color:#fff">Brand Admin flagged</strong> — a notification appears in the brand holder's DeStore admin account with a link to review the DPP.</span>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;font-size:11px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        <span><strong style="color:#fff">Email sent</strong> — DeStore sends an automated email to the brand holder with a direct review link and the preliminary report attached.</span>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;font-size:11px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span><strong style="color:#fff">Awaiting response</strong> — this node stays pending until the brand holder approves or rejects. You'll be notified either way.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="field form-full" style="margin-bottom:14px">
-    <label>Approval History</label>
-    <div id="approvalHistory" style="font-size:11px;color:var(--muted);font-style:italic">No history yet.</div>
-  </div>
-
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="btn btn-primary" style="flex:1;min-width:140px" onclick="submitForApproval()" id="submitApprovalBtn">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
-      Submit for Approval
-    </button>
-    <button class="btn btn-green" style="flex:1;min-width:140px;display:none" id="approveBtn" onclick="simulateApproval()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Approve Collection
-    </button>
-  </div>`;
-}
-function initApprovalModal(){
-  const brand    = getVal('f-brand')||'—';
-  const coll     = getVal('f-collname')||(selColl&&selColl.name)||'—';
-  const gtin     = getVal('f-gtin')||'—';
-  const cat      = getVal('f-category')||(selColl&&selColl.category)||'—';
-  const name     = getVal('f-name')||'—';
-  const mfg      = getVal('f-mfgname')||'—';
-  const carbon   = getVal('f-carbon')||'—';
-  const recycled = getVal('f-recycled-pct')||'0';
-  const chain    = getVal('f-chain')||'Base';
-  const domain   = (selColl&&selColl.domain)||'qr.destore.network';
-
-  const s = document.getElementById('approvalSummary');
-  if(s) s.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px">
-      <div><span style="color:var(--muted);font-size:10px">Brand</span><div style="font-weight:700">${brand}</div></div>
-      <div><span style="color:var(--muted);font-size:10px">Collection</span><div style="font-weight:700">${coll}</div></div>
-      <div><span style="color:var(--muted);font-size:10px">Product</span><div style="font-weight:700">${name}</div></div>
-      <div><span style="color:var(--muted);font-size:10px">Category</span><div style="font-weight:700">${cat}</div></div>
-      <div><span style="color:var(--muted);font-size:10px">GTIN-14</span><div style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px">${gtin}</div></div>
-      <div><span style="color:var(--muted);font-size:10px">Chain</span><div style="font-weight:700">${chain}</div></div>
-    </div>`;
-
-  // Pre-build the report content
-  const rc = document.getElementById('reportContent');
-  if(rc) rc.innerHTML = buildReportHTML({brand,coll,gtin,cat,name,mfg,carbon,recycled,chain,domain});
-
-  // Show notification preview
-  const np = document.getElementById('notificationPreview');
-  if(np && window._approvalStatus==='draft') np.style.display='block';
-
-  refreshApprovalBand();
-}
-
-function buildReportHTML({brand,coll,gtin,cat,name,mfg,carbon,recycled,chain,domain}){
-  const now = new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
-  const espr = calcOverallCompliance();
-  const rows = [
-    ['Report Date', now],
-    ['Brand', brand],
-    ['Collection', coll],
-    ['Product Name', name],
-    ['Category', cat],
-    ['GTIN-14', gtin],
-    ['Manufacturer', mfg],
-    ['Carbon Footprint', carbon!=='—' ? carbon+' kg CO₂e' : 'Not provided'],
-    ['Recycled Content', recycled+'%'],
-    ['Blockchain', chain],
-    ['Resolver Domain', domain],
-    ['ESPR Compliance Score', espr+'%'],
-  ];
-  return `<div style="font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);margin-bottom:10px">DPP Preliminary Report · DeStore Platform</div>
-    <table style="width:100%;border-collapse:collapse">
-      ${rows.map(([k,v])=>`<tr>
-        <td style="padding:4px 0;color:var(--muted);width:44%;font-weight:600;vertical-align:top">${k}</td>
-        <td style="padding:4px 0;font-weight:700;color:#fff">${v}</td>
-      </tr>`).join('')}
-    </table>
-    <div style="margin-top:12px;padding:10px;background:rgba(40,183,157,.06);border:1px solid rgba(40,183,157,.12);border-radius:8px;font-size:10px;color:var(--green)">
-      This report is auto-generated from data entered across pipeline nodes. Review carefully before submitting for approval. The brand holder will receive this report by email.
-    </div>`;
-}
-
-function calcOverallCompliance(){
-  let total=0;
-  NODES.forEach((n,i)=>{ total += (compliance[i]||0)/100 * n.weight; });
-  return Math.round(total);
-}
-
-function toggleReportPanel(){
-  const panel = document.getElementById('reportPanel');
-  const chevron = document.getElementById('reportChevron');
-  if(!panel) return;
-  const open = panel.style.display==='block';
-  panel.style.display = open ? 'none' : 'block';
-  if(chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
-}
-
-function downloadReport(){
-  const brand = getVal('f-brand')||'brand';
-  const coll  = getVal('f-collname')||(selColl&&selColl.name)||'collection';
-  const content = document.getElementById('reportContent')?.innerText || 'Report data unavailable';
-  const blob = new Blob(['DPP PRELIMINARY REPORT\nDeStore Platform\n\n'+content], {type:'text/plain'});
-  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download = 'DPP-Report-'+brand.replace(/\s+/g,'-')+'-'+coll.replace(/\s+/g,'-')+'.txt';
-  a.click();
-}
-
-function refreshApprovalBand(){
-  const band = document.getElementById('approvalBand');
-  const dot  = document.getElementById('approvalDot');
-  const lbl  = document.getElementById('approvalLabel');
-  const approveBtn   = document.getElementById('approveBtn');
-  const submitBtn    = document.getElementById('submitApprovalBtn');
-  const notifPreview = document.getElementById('notificationPreview');
-  if(!band) return;
-  band.className = 'approval-band '+window._approvalStatus;
-  dot.className  = 'approval-dot'+(['pending'].includes(window._approvalStatus)?' pulse':'');
-  const labels = {
-    draft:    'Draft — not yet submitted',
-    pending:  'Pending — awaiting brand holder review',
-    approved: '✓ Approved — ready for batch order',
-    rejected: '✗ Rejected — see notes below'
-  };
-  if(lbl) lbl.textContent = labels[window._approvalStatus]||window._approvalStatus;
-  if(approveBtn) approveBtn.style.display  = window._approvalStatus==='pending' ? '' : 'none';
-  if(submitBtn)  submitBtn.style.display   = window._approvalStatus==='approved'? 'none' : '';
-  if(notifPreview) notifPreview.style.display = window._approvalStatus==='draft' ? 'block' : 'none';
-}
-
-function submitForApproval(){
-  window._approvalStatus = 'pending';
-  const brand  = getVal('f-brand')||'Brand';
-  const coll   = getVal('f-collname')||(selColl&&selColl.name)||'Collection';
-  const email  = brand.toLowerCase().replace(/\s+/g,'')+'@brand.com';
-
-  // Capture creator identity
-  const creatorName = document.getElementById('f-creator-name')?.value.trim() || 'Unknown';
-  window._profileName  = creatorName;
-  window._createdBy    = creatorName;
-  window._createdAt    = new Date().toISOString();
-
-  const hist = document.getElementById('approvalHistory');
-  if(hist) hist.innerHTML = `
-    <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:12px;margin-bottom:6px">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        <span style="font-size:10px;font-weight:900;color:var(--green);letter-spacing:.06em;text-transform:uppercase">Submitted successfully</span>
-        <span style="font-size:10px;color:var(--muted);margin-left:auto">${new Date().toLocaleString()}</span>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;font-size:11px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-          <span style="color:var(--dim)">Submitted by <strong style="color:#fff">${creatorName}</strong></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg>
-          <span style="color:var(--dim)">Admin notification flagged for <strong style="color:#fff">${brand}</strong></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <span style="color:var(--dim)">Approval email sent to <strong style="color:#fff">${email}</strong> with review link + preliminary report</span>
-        </div>
-      </div>
-    </div>`;
-  refreshApprovalBand();
-  updateAllCompliance();
-}
-
-function simulateApproval(){
-  window._approvalStatus = 'approved';
-  window._approvedBy  = 'Brand Holder'; // replaced by real auth name in production
-  window._approvedAt  = new Date().toISOString();
-  const hist = document.getElementById('approvalHistory');
-  if(hist) hist.innerHTML += `
-    <div style="background:rgba(40,183,157,.06);border:1px solid rgba(40,183,157,.15);border-radius:10px;padding:10px;margin-top:6px">
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        <strong style="color:var(--green)">Approved by brand holder</strong>
-        <span style="color:var(--muted);margin-left:auto;font-size:10px">${new Date().toLocaleString()}</span>
-      </div>
-      <div style="font-size:10px;color:var(--dim);margin-top:4px">Collection cleared for batch order.</div>
-    </div>`;
-  refreshApprovalBand();
-  updateAllCompliance();
-}
-
-// ─── NODE 9: BATCH ORDER ───
-window._batchSize = 10000;
-window._batchName = '';
-window._batchCounter = 1;
-window._customTokenStart = false;
-window._manualTokenStart = 0;
-const BATCH_PRESETS = [
-  { label:'1K',    val:1000,    hint:'Samples / testing' },
-  { label:'10K',   val:10000,   hint:'Small launch' },
-  { label:'100K',  val:100000,  hint:'Standard run' },
-  { label:'500K',  val:500000,  hint:'Large production' },
-  { label:'Custom',val:0,       hint:'Up to 5M' },
-];
-function modalBatchOrder(){
-  const brand = getVal('f-brand')||'brand';
-  const collShort = (getVal('f-collname')||(selColl&&selColl.name)||'coll').replace(/\s+/g,'').slice(0,8).toUpperCase();
-  const batchId = 'BATCH-'+brand.toUpperCase().replace(/\s+/g,'')+'-'+collShort+'-'+ String(window._batchCounter).padStart(3,'0')+'-'+new Date().getFullYear();
-  window._batchName = window._batchName || batchId;
-  return `
-  <div class="form-grid">
-    <div class="field form-full">
-      <label>Batch ID</label>
-      <input type="text" id="f-batch-id" value="${batchId}" class="mono" style="font-size:12px">
-      <div class="field-hint">Auto-generated. Edit if needed. Unique per batch.</div>
-    </div>
-
-    <div class="field form-full">
-      <label>Batch Size</label>
-      <div class="size-chips" id="sizeChips">
-        ${BATCH_PRESETS.map(p=>`<button class="size-chip${p.val===window._batchSize||(!p.val&&window._batchSize>500000)?' active':''} ${!p.val?'custom-chip':''}" onclick="pickSize(${p.val},this)" title="${p.hint}">${p.label}</button>`).join('')}
-      </div>
-      <div id="customSizeWrap" style="display:${window._batchSize>500000?'block':'none'}">
-        <input type="number" id="f-custom-size" placeholder="e.g. 2000000" min="1" max="5000000" value="${window._batchSize>500000?window._batchSize:''}" oninput="setCustomSize(this.value)" style="font-family:'JetBrains Mono',monospace">
-        <div class="field-hint">Max 5,000,000 per batch.</div>
-      </div>
-    </div>
-
-    <div class="field form-full">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <label style="margin:0">Token ID Range</label>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:10px;color:var(--muted);font-weight:700">Custom start token</span>
-          <div class="toggle-switch${window._customTokenStart?' on':''}" id="customTokenToggle" onclick="toggleCustomToken()" style="width:36px;height:20px"></div>
-        </div>
-      </div>
-      <div id="customTokenWrap" style="display:${window._customTokenStart?'block':'none'};margin-bottom:10px">
-        <div style="background:rgba(255,159,70,.06);border:1px solid rgba(255,159,70,.15);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:11px;color:var(--orange)">
-          <strong>Use this when tokens are already circulating.</strong> Set the exact token ID this batch should start from — e.g. if batch 1 ended at #10,000, start batch 2 at #10,001.
-        </div>
-        <input type="number" id="f-token-start" placeholder="e.g. 10001" min="1" value="${window._manualTokenStart||''}" oninput="setManualTokenStart(this.value)" style="font-family:'JetBrains Mono',monospace;font-size:12px" class="mono">
-      </div>
-      <div class="batch-token-range" id="tokenRangeDisplay">
-        <div class="tr-label">Token range</div>
-        <div id="tokenRangeInner" style="font-size:13px;margin-top:2px">Loading...</div>
-      </div>
-    </div>
-
-    <div class="field form-full">
-      <label>Batch History for this Collection</label>
-      <div id="batchHistoryList"></div>
-    </div>
-  </div>`;
-}
-function initBatchOrderModal(){
-  updateTokenRange();
-  renderBatchHistory();
-}
-function pickSize(val, el){
-  document.querySelectorAll('.size-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  const wrap = document.getElementById('customSizeWrap');
-  if(!val){ if(wrap) wrap.style.display='block'; }
-  else { window._batchSize=val; if(wrap) wrap.style.display='none'; updateTokenRange(); }
-}
-function setCustomSize(v){ const n=parseInt(v); if(n>0&&n<=5000000){ window._batchSize=n; updateTokenRange(); } }
-function toggleCustomToken(){
-  window._customTokenStart = !window._customTokenStart;
-  const toggle = document.getElementById('customTokenToggle');
-  const wrap   = document.getElementById('customTokenWrap');
-  if(toggle) toggle.classList.toggle('on', window._customTokenStart);
-  if(wrap)   wrap.style.display = window._customTokenStart ? 'block' : 'none';
-  updateTokenRange();
-}
-function setManualTokenStart(v){
-  const n = parseInt(v);
-  if(n > 0){ window._manualTokenStart = n; updateTokenRange(); }
-}
-function updateTokenRange(){
-  let start, end;
-  if(window._customTokenStart && window._manualTokenStart > 0){
-    start = window._manualTokenStart;
-  } else {
-    const prevEnd = window._batches.reduce((acc,b)=>acc+b.size, 0);
-    start = prevEnd + 1;
-  }
-  end = start + window._batchSize - 1;
-  const el = document.getElementById('tokenRangeInner');
-  if(el) el.innerHTML = `<span style="color:var(--violet)">#${start.toLocaleString()}</span> <span style="color:var(--muted)">→</span> <span style="color:var(--violet)">#${end.toLocaleString()}</span> <span style="color:var(--muted);font-size:10px">(${window._batchSize.toLocaleString()} units)</span>`;
-}
-window._batches = [];
-function renderBatchHistory(){
-  const el = document.getElementById('batchHistoryList');
-  if(!el) return;
-  if(!window._batches.length){ el.innerHTML='<div style="font-size:11px;color:var(--muted);font-style:italic">No batches placed yet.</div>'; return; }
-  el.innerHTML = window._batches.map(b=>`
-    <div class="batch-row">
-      <div class="br-id">${b.id}</div>
-      <div class="br-size">#${b.tokenStart.toLocaleString()} → #${b.tokenEnd.toLocaleString()}</div>
-      <span class="br-status ${b.status}">${b.status}</span>
-    </div>`).join('');
-}
-function saveBatchOrder(){
-  const id = document.getElementById('f-batch-id')?.value || window._batchName;
-  const size = window._batchSize;
-  let start;
-  if(window._customTokenStart && window._manualTokenStart > 0){
-    start = window._manualTokenStart;
-  } else {
-    const prevEnd = window._batches.reduce((acc,b)=>acc+b.size,0);
-    start = prevEnd + 1;
-  }
-  window._batches.push({ id, size, status:'queued', tokenStart:start, tokenEnd:start+size-1, placedAt:new Date().toISOString() });
-  window._batchCounter++;
-  window._batchName='';
-  window._customTokenStart=false;
-  window._manualTokenStart=0;
-  done[9]=true;
-  updatePipelineState();
-  closeModal();
-}
-
-// ─── NODE 10: BATCH GENERATION (DRAFT) ───
-window._genProgress = 0;
-function modalBatchGeneration(){
-  const lastBatch = window._batches[window._batches.length-1];
-  const batchId  = lastBatch ? lastBatch.id : 'No batch ordered yet';
-  const batchSz  = lastBatch ? lastBatch.size : 0;
-  return `
-  <div class="approval-band${!lastBatch?' draft':' pending'}" style="margin-bottom:16px">
-    <div class="approval-dot${lastBatch?' pulse':''}"></div>
-    <span>${lastBatch ? 'Batch queued: '+batchId : 'No batch placed — complete Batch Order first'}</span>
-  </div>
-  <div class="gen-progress-wrap">
-    <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:800;color:var(--muted);margin-bottom:4px">
-      <span>Generation Progress</span><span id="genPctLabel">0%</span>
-    </div>
-    <div class="gen-progress-bar"><div class="gen-progress-fill" id="genProgressFill"></div></div>
-    <div class="gen-stats">
-      <div class="gen-stat"><div class="gs-val" id="genCount">0</div><div class="gs-lbl">Links Generated</div></div>
-      <div class="gen-stat"><div class="gs-val" id="genETA">—</div><div class="gs-lbl">Est. Remaining</div></div>
-      <div class="gen-stat"><div class="gs-val" id="genBatchSize">${batchSz.toLocaleString()||'—'}</div><div class="gs-lbl">Batch Total</div></div>
-    </div>
-  </div>
-  <div class="section-label" style="margin-top:16px"><span class="sl-icon">📊</span> Data Preview (first 3 rows)</div>
-  <div id="csvPreview" style="overflow-x:auto;border:1px solid var(--bdr);border-radius:10px;background:var(--d0)">
-    <div style="padding:12px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7">
-      token_id · digital_link_url · gtin14 · product_name · brand · carbon_kg · recycled_pct · batch_id<br>
-      — run generation to preview rows —
-    </div>
-  </div>
-  <div class="csv-row">
-    <button class="btn btn-primary" onclick="startGeneration()" id="genBtn" style="flex:1">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      Start Generation
-    </button>
-    <button class="btn btn-green" id="downloadBtn" style="flex:1;display:none" onclick="downloadCSV()">      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Download CSV
-    </button>
-  </div>
-  <div style="margin-top:10px;font-size:10px;color:var(--muted);line-height:1.6;font-style:italic">
-    ◈ In production, generation runs as a Cloudflare Worker Queue job and notifies you when ready. Up to 5M rows per batch.
-  </div>`;
-}
-let _genTimer = null;
-async function startGeneration(){
-  const lastBatch = window._batches[window._batches.length-1];
-  if(!lastBatch){ alert('Place a batch order first.'); return; }
-
-  const total    = lastBatch.size;
-  const gtin     = getVal('f-gtin')||'09506000130001';
-  const brand    = getVal('f-brand')||'brand';
-  const prodName = getVal('f-name')||'Product';
-  const carbon   = getVal('f-carbon')||'';
-  const recycled = getVal('f-recycled-pct')||'0';
-  const contract = '0x'+'a1b2c3d4e5f6'.repeat(3).slice(0,40);
-  const domain   = `${brand.toLowerCase().replace(/\s+/g,'-')}.destore.network`;
-
-  const genBtn = document.getElementById('genBtn');
-  if(genBtn){ genBtn.disabled=true; genBtn.textContent='Generating…'; }
-
-  // Store plain data objects — no CSV string yet, QR images generated on download
-  const entries = [];
-  const CHUNK = 300;
-
-  for(let i=0; i<total; i++){
-    const tid = (lastBatch.tokenStart||1) + i;
-
-    // SHA-256(contractAddress + tokenId + timestamp) → 20 hex chars per ADR-001
-    let ai90;
-    try {
-      const raw  = new TextEncoder().encode(contract + tid + Date.now());
-      const hash = await crypto.subtle.digest('SHA-256', raw);
-      ai90 = Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,20);
-    } catch(e){
-      ai90 = (tid*7919).toString(36).padStart(20,'0').slice(0,20);
-    }
-
-    entries.push({
-      token_id:        tid,
-      digital_link_url:`https://${domain}/01/${gtin}/21/${tid}?90=${ai90}`,
-      gtin14:          gtin,
-      product_name:    prodName,
-      brand:           brand,
-      carbon_kg:       carbon,
-      recycled_pct:    recycled,
-      batch_id:        lastBatch.id,
-    });
-
-    // Yield every CHUNK to keep UI responsive
-    if(i % CHUNK === CHUNK-1 || i === total-1){
-      const pct = Math.round(((i+1)/total)*100);
-      window._genProgress = pct;
-      const fill = document.getElementById('genProgressFill');
-      const lbl  = document.getElementById('genPctLabel');
-      const cnt  = document.getElementById('genCount');
-      const eta  = document.getElementById('genETA');
-      if(fill) fill.style.width = pct+'%';
-      if(lbl)  lbl.textContent  = pct+'%';
-      if(cnt)  cnt.textContent  = (i+1).toLocaleString();
-      if(eta)  eta.textContent  = pct<100 ? Math.ceil((total-(i+1))/CHUNK*0.015)+'s' : '✓';
-      await new Promise(r=>setTimeout(r,0));
-    }
-  }
-
-  lastBatch.entries  = entries;
-  lastBatch.status   = 'ready';
-  lastBatch.metadata = {
-    gtin, brand, prodName, carbon, recycled, domain, contract,
-    createdBy:  window._createdBy  || '—',
-    createdAt:  window._createdAt  || new Date().toISOString(),
-    approvedBy: window._approvedBy || '—',
-    approvedAt: window._approvedAt || '—',
-  };
-  window._genProgress = 100;
-
-  // Show preview (first 3 rows as table)
-  const preview = document.getElementById('csvPreview');
-  if(preview){
-    const cols=['token_id','digital_link_url','gtin14','product_name','brand','carbon_kg','recycled_pct','batch_id'];
-    const labels=['#','Digital Link','GTIN-14','Product','Brand','CO₂e','Recycled%','Batch ID'];
-    const sample=entries.slice(0,3);
-    preview.innerHTML=`<table style="width:100%;border-collapse:collapse;min-width:500px">
-      <thead><tr style="background:var(--d3)">${labels.map(l=>`<th style="padding:6px 8px;text-align:left;font-size:8px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap;border-bottom:1px solid var(--bdr)">${l}</th>`).join('')}</tr></thead>
-      <tbody>${sample.map(e=>`<tr>${cols.map((c,ci)=>`<td style="padding:5px 8px;border-bottom:1px solid rgba(46,46,56,.3);font-size:9px;font-family:JetBrains Mono,monospace;color:${ci===1?'var(--violet)':'var(--dim)'};white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis">${ci===1?e[c].slice(0,30)+'…':String(e[c]||'—')}</td>`).join('')}</tr>`).join('')}
-      <tr><td colspan="${cols.length}" style="padding:6px 8px;font-size:9px;color:var(--muted);background:var(--d3);text-align:center">+ ${(total-3).toLocaleString()} more rows · qr_image column added on download</td></tr>
-      </tbody></table>`;
-  }
-
-  const dl = document.getElementById('downloadBtn');
-  if(dl){ dl.style.display=''; dl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download CSV (${total.toLocaleString()} rows)`; }
-
-  if(genBtn){ genBtn.textContent='✓ Complete'; genBtn.style.background='var(--green)'; }
-  updateAllCompliance();
-}
-
-// ── QR image helper (used during CSV download) ──
-function makeQRDataURLSync(text){
-  // Returns a promise → base64 PNG via qrcode library if available, else the URL string
-  return new Promise(resolve=>{
-    if(typeof QRCode !== 'undefined'){
-      QRCode.toDataURL(text,{width:120,margin:1,color:{dark:'#000000',light:'#ffffff'},errorCorrectionLevel:'M'},
-        (err,url)=> resolve(err ? text : url));
-    } else {
-      resolve(text); // fallback: just the URL
-    }
-  });
-}
-
-async function downloadCSV(){
-  const lastBatch = window._batches.find(b=>b.status==='ready') || window._batches[window._batches.length-1];
-  if(!lastBatch || !lastBatch.entries || !lastBatch.entries.length){
-    alert('No generated data found — run Batch Generation first.');
-    return;
-  }
-
-  const entries = lastBatch.entries;
-  const total   = entries.length;
-  const m       = lastBatch.metadata || {};
-
-  const fmtDate = iso => {
-    if(!iso || iso==='—') return '—';
-    try{ return new Date(iso).toLocaleString('en-AU',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
-    catch(e){ return iso; }
-  };
-
-  // QR images: generate inline for batches ≤ 500 rows (each ~4KB base64 = ~2MB total)
-  // Above 500: use the URL as the image reference (label software can fetch it)
-  const QR_IMAGE_LIMIT = 500;
-  const willEmbedQR    = total <= QR_IMAGE_LIMIT;
-
-  const btn = document.getElementById('downloadBtn');
-  if(btn){ btn.disabled=true; btn.textContent=willEmbedQR ? 'Generating QR images…' : 'Building CSV…'; }
-
-  const HEADER = 'token_id,digital_link_url,gtin14,product_name,brand,carbon_kg,recycled_pct,batch_id,qr_image';
-
-  // ── DeStore CSV header block ──
-  const META_HEADER = [
-    '#',
-    '#  ██████╗ ███████╗███████╗████████╗ ██████╗ ██████╗ ███████╗',
-    '#  ██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗██╔════╝',
-    '#  ██║  ██║█████╗  ███████╗   ██║   ██║   ██║██████╔╝█████╗  ',
-    '#  ██║  ██║██╔══╝  ╚════██║   ██║   ██║   ██║██╔══██╗██╔══╝  ',
-    '#  ██████╔╝███████╗███████║   ██║   ╚██████╔╝██║  ██║███████╗',
-    '#  ╚═════╝ ╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝',
-    '#',
-    '#  Digital Product Passport — Batch Export',
-    '#  https://destore.network',
-    '#',
-    `#  Batch ID:       ${lastBatch.id}`,
-    `#  Collection:     ${m.prodName||'—'}`,
-    `#  Brand:          ${m.brand||'—'}`,
-    `#  GTIN-14:        ${m.gtin||'—'}`,
-    `#  Total units:    ${total.toLocaleString()}`,
-    `#  Token range:    #${(lastBatch.tokenStart||1).toLocaleString()} — #${((lastBatch.tokenStart||1)+total-1).toLocaleString()}`,
-    '#',
-    `#  Created by:     ${m.createdBy}`,
-    `#  Created:        ${fmtDate(m.createdAt)}`,
-    `#  Approved by:    ${m.approvedBy}`,
-    `#  Approved:       ${fmtDate(m.approvedAt)}`,
-    '#',
-    `#  Generated:      ${fmtDate(new Date().toISOString())}`,
-    '#',
-    '#  GS1 Digital Link spec: ADR-001',
-    '#  AI90 hash: SHA-256(contractAddress + tokenId + timestamp), 20 hex chars',
-    '#',
-    '#  ─────────────────────────────────────────────────────────────',
-    '',
-  ].join('\n');
-
-  const csvParts = [META_HEADER, HEADER + '\n'];
-
-  const QR_CHUNK = 25; // generate QRs in small chunks to keep UI alive
-
-  for(let i=0; i<total; i++){
-    const e = entries[i];
-
-    let qrCell;
-    if(willEmbedQR){
-      // Embed full base64 PNG — works in label software that supports data URIs
-      qrCell = await makeQRDataURLSync(e.digital_link_url);
-    } else {
-      // For large batches: store the scan URL as the image reference
-      // Label software (Bartender, NiceLabel, etc.) can fetch from this URL
-      qrCell = e.digital_link_url;
-    }
-
-    // Escape any commas in text fields
-    const escape = v => (String(v||'').includes(',') || String(v||'').includes('"')) ? `"${String(v).replace(/"/g,'""')}"` : String(v||'');
-
-    const row = [
-      e.token_id,
-      escape(e.digital_link_url),
-      e.gtin14,
-      escape(e.product_name),
-      escape(e.brand),
-      e.carbon_kg,
-      e.recycled_pct,
-      e.batch_id,
-      escape(qrCell),
-    ].join(',');
-
-    csvParts.push(row + '\n');
-
-    // Update progress and yield every QR_CHUNK rows
-    if(willEmbedQR && (i % QR_CHUNK === QR_CHUNK-1 || i === total-1)){
-      const pct = Math.round(((i+1)/total)*100);
-      if(btn) btn.textContent = `Generating QR images… ${pct}%`;
-      await new Promise(r=>setTimeout(r,0));
-    }
-  }
-
-  if(!willEmbedQR){
-    csvParts.push(`\n# NOTE: Batch has ${total.toLocaleString()} rows — QR images are stored as scan URLs (col 2).\n`);
-    csvParts.push(`# For embedded QR images, generate batches of ${QR_IMAGE_LIMIT} or fewer rows.\n`);
-    csvParts.push(`# Label software can read the URL column to render the QR at print time.\n`);
-  }
-
-  const blob = new Blob(csvParts, {type:'text/csv;charset=utf-8;'});
-  const a    = document.createElement('a');
-  a.href     = URL.createObjectURL(blob);
-  a.download = `${lastBatch.id}-${total}units.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-
-  if(btn){
-    btn.disabled  = false;
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Downloaded — ${total.toLocaleString()} rows`;
-  }
-
-  const genNode = NODES.find(n=>n.label.includes('Generation'));
-  if(genNode) done[genNode.id]=true;
-  updatePipelineState();
-}
-
-// ─── NODE 11: LABEL EXPORT (DRAFT) ───
-function modalLabelExport(){
-  const lastBatch = window._batches.find(b=>b.status==='ready') || window._batches[window._batches.length-1];
-  const entries = lastBatch?.entries || [];
-  const total = entries.length;
-  const hasData = total > 0;
-
-  // Build spreadsheet preview rows (first 8)
-  const cols = ['token_id','digital_link_url','gtin14','product_name','brand','carbon_kg','recycled_pct','batch_id'];
-  const colLabels = ['#','Digital Link URL','GTIN-14','Product','Brand','CO₂e','Recycled%','Batch ID'];
-  const preview = entries.slice(0,8);
-
-  const tableRows = preview.map(e=>`
-    <tr>
-      ${cols.map((c,ci)=>`<td style="padding:5px 8px;border-bottom:1px solid var(--bdr);font-size:9px;font-family:${ci<=0||ci>=2&&ci<=3?'Plus Jakarta Sans':'JetBrains Mono'},monospace;color:${ci===1?'var(--violet)':'var(--dim)'};white-space:nowrap;max-width:${ci===1?'140px':'90px'};overflow:hidden;text-overflow:ellipsis">${ci===1?`<a href="${e[c]}" target="_blank" style="color:var(--violet);text-decoration:none">${e[c].slice(0,36)}…</a>`:String(e[c]||'—')}</td>`).join('')}
-    </tr>`).join('');
-
-  return `
-  <div class="approval-band${hasData?' approved':' draft'}" style="margin-bottom:16px">
-    <div class="approval-dot"></div>
-    <span>${hasData ? '✓ '+total.toLocaleString()+' rows ready — '+lastBatch.id : 'No ready batch — run Batch Generation first'}</span>
-  </div>
-
-  ${hasData ? `
-  <div style="margin-bottom:16px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <div style="font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Batch Preview · First ${Math.min(8,total)} of ${total.toLocaleString()} rows</div>
-      <div style="display:flex;gap:6px">
-        <div style="font-size:9px;padding:3px 8px;background:rgba(40,183,157,.08);border:1px solid rgba(40,183,157,.2);border-radius:5px;color:var(--green);font-weight:800">${total.toLocaleString()} ROWS</div>
-        <div style="font-size:9px;padding:3px 8px;background:rgba(179,84,241,.08);border:1px solid rgba(179,84,241,.2);border-radius:5px;color:var(--violet);font-weight:800">${cols.length} COLS</div>
-      </div>
-    </div>
-    <div style="overflow-x:auto;border:1.5px solid var(--bdr);border-radius:10px">
-      <table style="width:100%;border-collapse:collapse;min-width:600px">
-        <thead>
-          <tr style="background:var(--d3)">
-            ${colLabels.map(l=>`<th style="padding:7px 8px;text-align:left;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;border-bottom:1.5px solid var(--bdr)">${l}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>${tableRows}</tbody>
-        ${total > 8 ? `<tr><td colspan="${cols.length}" style="padding:8px;text-align:center;font-size:10px;color:var(--muted);background:var(--d3);border-top:1px solid var(--bdr)">… ${(total-8).toLocaleString()} more rows in downloaded CSV</td></tr>` : ''}
-      </table>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
-      <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:10px;text-align:center">
-        <div style="font-size:16px;font-weight:900;color:var(--violet);font-family:'JetBrains Mono',monospace">${total.toLocaleString()}</div>
-        <div style="font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px">Total Units</div>
-      </div>
-      <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:10px;text-align:center">
-        <div style="font-size:16px;font-weight:900;color:var(--green);font-family:'JetBrains Mono',monospace">#${(lastBatch.tokenStart||1).toLocaleString()}</div>
-        <div style="font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px">First Token</div>
-      </div>
-      <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:10px;text-align:center">
-        <div style="font-size:16px;font-weight:900;color:var(--green);font-family:'JetBrains Mono',monospace">#${((lastBatch.tokenStart||1)+total-1).toLocaleString()}</div>
-        <div style="font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px">Last Token</div>
-      </div>
-    </div>
-  </div>
-  ` : `
-  <div style="background:var(--d3);border:1px solid var(--bdr);border-radius:12px;padding:20px;text-align:center;margin-bottom:16px">
-    <div style="font-size:24px;margin-bottom:8px">📊</div>
-    <div style="font-size:13px;font-weight:700;margin-bottom:4px">No Batch Data Yet</div>
-    <div style="font-size:11px;color:var(--muted)">Complete Batch Order → run Batch Generation → return here.</div>
-  </div>
-  `}
-
-  <div class="section-label" style="margin-top:4px"><span class="sl-icon">🏷️</span> Label Print Workflow</div>
-  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
-    ${['Download CSV from Batch Generation (node 10)','Open the DeStore Label Exporter tool below','Import CSV — each row generates a unique QR label','Choose label size: 50×25mm, 100×50mm, or custom','Export to PDF or send directly to your label printer'].map((s,i)=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--d3);border:1px solid var(--bdr);border-radius:10px">
-      <div style="width:20px;height:20px;border-radius:50%;background:rgba(179,84,241,.12);border:1px solid rgba(179,84,241,.2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:var(--violet);flex-shrink:0">${i+1}</div>
-      <div style="font-size:11px;font-weight:600;color:var(--dim)">${s}</div>
-    </div>`).join('')}
-  </div>
-
-  <div class="toggle-row" style="border:none;padding:8px 0;margin-bottom:12px">
-    <div class="toggle-left"><div class="toggle-label">Labels sent to print</div><div class="toggle-desc">Confirm the CSV has been loaded into the Label Tool and the print job has been started.</div></div>
-    <div class="toggle-switch" id="f-label-confirmed" onclick="this.classList.toggle('on');updateAllCompliance()"></div>
-  </div>
-
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <a href="DS_LabelExporter.html" target="_blank" class="btn btn-primary" style="flex:1;text-decoration:none;justify-content:center">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      Open Label Exporter
-    </a>
-  </div>
-  <div style="margin-top:10px;font-size:10px;color:var(--muted);line-height:1.6;font-style:italic">
-    ◈ SBT minting triggers automatically on each product's first QR scan. Labels ≤500 units embed QR images as base64 PNG; larger batches reference the scan URL for print-time rendering.
-  </div>`;
-}
-
-// ─── INFO POPUP ───
-function showPopup(id, e){
-  e.stopPropagation();
-  const popup = document.getElementById(id);
-  if(!popup) return;
-  document.querySelectorAll('.info-popup').forEach(p=>p.classList.remove('show'));
-  popup.classList.add('show');
-  const r = e.currentTarget.getBoundingClientRect();
-  popup.style.top  = (r.bottom + 8 + window.scrollY) + 'px';
-  popup.style.left = Math.min(r.left, window.innerWidth - 296) + 'px';
-}
-function closePopup(id){ const p=document.getElementById(id); if(p) p.classList.remove('show'); }
-document.addEventListener('click', ()=>{ document.querySelectorAll('.info-popup').forEach(p=>p.classList.remove('show')); });
-
-// ─── ADDRESS AUTOCOMPLETE ───
-// ─── GOOGLE PLACES ADDRESS SEARCH ─────────────────────────
-const PLACES_API = '/api/places';
-let _addrTimer = null;
-let _scAddrTimerG = null;
-
-async function addrInput(val){
-  const box = document.getElementById('addrSuggestions');
-  if(!box) return;
-  if(!val || val.length < 3){ box.classList.remove('show'); return; }
-  clearTimeout(_addrTimer);
-  _addrTimer = setTimeout(async ()=>{
-    try {
-      const res  = await fetch(`${PLACES_API}?q=${encodeURIComponent(val)}&type=autocomplete`);
-      const data = await res.json();
-      if(!data.predictions?.length){ box.classList.remove('show'); return; }
-      box.innerHTML = data.predictions.slice(0,5).map(p=>`
-        <div class="addr-suggestion" onclick="selectAddr('${p.place_id}','${p.description.replace(/'/g,"\'")}')" data-placeid="${p.place_id}">
-          <div class="as-main">${p.structured_formatting?.main_text||p.description}</div>
-          <div class="as-sub">${p.structured_formatting?.secondary_text||''}</div>
-        </div>`).join('');
-      box.classList.add('show');
-    } catch(e){ box.classList.remove('show'); }
-  }, 300);
-}
-
-async function selectAddr(placeId, fullText){
-  const inp = document.getElementById('f-facaddr');
-  const box = document.getElementById('addrSuggestions');
-  if(inp) inp.value = fullText;
-  if(box) box.classList.remove('show');
-  try {
-    const res  = await fetch(`${PLACES_API}?place_id=${encodeURIComponent(placeId)}&type=details`);
-    const data = await res.json();
-    const comps = data.result?.address_components || [];
-    const get   = type => comps.find(c=>c.types.includes(type))?.long_name || '';
-    const country = document.getElementById('f-countmfg');
-    const city    = document.getElementById('f-addr-city');
-    const state   = document.getElementById('f-addr-state');
-    const post    = document.getElementById('f-addr-post');
-    if(country && !country.value) country.value = get('country');
-    if(city    && !city.value)    city.value    = get('locality') || get('postal_town');
-    if(state   && !state.value)   state.value   = get('administrative_area_level_1');
-    if(post    && !post.value)    post.value    = get('postal_code');
-  } catch(e){}
-}
-
-async function scAddrSearch(input, uid){
-  const q   = input.value.trim();
-  const box = document.getElementById(uid);
-  if(!box) return;
-  if(q.length < 3){ box.style.display='none'; return; }
-  clearTimeout(_scAddrTimerG);
-  _scAddrTimerG = setTimeout(async ()=>{
-    try {
-      const res  = await fetch(`${PLACES_API}?q=${encodeURIComponent(q)}&type=autocomplete`);
-      const data = await res.json();
-      if(!data.predictions?.length){ box.style.display='none'; return; }
-      box.innerHTML = data.predictions.slice(0,5).map(p=>`
-        <div onclick="scAddrPick(this,'${uid}')" data-addr="${p.description.replace(/"/g,'&quot;')}" data-placeid="${p.place_id}"
-          style="padding:9px 14px;font-size:11px;cursor:pointer;border-bottom:1px solid var(--bdr);color:var(--dim);transition:background .15s"
-          onmouseover="this.style.background='var(--d3)'" onmouseout="this.style.background=''">
-          <div style="font-weight:700;color:#e8e8f0;margin-bottom:2px">${p.structured_formatting?.main_text||p.description}</div>
-          <div style="font-size:10px">${p.structured_formatting?.secondary_text||''}</div>
-        </div>`).join('');
-      box.style.display='block';
-    } catch(e){ box.style.display='none'; }
-  }, 300);
-}
-
-function scAddrPick(el, uid){
-  const box   = document.getElementById(uid);
-  const input = document.querySelector(`[data-uid="${uid}"]`);
-  if(input) input.value = el.dataset.addr;
-  if(box){ box.style.display='none'; box.innerHTML=''; }
-  const placeId = el.dataset.placeid;
-  if(placeId){
-    fetch(`${PLACES_API}?place_id=${encodeURIComponent(placeId)}&type=details`)
-      .then(r=>r.json()).then(data=>{
-        const comps   = data.result?.address_components||[];
-        const country = comps.find(c=>c.types.includes('country'))?.long_name||'';
-        if(country && input){
-          const row    = input.closest('.sc-entry');
-          const inputs = row?.querySelectorAll('.sc-fields input[type="text"]');
-          if(inputs?.[1] && !inputs[1].value) inputs[1].value = country;
-        }
-      }).catch(()=>{});
-  }
-}
-
-function toggleCustomAddr(){
-  const w = document.getElementById('customAddrWrap');
-  if(!w) return;
-  w.style.display = w.style.display==='none' ? 'block' : 'none';
-}
-
-// ─── GTIN MODE ───
-function setGtinMode(mode, el){
-  document.querySelectorAll('.gtin-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  const destoreRow = document.getElementById('gtinDestoreRow');
-  const customRow  = document.getElementById('gtinCustomRow');
-  if(mode==='destore'){
-    if(destoreRow) destoreRow.style.display='';
-    if(customRow)  customRow.style.display='none';
-    const f = document.getElementById('f-gtin'); if(f) f.value='09506000130001';
-  } else {
-    if(destoreRow) destoreRow.style.display='none';
-    if(customRow)  customRow.style.display='';
-  }
-}
-function syncGtin(val){
-  const f = document.getElementById('f-gtin'); if(f) f.value=val;
-}
-
-// ─── CSS OVERRIDE TOGGLE ───
-function toggleCssOverride(){
-  const toggle = document.getElementById('cssOverrideToggle');
-  const panel  = document.getElementById('cssOverridePanel');
-  if(!toggle||!panel) return;
-  toggle.classList.toggle('on');
-  panel.classList.toggle('show', toggle.classList.contains('on'));
-}
-
-// ─── RESULT SCREEN TEMPLATE ───
-const RS_TEMPLATES = {
-  'destore-default': '',
-  'minimal': '.product-name { font-size: 16px; font-weight: 700; }\n.pb { display: none; }',
-  'bold': '.product-name { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }\n.pbr { text-transform: uppercase; letter-spacing: 0.1em; }',
-  'dark': 'body { background: #000 !important; }\n.phone-screen { background: #0a0a0d !important; color: #fff; }',
-  'custom': '/* Delete this comment and paste your own CSS */\n/* Note: circular action buttons and product image are always preserved */',
-};
-function applyRsTemplate(val){
-  const ta = document.getElementById('f-custom-css');
-  if(!ta) return;
-  const css = RS_TEMPLATES[val]||'';
-  ta.value = css;
-  if(val!=='destore-default'){
-    document.querySelectorAll('.tier-tab').forEach(t=>t.classList.remove('active'));
-    const entTab = document.querySelector('.tier-tab.tier-ent');
-    if(entTab){ entTab.classList.add('active'); switchTier('enterprise', entTab); }
-    const toggle = document.getElementById('cssOverrideToggle');
-    const panel  = document.getElementById('cssOverridePanel');
-    if(toggle && css){ toggle.classList.add('on'); if(panel) panel.classList.add('show'); }
-  }
-}
-
-// ─── SEO IMAGE ───
-let seoImageData = null;
-function handleSeoImage(e){
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=function(ev){
-    seoImageData=ev.target.result;
-    // Big preview
-    const big=document.getElementById('seoImgBig');
-    const wrap=document.getElementById('seoImgPreviewWrap');
-    const uploadArea=document.getElementById('seoImgUploadArea');
-    const lbl=document.getElementById('seoImgLabel');
-    if(big) big.src=seoImageData;
-    if(wrap) wrap.style.display='block';
-    if(uploadArea) uploadArea.style.display='none';
-    if(lbl) lbl.textContent=f.name+' · '+Math.round(f.size/1024)+'KB';
-    // Small thumb (for backward compat)
-    const thumb=document.getElementById('seoImgThumb');
-    if(thumb){ thumb.innerHTML='<img src="'+seoImageData+'" style="width:100%;height:100%;object-fit:cover;border-radius:4px">'; }
-  };
-  r.readAsDataURL(f);
-}
-function clearSeoImage(){
-  seoImageData=null;
-  const big=document.getElementById('seoImgBig'); if(big) big.src='';
-  const wrap=document.getElementById('seoImgPreviewWrap'); if(wrap) wrap.style.display='none';
-  const uploadArea=document.getElementById('seoImgUploadArea'); if(uploadArea) uploadArea.style.display='flex';
-  const thumb=document.getElementById('seoImgThumb');
-  if(thumb) thumb.innerHTML='<span id="seoImgPlaceholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>';
-  const lbl=document.getElementById('seoImgLabel'); if(lbl) lbl.textContent='No image';
-  const fi=document.getElementById('seoImgFile'); if(fi) fi.value='';
-}
-
-(function(){const c=getColls();if(c.length)return;c.push({brand:'DigiDiggers',name:'Yowah Opals 2026',category:'Gemstones',domain:'qr.destore.network',desc:'Natural boulder opal specimens.',createdAt:new Date().toISOString()});setColls(c);})();
+// ─── SEED & INIT ───
+(function(){const c=getColls();if(c.length)return;c.push({brand:'DigiDiggers',name:'Yowah Opals 2026',category:'Gemstones',domain:'qr.destore.network',desc:'Natural boulder opal specimens.',createdAt:new Date().toISOString()});setColls(c)})();
 renderPipeline();
-renderDraftTray();
 updatePipelineState();
 // Lazy-load collection dropdown when modal 0 opens
 const origOpen=openModal;
