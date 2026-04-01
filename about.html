@@ -2,14 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+  <title>About DeStore — GS1 Digital Link Infrastructure for Australian Brands</title>
+  <meta name="description" content="DeStore builds GS1 Digital Link QR code and Digital Product Passport infrastructure for Australian brands exporting to the EU under ESPR regulation.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://destore.network/about.html">
+  <meta property="og:title" content="About DeStore — GS1 Digital Link Infrastructure for Australian Brands">
+  <meta property="og:description" content="DeStore builds GS1 Digital Link QR code and Digital Product Passport infrastructure for Australian brands exporting to the EU under ESPR regulation.">
+  <meta property="og:url" content="https://destore.network/about.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="DeStore">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About DeStore — GS1 Digital Link Infrastructure for Australian Brands">
+  <meta name="twitter:description" content="DeStore builds GS1 Digital Link QR code and Digital Product Passport infrastructure for Australian brands exporting to the EU under ESPR regulation.">
   <link rel="icon" type="image/svg+xml" href="destore-favicon.svg">
   <link rel="shortcut icon" href="destore-favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>About — DeStore Network</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<meta name="description" content="The story behind DeStore — building Australia's Digital Product Passport infrastructure layer for the circular economy.">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -141,6 +151,57 @@ footer{border-top:1px solid var(--bdr);padding:32px 20px;display:flex;flex-direc
     <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">☰</button>
   </div>
 </nav>
+<!-- ── URGENCY BAR ── -->
+<style>
+.urgency-bar {
+  background: linear-gradient(90deg, rgba(106,20,219,0.95), rgba(179,84,241,0.95));
+  color: #fff;
+  text-align: center;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: 0.01em;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.urgency-bar .ub-days {
+  background: rgba(255,255,255,0.18);
+  border-radius: 6px;
+  padding: 1px 8px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.urgency-bar a {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+  font-weight: 800;
+}
+.urgency-bar a:hover { opacity: 0.85; }
+@media(max-width:600px){ .urgency-bar { font-size: 12px; gap: 8px; } }
+</style>
+<div class="urgency-bar" id="urgency-bar">
+  <span>⚡ ESPR deadline — <span class="ub-days" id="ub-days">calculating</span> days remaining.</span>
+  <a href="#inquiry">Get compliant in 48 hours — free assessment →</a>
+</div>
+<script>
+(function(){
+  var el = document.getElementById('ub-days');
+  if (!el) return;
+  var deadline = new Date('2027-07-01T00:00:00Z').getTime();
+  var diff = Math.max(0, Math.ceil((deadline - Date.now()) / 86400000));
+  el.textContent = diff.toLocaleString();
+})();
+</script>
+
 <div class="nav-drawer" id="navDrawer">
   <a href="index.html" class="nav-link">Platform</a>
   <a href="about.html" class="nav-link active">About</a>
@@ -153,89 +214,207 @@ footer{border-top:1px solid var(--bdr);padding:32px 20px;display:flex;flex-direc
 
   <div class="hero fade-up">
     <div class="hero-tag">Our Story</div>
-    <h1>Built from the ground up to give every product <em>a permanent identity</em></h1>
-    <p class="hero-sub">DeStore started as an experiment — could a physical product carry its full story with it forever? The experiments changed form. The thesis didn't. Now it's infrastructure.</p>
+    <h1>Four years building the infrastructure. <em>ESPR just gave it a deadline.</em></h1>
+    <p class="hero-sub">DeStore didn't pivot to Digital Product Passports because of a regulation. We were building this before most brands had heard of ESPR. This is the record of how we got here.</p>
   </div>
 
+  <!-- ── ORIGIN ── -->
   <div class="section">
-    <div class="section-label">Mission</div>
-    <h2 class="section-title">We exist to make circular commerce real.</h2>
+    <div class="section-label">Where It Started</div>
+    <h2 class="section-title">An opal miner. A 150-year-old industry. A question about provenance.</h2>
     <div class="section-body">
-      <p>DeStore builds Digital Product Passport infrastructure for Australian brands navigating the EU's Ecodesign for Sustainable Products Regulation. Every physical product sold into the EU will require a machine-readable DPP from July 2027 — and most Australian brands have no idea how to comply, let alone leverage it.</p>
-      <p>We handle the infrastructure. Brands handle what they're good at — making things worth buying.</p>
+      <p>DeStore was founded by Josiah Kotzur — an opal miner from Yowah, Southwest Queensland. The opal trade is one of the oldest in Australia. It is also one of the least trusted. Provenance is verbal. Ownership is paper. Value disappears the moment a stone changes hands.</p>
+      <p>The question that started everything was simple: what if a physical object could carry its full story — origin, authentication, ownership chain — permanently, in a form no one could alter or delete?</p>
+      <p>Building the answer required infrastructure that didn't exist. So we built it. Under the name PolkaRock, then MetaRock — Metarock Pty Ltd is still the legal entity behind DeStore today.</p>
     </div>
     <div class="quote-block">
       <div class="quote-text">Every product has a story. We're building the infrastructure that lets it travel with the product — from the moment it's made, to every owner who comes after.</div>
-      <div class="quote-attr">— Josiah Kotzur, Founder & CEO, DeStore Network</div>
+      <div class="quote-attr">— Josiah Kotzur, Co-Founder & CEO, DeStore Network</div>
     </div>
-    <div style="margin-top:24px;padding:16px 20px;background:rgba(40,183,157,.05);border:1px solid rgba(40,183,157,.2);border-radius:12px;font-size:13px;color:var(--dim);line-height:1.75">
+  </div>
+
+  <!-- ── TIMELINE ── -->
+  <div class="section" style="padding-top:0">
+    <div class="section-label">The Build</div>
+    <h2 class="section-title">From a Queensland opal to GS1-compliant infrastructure for the EU</h2>
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-year">2021 — PolkaRock</div>
+        <div class="timeline-title">First to build real-world asset provenance on Polkadot</div>
+        <div class="timeline-body">PolkaRock launched as one of the first projects to anchor physical objects — opals, stones, real-world assets — to permanent records on Polkadot using the RMRK standard. Built on Darwinia Network. Indexed by SubQuery. The foundation of everything that followed.</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2022 — MetaRock</div>
+        <div class="timeline-title">A portal for physical products to carry permanent digital identity</div>
+        <div class="timeline-body">We renamed to MetaRock and broadened the thesis: every physical object deserves a permanent, portable record. Not just opals. Every product. We partnered with Laava Smart Fingerprint to bring cryptographic authentication to phygital assets — one of the first projects globally to combine smart fingerprint authentication with on-chain provenance.</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2022 — Discovery Channel</div>
+        <div class="timeline-title">The world's first opal sold with a digital provenance record on international television</div>
+        <div class="timeline-body">The Discovery Channel captured DeStore's first live sale — an Australian opal anchored to a permanent on-chain record and sold on international television. The concept was proven in the most public way possible: a physical product's full story, permanently attached, sold in front of a global audience.</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2022 — Polkadot Ecosystem</div>
+        <div class="timeline-title">Building within one of the world's most ambitious blockchain ecosystems</div>
+        <div class="timeline-body">DeStore became a recognised project within the Polkadot ecosystem — building on Astar Network (Polkadot's EVM parachain), accepted into Astar's Build2Earn program, and working alongside projects backed by Gavin Wood and the Web3 Foundation. We applied for Web3 Foundation grants and contributed to the Kusama ecosystem distribution program.</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2022 — Rebranded to DeStore</div>
+        <div class="timeline-title">Metarock Pty Ltd becomes DeStore Network</div>
+        <div class="timeline-body">We rebranded to DeStore Network to reflect what the product had become: decentralised commerce infrastructure. Not a marketplace. Not an app. Infrastructure — for any brand, any product, any channel. Metarock Pty Ltd remains the legal entity operating DeStore.</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2022 — Sony × Astar</div>
+        <div class="timeline-title">Selected for Sony's Innovation Incubator. First Sony product anchored to a permanent record.</div>
+        <div class="timeline-body">Sony's innovation incubator, run in partnership with Astar Network, selected DeStore as one of a small number of global projects to build alongside a major consumer electronics brand. DeStore gave a Sony speaker a permanent provenance record — the first time a major consumer brand anchored a physical product to a tamper-evident public ledger. This was not a pilot. It shipped.</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2023 — DPP Pioneer</div>
+        <div class="timeline-title">Writing the standards before the regulation arrived</div>
+        <div class="timeline-body">While most brands had never heard of Digital Product Passports, DeStore was publishing the frameworks. "The Digital Product Passport: Shaping Tomorrow's Standards" — published March 2023 — was one of the earliest plain-language documents defining what DPPs should be and how they should work. We were subject matter experts on the infrastructure before it became regulation.</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2024 — Infrastructure Rebuild</div>
+        <div class="timeline-title">Purpose-built for GS1 Digital Link and the ESPR deadline</div>
+        <div class="timeline-body">As the EU's ESPR regulation moved from proposal to law with a confirmed July 2027 deadline, we rebuilt DeStore from the ground up — migrating from Polkadot to Base (Coinbase's Ethereum Layer 2), integrating GS1 Digital Link as the QR standard, and building the AI-powered catalogue migration tool that takes any brand from raw product data to fully compliant, scannable GS1 Digital Link QR codes in 48 hours.</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2026 — Now</div>
+        <div class="timeline-title">Australia's dedicated GS1 Digital Link and DPP issuance platform</div>
+        <div class="timeline-body">DeStore is the only Australian-built GS1 Digital Link issuance, DPP compliance, and circular trade infrastructure platform purpose-built for brands exporting to the EU. We are actively onboarding brands in apparel, footwear, skincare, homewares, and electronics. Every product we process gets a unique GS1 Digital Link QR code, a permanent DPP record anchored to Ethereum mainnet, and Laava authentication.</div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:32px;padding:20px 24px;background:rgba(40,183,157,.05);border:1px solid rgba(40,183,157,.2);border-radius:14px;font-size:14px;color:var(--txt);line-height:1.8;font-weight:700">
       ESPR gave brands a deadline. We were building this infrastructure regardless.
     </div>
   </div>
 
+  <!-- ── EXPERTISE ── -->
   <div class="section" style="padding-top:0">
-    <div class="section-label">History</div>
-    <h2 class="section-title">How we got here</h2>
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="timeline-year">2022 — Origin</div>
-        <div class="timeline-title">A 150-year-old industry meets permanent records</div>
-        <div class="timeline-body">DeStore was founded by Josiah Kotzur with a deceptively simple idea: give opals — mined from Yowah, Queensland — a permanent digital identity that travels with them. Building it required infrastructure that didn't yet exist. So we built it.</div>
+    <div class="section-label">Subject Matter Expertise</div>
+    <h2 class="section-title">We are practitioners, not resellers</h2>
+    <div class="section-body">
+      <p>Four years of building gives you perspective that no white paper can. We understand GS1 Digital Link at the standard level — not just the implementation. We understand the difference between a DPP that passes an audit and one that creates genuine brand value. We understand what questions regulators are actually asking.</p>
+      <p>We don't recommend. We implement. Fixed price. 48-hour delivery. 7-day money-back guarantee.</p>
+    </div>
+    <div class="pillars" style="margin-top:32px">
+      <div class="pillar">
+        <div class="pillar-icon">◈</div>
+        <div class="pillar-title">GS1 Digital Link</div>
+        <div class="pillar-body">Deep expertise in the GS1 Digital Link standard — URI syntax, resolver architecture, GTIN encoding, and the Sunrise 2027 retail POS transition. We issue compliant QR codes, not approximations of them.</div>
       </div>
-      <div class="timeline-item">
-        <div class="timeline-year">2022 — Discovery Channel</div>
-        <div class="timeline-title">The world's first opal sold with a digital provenance record on international TV</div>
-        <div class="timeline-body">The Discovery Channel captured DeStore's first live sale — an opal anchored to a permanent record and sold on international television. It proved the concept: physical products could carry verified provenance that outlasts any single owner.</div>
+      <div class="pillar">
+        <div class="pillar-icon">◎</div>
+        <div class="pillar-title">Digital Product Passports</div>
+        <div class="pillar-body">We published DPP frameworks before ESPR was law. We understand what data the regulation requires by product category, how records must be structured, and how to anchor them in a form that satisfies independent verification.</div>
       </div>
-      <div class="timeline-item">
-        <div class="timeline-year">2023 — Sony</div>
-        <div class="timeline-title">The first Sony product anchored to a permanent record</div>
-        <div class="timeline-body">Sony's innovation incubator selected DeStore to give a Sony speaker a permanent provenance record — the first time a major consumer electronics brand anchored a physical product to a tamper-evident public ledger.</div>
+      <div class="pillar">
+        <div class="pillar-icon">⊕</div>
+        <div class="pillar-title">Blockchain Authentication</div>
+        <div class="pillar-body">Four years building on Polkadot, Astar, Darwinia, Base, and Ethereum mainnet. We use blockchain infrastructure where it adds genuine value: permanent, independently verifiable records that no vendor can alter or delete.</div>
       </div>
-      <div class="timeline-item">
-        <div class="timeline-year">2024–2025 — Infrastructure</div>
-        <div class="timeline-title">Purpose-built for the regulation — and everything beyond it</div>
-        <div class="timeline-body">As the EU's ESPR regulation moved from proposal to law, we rebuilt DeStore from the ground up — GS1 Digital Link, Ethereum-anchored records, lifecycle tracking, Laava authentication — purpose-built for the 2027 deadline and the circular economy it demands.</div>
+      <div class="pillar">
+        <div class="pillar-icon">◇</div>
+        <div class="pillar-title">Circular Trade Infrastructure</div>
+        <div class="pillar-body">We are not building compliance software. We are building the infrastructure layer that makes circular commerce work — records that travel with the product across every owner, every resale, every lifecycle event.</div>
       </div>
-      <div class="timeline-item">
-        <div class="timeline-year">2026 — Now</div>
-        <div class="timeline-title">Australia's dedicated DPP issuance platform</div>
-        <div class="timeline-body">DeStore is the only Australian-built DPP issuance, compliance, and training platform purpose-built for brands exporting to the EU — actively onboarding brands in apparel, footwear, skincare, and homewares.</div>
+      <div class="pillar">
+        <div class="pillar-icon">✦</div>
+        <div class="pillar-title">AI Catalogue Migration</div>
+        <div class="pillar-body">Traditional GS1 migration takes 6–12 months and costs $80,000+. Our AI reads your existing product data in any format, maps every ESPR-required field, and issues compliant GS1 Digital Link QR codes for your entire catalogue in 48 hours.</div>
       </div>
     </div>
   </div>
 
+  <!-- ── PARTNERS ── -->
   <div class="section" style="padding-top:0">
-    <div class="section-label">Our Approach</div>
-    <h2 class="section-title">Five things we believe in</h2>
-    <div class="pillars">
-      <div class="pillar"><div class="pillar-icon">◈</div><div class="pillar-title">Products should outlive their first owner</div><div class="pillar-body">A product that carries its full history — materials, origin, ownership chain — is worth more at every point in its life. That's the case for circular trade infrastructure.</div></div>
-      <div class="pillar"><div class="pillar-icon">◎</div><div class="pillar-title">Infrastructure should be invisible</div><div class="pillar-body">Consumers should never need to understand records, verification, or provenance systems. They scan. They trust. The infrastructure does the rest.</div></div>
-      <div class="pillar"><div class="pillar-icon">⊕</div><div class="pillar-title">Every scan is a brand moment</div><div class="pillar-body">The DPP QR resolves to your domain. Your story. Your voice — not a third-party platform. Every scan after first sale is a direct connection between your brand and a new owner.</div></div>
-      <div class="pillar"><div class="pillar-icon">◇</div><div class="pillar-title">Circular commerce is the default, not the exception</div><div class="pillar-body">We are not building compliance software. We are building the infrastructure layer that makes circular commerce work — the rails that verified trade runs on.</div></div>
-      <div class="pillar"><div class="pillar-icon">✦</div><div class="pillar-title">Built with the right partners</div><div class="pillar-body">Direct relationships with GS1, Laava, and OriginTrail — the organisations that define the standards — mean DeStore integrates at the source, not around it.</div></div>
-    </div>
-  </div>
+    <div class="section-label">Partners & Ecosystem</div>
+    <h2 class="section-title">Built alongside the organisations that define the standards</h2>
+    <p class="section-body">DeStore has built directly within the ecosystems that matter — not as a downstream reseller, but as a contributor and implementation partner.</p>
 
-  <div class="section" style="padding-top:0">
-    <div class="section-label">Partners</div>
-    <h2 class="section-title">Built with the best</h2>
-    <p class="section-body">Our platform integrates directly with GS1 Digital Link, Laava Smart Fingerprint, OriginTrail, and Base — anchored to Ethereum mainnet.</p>
-    <div class="partners-grid">
-      <a href="https://www.laava.id/" class="partner-pill" target="_blank">⬡ Laava</a>
-      <a href="https://origintrail.io/" class="partner-pill" target="_blank">◈ OriginTrail</a>
-      <a href="https://gs1au.org/" class="partner-pill" target="_blank">◎ GS1 Australia</a>
-      <a href="https://base.org/" class="partner-pill" target="_blank">◇ Base</a>
+    <div style="margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+      <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px 22px">
+        <div style="font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--violet);text-transform:uppercase;margin-bottom:8px">Infrastructure</div>
+        <div style="font-size:18px;font-weight:900;margin-bottom:6px">Sony</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.65">Selected for Sony × Astar Innovation Incubator. First Sony product to receive a permanent on-chain provenance record.</div>
+      </div>
+
+      <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px 22px">
+        <div style="font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--violet);text-transform:uppercase;margin-bottom:8px">Authentication</div>
+        <div style="font-size:18px;font-weight:900;margin-bottom:6px">Laava</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.65">Strategic partnership since 2022. Laava Smart Fingerprint authentication is integrated into every DeStore DPP — cryptographic verification at the point of scan.</div>
+      </div>
+
+      <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px 22px">
+        <div style="font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--violet);text-transform:uppercase;margin-bottom:8px">Blockchain</div>
+        <div style="font-size:18px;font-weight:900;margin-bottom:6px">Polkadot</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.65">Built within the Polkadot ecosystem from 2021. One of the first projects to anchor real-world assets to permanent records on Polkadot's infrastructure.</div>
+      </div>
+
+      <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px 22px">
+        <div style="font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--violet);text-transform:uppercase;margin-bottom:8px">Indexing</div>
+        <div style="font-size:18px;font-weight:900;margin-bottom:6px">SubQuery</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.65">Official partnership. DeStore Powers Decentralised Commerce with SubQuery's data indexing tools — announced 2022.</div>
+      </div>
+
+      <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px 22px">
+        <div style="font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--violet);text-transform:uppercase;margin-bottom:8px">Current Infrastructure</div>
+        <div style="font-size:18px;font-weight:900;margin-bottom:6px">Ethereum · Base</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.65">DPPs issued on Base (Coinbase's Ethereum Layer 2), batch-anchored to Ethereum mainnet. Tamper-evident. Permanently verifiable. No vendor lock-in.</div>
+      </div>
+
+      <div style="background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px 22px">
+        <div style="font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--violet);text-transform:uppercase;margin-bottom:8px">Standards</div>
+        <div style="font-size:18px;font-weight:900;margin-bottom:6px">GS1 Australia</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.65">GS1 Digital Link QR codes issued to the ISO/IEC standard. Every code is retailer-scannable at POS and resolves to your brand's DPP via GS1's global resolver network.</div>
+      </div>
+
     </div>
+
     <div style="margin-top:36px">
-      <div class="section-label" style="margin-bottom:12px">As seen on</div>
+      <div class="section-label" style="margin-bottom:14px">Also Worked With</div>
+      <div class="seen-on">
+        <div class="seen-pill">Astar Network</div>
+        <div class="seen-pill">Darwinia Network</div>
+        <div class="seen-pill">Kusama</div>
+        <div class="seen-pill">Web3 Foundation</div>
+        <div class="seen-pill">InArch DAO</div>
+        <div class="seen-pill">OriginTrail</div>
+        <div class="seen-pill">Future Fulfilment</div>
+        <div class="seen-pill">AEM Algorithm</div>
+        <div class="seen-pill">ACDC Labs</div>
+        <div class="seen-pill">MetaDojo</div>
+      </div>
+    </div>
+
+    <div style="margin-top:36px">
+      <div class="section-label" style="margin-bottom:14px">Media & Recognition</div>
       <div class="seen-on">
         <div class="seen-pill">Discovery Channel</div>
         <div class="seen-pill">Sony Innovation Incubator</div>
-        <div class="seen-pill">Veronica Superguide</div>
-        <div class="seen-pill">Everand</div>
+        <div class="seen-pill">Polkadot Ecosystem</div>
+        <div class="seen-pill">Astar Build2Earn</div>
+        <div class="seen-pill">Web3 Foundation Grants</div>
       </div>
     </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <a href="index.html#inquiry" style="display:inline-flex;align-items:center;gap:10px;padding:16px 32px;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;font-weight:800;font-size:15px;border-radius:14px;text-decoration:none;box-shadow:0 4px 20px rgba(179,84,241,.35)">
+      Migrate your catalogue — free assessment →
+    </a>
   </div>
 
 </div>

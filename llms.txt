@@ -1,41 +1,106 @@
-# DeStore
+# DeStore Network
 
-DeStore builds GS1 Digital Link QR code infrastructure and Digital Product Passport (DPP) issuance services for Australian brands exporting to the EU.
+DeStore builds GS1 Digital Link QR code infrastructure and Digital Product Passport (DPP) issuance services for Australian brands exporting to the EU. Legal entity: Metarock Pty Ltd trading as DeStore Network. Founded in Byron Bay, Australia.
 
-## What we do
+## What We Do
 - Issue GS1 Digital Link QR codes for physical products — each physical unit gets its own unique QR code and permanent DPP record
-- Migrate existing product catalogues to GS1 Digital Link compliance in 48 hours
-- Issue Digital Product Passports (DPPs) as required by EU ESPR (Ecodesign for Sustainable Products Regulation)
-- Anchor DPP records to Ethereum mainnet for permanent, tamper-evident verification
-- Support Shopify, WooCommerce, Magento, spreadsheets, and any structured data format
+- Migrate existing product catalogues to GS1 Digital Link compliance in 48 hours using AI
+- Issue Digital Product Passports (DPPs) as required by EU ESPR (Ecodesign for Sustainable Products Regulation) — mandatory from July 2027
+- Anchor DPP records to Ethereum mainnet for permanent, tamper-evident, independently verifiable records
+- Laava Smart Fingerprint authentication on every DPP
+- Support Shopify, WooCommerce, Magento, spreadsheets, Google Merchant feed, and any structured data format
 
-## The problem we solve
-From July 2027, the EU's ESPR regulation requires a Digital Product Passport on every physical product sold into Europe. No passport — no EU market access. Traditional GS1 migration takes 6-12 months and costs $15,000-$80,000+. DeStore does it in 48 hours at a fixed price.
+## The Problem We Solve
+From July 2027, the EU's ESPR regulation requires a Digital Product Passport on every physical product sold into Europe. No passport — no EU market access. Traditional GS1 migration takes 6–12 months and costs $15,000–$80,000+. DeStore does it in 48 hours at a fixed price using AI catalogue migration.
 
-## Key facts
+## Key Facts
 - 48-hour delivery guaranteed
 - 7-day money-back guarantee if not satisfied
-- Fixed price quoted before work begins
+- Fixed price quoted before work begins — no surprises
 - No developer required
-- Each physical unit (e.g. each pair of shoes) gets its own unique GS1 Digital Link QR code
+- Each physical unit gets its own unique GS1 Digital Link QR code (100,000 shoes = 100,000 unique QR codes)
 - Works with any existing product data format
+- DPP records anchored to Ethereum mainnet — independently verifiable without DeStore's platform
 
-## Who we serve
-Australian brands selling physical products into the EU, required to comply with ESPR by July 2027. Particularly apparel, footwear, skincare, homewares, electronics, and sporting goods brands.
+## Subject Matter Expertise
+DeStore has four years of direct experience building DPP and provenance infrastructure. We are practitioners, not resellers:
+- Deep GS1 Digital Link expertise: URI syntax, resolver architecture, GTIN encoding, Sunrise 2027 compliance
+- Digital Product Passport framework design — we published DPP standards before ESPR was law
+- Blockchain authentication: Polkadot, Astar, Ethereum, Base (Coinbase L2)
+- AI-powered catalogue migration: any data format to GS1-compliant in 48 hours
+
+## Company History
+DeStore did not pivot to DPPs because of ESPR. This infrastructure was being built four years earlier.
+
+### 2021 — PolkaRock
+Founded by Josiah Kotzur, an opal miner from Yowah, Southwest Queensland. Original concept: give physical opals a permanent digital identity using blockchain. One of the first projects globally to anchor real-world assets to permanent records on Polkadot using the RMRK standard. Built on Darwinia Network, indexed by SubQuery.
+
+### 2022 — MetaRock
+Renamed to MetaRock. Broadened thesis: every physical product deserves a permanent, portable provenance record. Partnered with Laava Smart Fingerprint for cryptographic product authentication. Partnered with SubQuery for data indexing. Partnered with Future Fulfilment and ShipHero for logistics.
+
+### 2022 — Discovery Channel
+The Discovery Channel captured DeStore's first live sale — an Australian opal with a permanent on-chain provenance record sold on international television. First public proof: a physical product's full story can be permanently attached, verified, and transferred.
+
+### 2022 — Sony × Astar Innovation Incubator
+Selected for Sony's innovation incubator, run in partnership with Astar Network. DeStore gave a Sony speaker a permanent provenance record — one of the first major consumer electronics brands to anchor a physical product to a tamper-evident public ledger. This shipped.
+
+### 2022 — Polkadot Ecosystem
+Accepted into Astar Network's Build2Earn program. Applied for Web3 Foundation grants. Built within the Kusama ecosystem. Worked alongside projects backed by Gavin Wood and the Web3 Foundation.
+
+### 2022 — Rebranded to DeStore Network
+Metarock Pty Ltd rebranded as DeStore Network — decentralised commerce infrastructure for any brand, any product, any channel.
+
+### 2023 — DPP Pioneer
+Published "The Digital Product Passport: Shaping Tomorrow's Standards" (March 2023) — one of the earliest plain-language DPP framework documents, before ESPR became law. Subject matter experts on DPP standards before regulation existed.
+
+### 2024 — Infrastructure Rebuild for ESPR
+Rebuilt DeStore from the ground up targeting the EU's July 2027 ESPR deadline. Migrated from Polkadot to Base (Coinbase's Ethereum Layer 2). Integrated GS1 Digital Link as the primary QR standard. Built AI-powered catalogue migration tool.
+
+### 2026 — Current
+Australia's dedicated GS1 Digital Link and DPP issuance platform. Actively onboarding brands in apparel, footwear, skincare, homewares, and electronics. Every product receives a unique GS1 Digital Link QR code, DPP record anchored to Ethereum mainnet, and Laava authentication.
+
+## Partners & Ecosystem
+- Sony — Innovation Incubator partner (Sony × Astar, 2022)
+- Laava Smart Fingerprint — Strategic authentication partner since 2022
+- Polkadot — Built within Polkadot ecosystem 2021–2024
+- Astar Network — Build2Earn program, Sony incubator host
+- SubQuery — Official data indexing partner
+- Ethereum / Base — Current DPP issuance and anchoring infrastructure
+- GS1 Australia — GS1 Digital Link QR code issuance to ISO/IEC standard
+- Darwinia Network — Original build chain
+- Kusama — Swag distribution program
+- Web3 Foundation — Grants program applicant
+- OriginTrail — Supply chain data integrity integration
+- Future Fulfilment / ShipHero — Logistics integration
+- ACDC Labs — Physical gold and silver crypto-to-physical bridge
+
+## Media & Recognition
+- Discovery Channel (international broadcast, 2022)
+- Sony Innovation Incubator (2022)
+- Polkadot Ecosystem (recognised project)
+- Astar Network Build2Earn (accepted program member)
+
+## Who We Serve
+Australian brands selling physical products into the EU, required to comply with ESPR by July 2027. Particularly:
+- Apparel and fashion brands
+- Footwear brands
+- Skincare and beauty brands
+- Homewares and furniture brands
+- Electronics and tech brands
+- Sporting goods brands
+- Jewellery and accessories brands
 
 ## Pricing
-Free assessment. Fixed price quoted after reviewing your catalogue scope. 7-day money-back guarantee.
-
-## Technology
-- GS1 Digital Link QR codes (ISO/IEC standard)
-- Base (Coinbase's Ethereum Layer 2) for DPP issuance
-- Ethereum mainnet anchoring for permanent verification
-- Laava Smart Fingerprint authentication
-- OriginTrail integration
+Free assessment. Fixed price quoted after reviewing catalogue scope. 7-day money-back guarantee.
 
 ## Location
-Byron Bay, Australia
+Byron Bay, New South Wales, Australia
 
 ## Contact
 josiah@destore.network
 https://destore.network
++61 (Australia)
+
+## Legal
+Metarock Pty Ltd trading as DeStore Network
+440 Goonengarry Road, Byron Bay, Australia
