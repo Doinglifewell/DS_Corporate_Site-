@@ -6,688 +6,1235 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DeStore · Label Exporter</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <style>
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes spin-border{to{--a:360deg}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+*{box-sizing:border-box;margin:0;padding:0}
+/* ── Theme tokens ── */
+/* Default: dark. Shell sets data-theme="light" for light mode. */
 :root{
-  --royal:#321B68;--orchid:#6A14DB;--violet:#B354F1;
-  --green:#28B79D;--orange:#FF9F46;--red:#e74c3c;
-  --d0:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--d4:#26262e;
-  --bdr:#2e2e38;--muted:#6b6b80;--dim:#9999b0;
-  --mono:'JetBrains Mono',monospace;
+  /* Platform standard tokens */
+  --d0:#0a0a0d; --d1:#0d0d10; --d2:#141418; --d3:#1c1c22; --d4:#26262e;
+  --bdr:#2e2e38; --muted:#6b6b80; --dim:#9999b0;
+  --violet:#B354F1; --orchid:#6A14DB; --royal:#321B68;
+  --green:#28B79D; --orange:#FF9F46; --blue:#2563eb;
+  /* Semantic aliases — dark (default) */
+  --bg:var(--d0);
+  --surface:var(--d1);
+  --surface-2:var(--d3);
+  --surface-hover:var(--d4);
+  --border:var(--bdr);
+  --border-2:#1f1f2e;
+  --text:#e8e8f2;
+  --text-2:var(--dim);
+  --text-3:var(--muted);
+  --canvas-bg:#070709;
+  --input-bg:var(--d3);
+  --scrollbar:var(--bdr);
+  --empty-bg:#0a0a0e;
+  --node-bg:var(--d3);
+  --stat-bg:var(--d3);
+  --artwork-bg:var(--d2);
+  --artwork-text:#2e2e40;
+  --safe-border:rgba(40,183,157,.12);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--d0);color:#e8e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
-
-/* ── Nav ── */
-nav{height:52px;background:var(--royal);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
-nav svg.logo{height:18px}
-nav .nav-sep{width:1px;height:22px;background:rgba(255,255,255,.15)}
-nav .nav-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.75);letter-spacing:.04em}
-nav .nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-nav .nav-badge{font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:5px;background:rgba(40,183,157,.15);color:var(--green);border:1px solid rgba(40,183,157,.25)}
-.grad-bar{height:3px;background:linear-gradient(90deg,var(--green),var(--violet),var(--orchid));flex-shrink:0}
-
-/* ── 3-col layout ── */
-.workspace{display:grid;grid-template-columns:300px 1fr 280px;flex:1;overflow:hidden;min-height:0}
-
-/* ── Panels ── */
-.panel{border-right:1px solid var(--bdr);overflow-y:auto;display:flex;flex-direction:column}
-.panel:last-child{border-right:none}
-.panel-head{padding:16px 18px 12px;border-bottom:1px solid var(--bdr);flex-shrink:0}
-.panel-title{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.panel-body{padding:16px 18px;flex:1;overflow-y:auto}
-.panel-body::-webkit-scrollbar{width:4px}
-.panel-body::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
-
-/* ── Fields ── */
-.field{margin-bottom:14px}
-.field label{display:block;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-.field input,.field select{width:100%;padding:8px 12px;border:1.5px solid var(--bdr);border-radius:8px;background:var(--d3);color:#e8e8f0;font-family:inherit;font-size:12px;outline:none;transition:border-color .15s}
-.field input:focus,.field select:focus{border-color:var(--green)}
-.field .hint{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-
-/* ── Upload zone ── */
-.upload-zone{border:2px dashed var(--bdr);border-radius:12px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .2s}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--green);background:rgba(40,183,157,.04)}
-.upload-zone.loaded{border-style:solid;border-color:var(--green);background:rgba(40,183,157,.04)}
+[data-theme="light"]{
+  --bg:#f2f2f6;
+  --surface:#ffffff;
+  --surface-2:#fafafa;
+  --surface-hover:#f8f5ff;
+  --border:#e8e8f0;
+  --border-2:#f0f0f5;
+  --text:#1a1a22;
+  --text-2:#666680;
+  --text-3:#aaaaaa;
+  --canvas-bg:#d8d8e0;
+  --input-bg:#fafafa;
+  --scrollbar:#e0e0ec;
+  --empty-bg:#e8e8ee;
+  --node-bg:#f8f8fc;
+  --stat-bg:#f8f8fc;
+  --artwork-bg:#f5f5f8;
+  --artwork-text:#cccccc;
+  --safe-border:rgba(40,183,157,.18);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:44px;background:var(--d1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0}
+.tb-sep{width:1px;height:18px;background:var(--bdr)}
+.tb-title{font-size:13px;font-weight:800;color:#fff;letter-spacing:-.2px}
+.tb-file{font-size:11px;color:var(--dim);padding:2px 7px;border-radius:5px;cursor:pointer;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-file:hover{background:var(--d3);color:var(--text)}
+.tb-count{font-size:10px;color:var(--muted);background:var(--d3);padding:2px 9px;border-radius:10px}
+.tb-right{margin-left:auto;position:relative}
+.exp-btn{display:flex;align-items:center;gap:5px;padding:6px 14px;background:#B354F1;border:none;border-radius:7px;color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .12s}
+.exp-btn:hover{background:#9a3dd4;transform:translateY(-1px)}
+.exp-btn:disabled{opacity:.4;pointer-events:none}
+.exp-drop{position:absolute;top:40px;right:0;width:272px;background:var(--d2);border-radius:11px;border:1px solid var(--bdr);box-shadow:0 8px 28px rgba(0,0,0,.5);z-index:999;display:none;overflow:hidden;animation:fadeUp .15s ease}
+.exp-drop.open{display:block}
+.ed-head{padding:12px 14px 8px;border-bottom:1px solid var(--bdr)}
+.ed-title{font-size:12px;font-weight:700;color:var(--text)}
+.ed-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.ed-sect{padding:5px 7px 4px;border-bottom:1px solid var(--bdr)}
+.ed-sect:last-child{border-bottom:none;padding-bottom:6px}
+.ed-sl{font-size:8px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:0 2px;margin-bottom:3px;margin-top:4px}
+.ed-opt{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;cursor:pointer;transition:background .1s}
+.ed-opt:hover{background:var(--d4)}
+.ed-ico{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.ed-name{font-size:10px;font-weight:700;flex:1;color:var(--text)}
+.ed-desc{font-size:8px;color:var(--muted)}
+.ed-tag{font-size:8px;font-weight:800;padding:1px 5px;border-radius:3px;margin-left:auto;font-family:'JetBrains Mono',monospace}
+.tab-bar{height:38px;background:var(--d1);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 20px;gap:0;flex-shrink:0}
+.tab{padding:0 14px;height:38px;border-bottom:2px solid transparent;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .14s;display:flex;align-items:center;gap:6px;background:transparent;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tab:hover{color:var(--dim)}
+.tab.on{color:#fff;border-bottom-color:var(--violet)}
+.screen{display:none;flex:1;overflow:hidden}.screen.active{display:flex;flex-direction:column}
+.designer{display:grid;grid-template-columns:220px 1fr 196px;flex:1;overflow:hidden}
+.tools{background:var(--d2);border-right:1px solid var(--bdr);padding:11px 10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+.tools::-webkit-scrollbar{width:3px}
+.tools::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+.tl-sect{font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.upload-zone{border:1.5px dashed var(--bdr);border-radius:8px;padding:12px 10px;text-align:center;cursor:pointer;transition:all .14s}
+.upload-zone:hover{border-color:#B354F1;background:rgba(179,84,241,.06)}
+.upload-zone.has-file{border-style:solid;border-color:#28B79D;background:rgba(40,183,157,.07)}
 .upload-zone input{display:none}
-.uz-icon{font-size:26px;margin-bottom:8px;opacity:.5}
-.uz-text{font-size:12px;font-weight:700;color:var(--dim)}
-.uz-sub{font-size:10px;color:var(--muted);margin-top:4px}
-
-/* ── QR style chips ── */
-.dot-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.dot-chip{padding:5px 10px;border-radius:7px;border:1.5px solid var(--bdr);background:var(--d3);color:var(--dim);font-size:10px;font-weight:800;cursor:pointer;transition:all .15s;font-family:inherit}
-.dot-chip:hover{border-color:rgba(40,183,157,.4);color:#fff}
-.dot-chip.active{background:rgba(40,183,157,.1);border-color:var(--green);color:var(--green)}
-
-/* ── Color swatch row ── */
-.color-row{display:flex;align-items:center;gap:8px}
-.color-swatch{width:28px;height:28px;border-radius:6px;border:2px solid var(--bdr);cursor:pointer;flex-shrink:0}
-.color-row input[type=text]{flex:1}
-
-/* ── Toggle ── */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(46,46,56,.4)}
-.toggle-row:last-child{border-bottom:none}
-.toggle-left .tl-label{font-size:12px;font-weight:700}
-.toggle-left .tl-desc{font-size:10px;color:var(--muted);margin-top:2px}
-.toggle-sw{width:40px;height:22px;border-radius:11px;background:var(--bdr);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
-.toggle-sw::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s}
-.toggle-sw.on{background:var(--green)}
-.toggle-sw.on::after{transform:translateX(18px)}
-
-/* ── Size presets ── */
-.size-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.size-chip{padding:5px 10px;border-radius:7px;border:1.5px solid var(--bdr);background:var(--d3);color:var(--dim);font-size:10px;font-weight:800;cursor:pointer;transition:all .15s;font-family:inherit}
-.size-chip:hover{border-color:rgba(40,183,157,.3);color:#fff}
-.size-chip.active{background:rgba(40,183,157,.1);border-color:var(--green);color:var(--green)}
-
-/* ── Section divider ── */
-.sect{margin-top:18px;padding-top:14px;border-top:1px solid var(--bdr)}
-.sect-label{font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-
-/* ── Canvas area ── */
-.canvas-area{background:var(--d3);display:flex;flex-direction:column;align-items:center;overflow:hidden;position:relative}
-.canvas-toolbar{padding:10px 16px;background:var(--d2);border-bottom:1px solid var(--bdr);width:100%;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
-.ct-btn{padding:5px 12px;border:1.5px solid var(--bdr);border-radius:6px;background:transparent;color:var(--dim);font-family:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:all .15s}
-.ct-btn:hover{border-color:var(--green);color:var(--green)}
-.ct-btn.active{background:var(--green);border-color:var(--green);color:#fff}
-.ct-sep{width:1px;height:20px;background:var(--bdr)}
-.ct-info{font-size:10px;color:var(--muted);font-weight:700;margin-left:auto}
-.canvas-scroll{flex:1;overflow:auto;width:100%;padding:24px;display:flex;justify-content:center;align-items:flex-start}
-.canvas-scroll::-webkit-scrollbar{width:6px;height:6px}
-.canvas-scroll::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
-
-/* ── Empty state ── */
-.empty-state{text-align:center;padding:60px 24px;color:var(--muted)}
-.empty-state .es-icon{font-size:48px;margin-bottom:16px;opacity:.3}
-.empty-state .es-title{font-size:15px;font-weight:800;margin-bottom:6px;color:var(--dim)}
-.empty-state .es-sub{font-size:12px;line-height:1.6}
-
-/* ── Label grid ── */
-.label-grid{display:grid;gap:12px;width:fit-content}
-.label-card{background:#fff;border-radius:4px;position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.35);cursor:pointer;transition:box-shadow .15s}
-.label-card:hover{box-shadow:0 4px 20px rgba(40,183,157,.3)}
-.label-card.selected{outline:2px solid var(--green);outline-offset:2px}
-
-/* ── Label inner layout ── */
-.label-inner{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;background:#fff;position:relative}
-.label-qr-slot{display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.label-barcode-slot{display:flex;flex-direction:column;align-items:center;margin-top:3px;flex-shrink:0}
-.label-barcode-slot svg{max-width:100%}
-.label-barcode-num{font-family:'JetBrains Mono',monospace;font-size:7px;color:#333;letter-spacing:.1em;margin-top:1px}
-.label-token{position:absolute;bottom:3px;right:5px;font-family:'JetBrains Mono',monospace;font-size:6px;color:#999;letter-spacing:.04em}
-.label-index{position:absolute;top:3px;left:4px;font-family:'JetBrains Mono',monospace;font-size:6px;color:#bbb}
-
-/* ── Progress overlay ── */
-.gen-overlay{position:absolute;inset:0;background:rgba(10,10,13,.85);backdrop-filter:blur(8px);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:50}
-.gen-overlay.show{display:flex}
-.gen-overlay .go-title{font-size:16px;font-weight:900;margin-bottom:8px}
-.gen-overlay .go-sub{font-size:12px;color:var(--dim);margin-bottom:24px}
-.gen-bar-wrap{width:320px;background:var(--bdr);border-radius:4px;height:6px;overflow:hidden;margin-bottom:12px}
-.gen-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--violet));border-radius:4px;transition:width .2s;width:0%}
-.gen-stats-row{display:flex;gap:24px}
-.gen-stat{text-align:center}
-.gen-stat .gv{font-size:20px;font-weight:900;color:var(--green);font-family:var(--mono)}
-.gen-stat .gl{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px}
-
-/* ── Right panel stats ── */
-.stat-card{background:var(--d3);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;margin-bottom:10px}
-.stat-card .sv{font-size:22px;font-weight:900;letter-spacing:-.5px;color:#e8e8f0}
-.stat-card .sl{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:2px}
-
-/* ── Buttons ── */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:all .15s;margin-bottom:8px}
-.btn:last-child{margin-bottom:0}
-.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
-.btn-green{background:linear-gradient(135deg,#1a9a84,var(--green));color:#fff}
-.btn-violet{background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff}
-.btn-ghost{background:var(--d3);border:1.5px solid var(--bdr);color:#e8e8f0}
-.btn-ghost:hover{border-color:var(--green);color:var(--green)}
-.btn:disabled{opacity:.4;pointer-events:none}
-
-/* ── Print styles ── */
-@media print{
-  nav,.grad-bar,.workspace > .panel:first-child,.workspace > .panel:last-child,.canvas-toolbar{display:none!important}
-  .workspace{grid-template-columns:1fr;display:block}
-  .canvas-area{overflow:visible}
-  .canvas-scroll{padding:0;overflow:visible}
-  .label-grid{gap:6mm}
-  .label-card{box-shadow:none;break-inside:avoid}
-  body{background:#fff;color:#000}
+.elem-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid var(--bdr);background:var(--d3);cursor:pointer;transition:all .12s;width:100%;font-family:inherit}
+.elem-btn:hover{border-color:#B354F1;background:rgba(179,84,241,.07)}
+.elem-btn.placed{border-color:#28B79D;background:rgba(40,183,157,.07)}
+.eb-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.eb-label{font-size:10px;font-weight:700;text-align:left;color:var(--text)}
+.eb-sub{font-size:8px;color:var(--muted);margin-top:1px;text-align:left;line-height:1.3}
+/* Barcode height preset pills — hidden until barcode is placed */
+.bc-presets{display:none;gap:4px;flex-wrap:wrap;margin-top:4px}
+.bc-presets.visible{display:flex}
+.prop-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border-2);font-size:10px}
+.prop-row:last-child{border-bottom:none}
+.prop-k{color:var(--dim)}
+.prop-v{font-weight:700;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text)}
+.prop-input{width:52px;padding:3px 5px;border:1px solid var(--bdr);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:9px;text-align:right;background:var(--d3);color:var(--text)}
+.prop-input:focus{outline:none;border-color:#B354F1}
+.design-canvas{background:var(--canvas-bg);flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.label-stage{position:relative;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.drag-elem{position:absolute;cursor:move;border:1.5px dashed transparent;border-radius:2px;transition:border-color .1s}
+.drag-elem:hover{border-color:rgba(179,84,241,.5)}
+.drag-elem.selected{border-color:#B354F1;border-style:solid}
+.drag-elem .rh{position:absolute;bottom:-5px;right:-5px;width:10px;height:10px;background:#B354F1;border-radius:2px;cursor:se-resize;display:none}
+.drag-elem.selected .rh{display:block}
+.drag-elem .el{position:absolute;top:-16px;left:0;font-size:8px;font-weight:800;color:#fff;background:#B354F1;padding:1px 5px;border-radius:3px 3px 3px 0;white-space:nowrap;pointer-events:none}
+.props-panel{background:var(--d2);border-left:1px solid var(--bdr);padding:11px 11px;overflow-y:auto}
+.props-panel::-webkit-scrollbar{width:3px}
+.props-panel::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+.prop-title{font-size:9px;font-weight:800;color:#B354F1;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.act-btn{width:100%;padding:8px;border:none;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .12s;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:5px}
+.act-btn:hover{transform:translateY(-1px)}
+.btn-green{background:#28B79D;color:#fff}.btn-green:hover{background:#1f9a83}
+.btn-ghost{background:var(--d3);border:1px solid var(--bdr);color:var(--dim)}.btn-ghost:hover{border-color:#B354F1;color:#B354F1}
+.status-row{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--dim);margin-bottom:3px;line-height:1.5}
+.status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.printer-layout{display:grid;grid-template-columns:180px 1fr 244px;flex:1;overflow:hidden}
+.rail{background:var(--d2);border-right:1px solid var(--bdr);padding:10px 8px;display:flex;flex-direction:column;overflow-y:auto;gap:0}
+/* Node card — three states: default / active (conic spin) / done (green) */
+.nc{
+  border-radius:12px;padding:12px 10px 10px;cursor:pointer;
+  transition:border-color .22s,box-shadow .22s,transform .18s,background .22s;
+  position:relative;background:var(--d3);border:2px solid var(--bdr);
+  display:flex;align-items:center;gap:9px;text-align:left;
 }
+.nc:hover{border-color:rgba(179,84,241,.35);transform:translateY(-1px)}
+/* Active: spinning conic border (matches DPP builder spec) */
+.nc.active{border-color:transparent;background:var(--d3);box-shadow:0 0 18px rgba(179,84,241,.18)}
+.nc.active::before{
+  content:'';position:absolute;inset:-2px;border-radius:14px;
+  background:conic-gradient(from var(--a,0deg),#B354F1,#6A14DB,#00c8ff,#B354F1 40%,#321b68 60%,#B354F1);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:spin-border 2.5s linear infinite;pointer-events:none;
+}
+/* Done: green border + glow */
+.nc.done{border-color:#28B79D;background:rgba(40,183,157,.04);box-shadow:0 0 12px rgba(40,183,157,.12)}
+.nc.done .nc-icon{background:rgba(40,183,157,.12);color:#28B79D}
+.nc.done .nc-lbl{color:var(--dim)}
+.nc.done .nc-st{color:#28B79D}
+.nc-icon{
+  width:28px;height:28px;border-radius:8px;background:rgba(179,84,241,.1);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  color:#B354F1;transition:all .18s;
+}
+.nc.active .nc-icon{background:rgba(179,84,241,.18);color:#B354F1}
+.nc-text{flex:1;min-width:0}
+.nc-lbl{font-size:10px;font-weight:700;color:var(--text);line-height:1.2}
+.nc-dsc{font-size:8px;color:var(--muted);margin-top:1px;line-height:1.3}
+.nc-st{font-size:7px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:5px;color:var(--muted);display:flex;align-items:center;gap:3px;transition:color .2s}
+.nc.active .nc-st{color:#B354F1}
+/* Connector line between nodes */
+.conn{
+  width:2px;height:12px;margin:0 auto;border-radius:1px;
+  background:var(--bdr);transition:background .3s;position:relative;
+}
+.conn.done{background:#28B79D}
+.conn::after{
+  content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border:4px solid transparent;
+  border-top:5px solid var(--bdr);transition:border-top-color .3s;
+}
+.conn.done::after{border-top-color:#28B79D}
+.nc-dot{width:4px;height:4px;border-radius:50%;background:currentColor;animation:pulse-dot 1.4s infinite;flex-shrink:0}
+.panel-drawer{background:var(--d2);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden}
+.pd-head{padding:11px 13px 8px;border-bottom:1px solid var(--bdr);font-size:11px;font-weight:700;color:var(--text)}
+.pd-body{flex:1;overflow-y:auto;padding:11px 12px}
+.pd-body::-webkit-scrollbar{width:3px}
+.pd-body::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+.d-sect{margin-bottom:12px}
+.d-sl{font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.d-field{margin-bottom:7px}
+.d-field label{display:block;font-size:10px;color:var(--dim);margin-bottom:2px}
+.d-field input,.d-field select{width:100%;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;font-family:inherit;font-size:11px;color:var(--text);background:var(--d3);outline:none}
+.d-field input:focus,.d-field select:focus{border-color:#B354F1}
+.d-row{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.pills{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px}
+.pill{padding:3px 8px;border-radius:5px;border:1px solid var(--bdr);font-size:10px;color:var(--dim);cursor:pointer;transition:all .1s;background:var(--d3);font-family:inherit}
+.pill.on{background:#B354F1;border-color:#B354F1;color:#fff}
+.lay-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px}
+.lay-opt{border:1.5px solid var(--bdr);border-radius:9px;padding:9px 6px;text-align:center;cursor:pointer;transition:all .14s}
+.lay-opt:hover{border-color:var(--muted)}
+.lay-opt.on{border-color:#28B79D;background:rgba(40,183,157,.07)}
+.lay-opt svg{display:block;margin:0 auto 4px}
+.lay-lbl{font-size:9px;font-weight:700;color:var(--dim)}
+.lay-opt.on .lay-lbl{color:#28B79D}
+.tpl-wrap{position:relative;margin-bottom:7px}
+.tpl-sel{width:100%;padding:6px 28px 6px 8px;border:1px solid var(--bdr);border-radius:6px;font-family:inherit;font-size:11px;color:var(--text);background:var(--d3);outline:none;appearance:none;cursor:pointer}
+.tpl-sel:focus{border-color:#B354F1}
+.tpl-chev{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--muted);pointer-events:none}
+.add-tpl{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;padding:6px;border:1.5px dashed var(--bdr);border-radius:7px;background:transparent;font-family:inherit;font-size:10px;color:var(--muted);cursor:pointer;transition:all .12s;margin-bottom:8px}
+.add-tpl:hover{border-color:#B354F1;color:#B354F1;background:rgba(179,84,241,.06)}
+.tpl-prev{background:var(--d3);border-radius:7px;padding:10px;display:flex;align-items:center;justify-content:center;min-height:82px;margin-bottom:6px;border:1px solid var(--border-2)}
+.tpl-info{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:7px}
+.clr-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.clr-sw{width:20px;height:20px;border-radius:4px;border:1px solid var(--bdr);cursor:pointer;flex-shrink:0}
+.dot-row{display:flex;gap:4px;margin-top:3px}
+.dot-o{width:26px;height:26px;border-radius:5px;border:1px solid var(--bdr);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;background:var(--d3);color:var(--text)}
+.dot-o.on{border-color:#B354F1;background:rgba(179,84,241,.12)}
+.cont-btn{width:100%;margin-top:8px;padding:8px;background:linear-gradient(135deg,#1a9a84,#28B79D);border:none;border-radius:8px;color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .12s}
+.cont-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.cv-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.cv-tb{height:34px;background:var(--d2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 12px;gap:7px;flex-shrink:0}
+.cv-btn{padding:3px 8px;border:1px solid var(--bdr);border-radius:5px;background:var(--d3);font-family:inherit;font-size:9px;color:var(--dim);cursor:pointer;display:flex;align-items:center;gap:3px;transition:all .1s}
+.cv-btn:hover{border-color:#28B79D;color:#28B79D}
+.cv-btn.on{background:rgba(40,183,157,.1);border-color:#28B79D;color:#28B79D}
+.cv-scroll{flex:1;overflow-y:auto;background:var(--d0);display:flex;flex-direction:column;align-items:center;padding:20px 0 50px}
+.cv-scroll::-webkit-scrollbar{width:5px}
+.cv-scroll::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+.lbl-page{display:flex;flex-direction:column;align-items:center;margin-bottom:22px;cursor:pointer;animation:fadeUp .18s ease}
+.lbl-page:hover .lbl-trim{outline:2px solid #B354F1}
+.lbl-page.sel .lbl-trim{outline:3px solid #B354F1;outline-offset:1px}
+.pg-num{font-size:9px;color:var(--muted);margin-bottom:4px;font-family:'JetBrains Mono',monospace}
+.lbl-bleed{position:relative}
+.lbl-bleed.bon{background:rgba(220,50,50,.1);border:1px dashed rgba(220,50,50,.4);border-radius:2px}
+.lbl-trim{background:#fff;overflow:hidden;position:absolute;box-shadow:0 2px 10px rgba(0,0,0,.14)}
+.lbl-bleed.boff .lbl-trim{position:relative;box-shadow:0 2px 10px rgba(0,0,0,.14)}
+.safe-g{position:absolute;pointer-events:none;border:1px dashed var(--safe-border);z-index:2}
+.lbl-meta{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.gen-ov{position:absolute;inset:0;background:rgba(10,10,20,.88);backdrop-filter:blur(4px);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:50}
+[data-theme="light"] .gen-ov{background:rgba(230,230,236,.88)}
+.gen-ov.show{display:flex}
+@keyframes sp{to{transform:rotate(360deg)}}
+.spinner{width:24px;height:24px;border:2px solid var(--bdr);border-top-color:var(--violet);border-radius:50%;animation:sp .6s linear infinite;margin-bottom:8px}
+.gen-txt{font-size:11px;color:var(--dim);margin-bottom:5px}
+.gen-bar{width:160px;height:3px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.gen-fill{height:100%;background:linear-gradient(90deg,#28B79D,#B354F1);transition:width .12s;width:0%}
+.rpanel{background:var(--d2);border-left:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden}
+.rph{padding:10px 12px 8px;border-bottom:1px solid var(--bdr);font-size:9px;font-weight:800;color:#B354F1;text-transform:uppercase;letter-spacing:.07em}
+.rpb{flex:1;overflow-y:auto;padding:10px 12px}
+.rpb::-webkit-scrollbar{width:3px}
+.rpb::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+.stat-c{background:var(--d3);border-radius:7px;padding:7px 9px;margin-bottom:6px}
+.stat-v{font-size:16px;font-weight:700;color:var(--text)}
+.stat-l{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
+.prog-bar{background:var(--bdr);border-radius:3px;height:3px;overflow:hidden;margin:4px 0;display:none}
+.prog-bar.show{display:block}
+.prog-fill{height:100%;background:linear-gradient(90deg,#28B79D,#B354F1);transition:width .12s;width:0%}
+.sel-row{display:flex;justify-content:space-between;padding:3px 0;font-size:10px;border-bottom:1px solid var(--bdr)}
+.sel-row:last-child{border-bottom:none}
+.sel-k{color:var(--muted)}
+.sel-v{font-family:'JetBrains Mono',monospace;font-size:9px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.ref-card{background:#321B68;border-radius:9px;padding:10px 11px;margin-top:10px;cursor:pointer;transition:all .12s}
+.ref-card:hover{background:#1e0f41}
+.ref-ey{font-size:8px;font-weight:800;color:#B354F1;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.ref-t{font-size:10px;font-weight:700;color:#fff;margin-bottom:3px;line-height:1.4}
+.ref-s{font-size:9px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:5px}
+.ref-n{font-size:8px;color:rgba(255,255,255,.3);margin-bottom:6px}
+.ref-cta{width:100%;padding:5px;background:#28B79D;border:none;border-radius:5px;color:#fff;font-family:inherit;font-size:9px;font-weight:700;cursor:pointer}
+.pp-banner{background:rgba(40,183,157,.07);border:1px solid rgba(40,183,157,.25);border-radius:9px;padding:10px 12px;margin-bottom:10px}
+.pp-banner-title{font-size:11px;font-weight:700;color:#28B79D;margin-bottom:3px}
+.pp-banner-sub{font-size:9px;color:var(--dim);line-height:1.6}
+.pp-free-items{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.pp-item{font-size:8px;font-weight:700;padding:2px 7px;background:rgba(40,183,157,.12);color:#28B79D;border-radius:10px;border:1px solid rgba(40,183,157,.25)}
+.empty-cv{padding:50px 16px;text-align:center}
+.ei{font-size:28px;margin-bottom:10px;opacity:.25}
+.et{font-size:12px;font-weight:700;color:var(--dim);margin-bottom:3px}
+.es{font-size:10px;color:var(--muted);line-height:1.6}
+.bbar{height:32px;background:var(--d1);border-top:1px solid var(--bdr);display:flex;align-items:center;padding:0 12px;gap:12px;flex-shrink:0}
+.bb{font-size:10px;color:var(--dim)}
+.bb b{font-weight:700;color:var(--text)}
+
+
+/* Light mode panel surfaces */
+[data-theme="light"] .tools,
+[data-theme="light"] .props-panel,
+[data-theme="light"] .rail,
+[data-theme="light"] .panel-drawer,
+[data-theme="light"] .rpanel,
+[data-theme="light"] .cv-tb,
+[data-theme="light"] .topbar,
+[data-theme="light"] .tab-bar,
+[data-theme="light"] .bbar,
+[data-theme="light"] .exp-drop{background:#fff}
+[data-theme="light"] .tools,
+[data-theme="light"] .props-panel,
+[data-theme="light"] .panel-drawer,
+[data-theme="light"] .rpanel{border-color:#e8e8f0}
+[data-theme="light"] .topbar,[data-theme="light"] .tab-bar,[data-theme="light"] .bbar{background:#fff;border-color:#e8e8f0}
+[data-theme="light"] .elem-btn{background:#fafafa;border-color:#e8e8f0}
+[data-theme="light"] .stat-c,[data-theme="light"] .nc{background:#f8f8fc}
+[data-theme="light"] .nc.done{background:rgba(40,183,157,.04)}
+[data-theme="light"] .nc.active{background:#f8f8fc}
+[data-theme="light"] .d-field input,[data-theme="light"] .d-field select,[data-theme="light"] .tpl-sel,[data-theme="light"] .prop-input{background:#fafafa;color:#1a1a22;border-color:#e0e0ec}
+[data-theme="light"] .pill{background:#fafafa;border-color:#e0e0ec;color:#555}
+[data-theme="light"] .tb-title{color:#1a1a22}
+[data-theme="light"] .tab.on{color:#1a1a22;border-bottom-color:var(--violet)}
+[data-theme="light"] .tab{color:#888}
+[data-theme="light"] .tpl-prev{background:#f0f0f5}
+[data-theme="light"] .add-tpl{border-color:#ccc;color:#999}
+[data-theme="light"] .dot-o{background:#fafafa;border-color:#e0e0ec}
+[data-theme="light"] .upload-zone{border-color:#ccc}
+/* Artwork placeholder adapts to theme */
+#artworkBg{background:var(--artwork-bg) !important}
+#artworkBg span{color:var(--artwork-text) !important}
 </style>
 </head>
 <body>
 
-<!-- ═══ NAV ═══ -->
-<nav>
-<svg class="logo" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg"><path d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z" fill="#fff"/><path d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z" fill="#fff"/><path d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z" fill="#fff"/><path d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z" fill="#fff"/><path d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z" fill="#fff"/><path d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z" fill="#fff"/><path d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z" fill="#fff"/><path d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z" fill="#fff"/></svg>
-<div class="nav-sep"></div>
-<span class="nav-label">Label Exporter</span>
-<div class="nav-right">
-  <span class="nav-badge" id="navBadge">No CSV loaded</span>
+<div class="topbar">
+  <span class="tb-title">Label Exporter</span>
+  <div class="tb-sep"></div>
+  <span class="tb-file" id="tbFile">Untitled run</span>
+  <span class="tb-count" id="tbCount">0 labels</span>
+  <div class="tb-right">
+    <button class="exp-btn" id="expBtnMain" onclick="toggleExp()" disabled>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <div class="exp-drop" id="expDrop">
+      <div class="ed-head"><div class="ed-title">Export labels</div><div class="ed-sub" id="edSub">0 labels ready</div></div>
+      <div class="ed-sect">
+        <div class="ed-sl">Print &amp; graphics</div>
+        <div class="ed-opt" onclick="doExport('pdf')"><div class="ed-ico" style="background:rgba(220,50,50,.12)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="ed-name">PDF</div><div class="ed-desc">Print-ready · bleed marks included</div></div><span class="ed-tag" style="background:rgba(220,50,50,.12);color:#e05050">PDF</span></div>
+        <div class="ed-opt" onclick="doExport('zip-png')"><div class="ed-ico" style="background:rgba(24,95,165,.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><div><div class="ed-name">PNG — 600 DPI</div><div class="ed-desc">ZIP of all labels</div></div><span class="ed-tag" style="background:rgba(24,95,165,.1);color:#5899e8">PNG</span></div>
+        <div class="ed-opt" onclick="doExport('jpeg')"><div class="ed-ico" style="background:#f5f5f5"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div><div class="ed-name">JPEG</div><div class="ed-desc">Compressed · white background</div></div><span class="ed-tag" style="background:rgba(80,80,100,.12);color:var(--dim)">JPG</span></div>
+        <div class="ed-opt" onclick="doExport('tiff')"><div class="ed-ico" style="background:rgba(180,100,0,.14)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><div><div class="ed-name">TIFF — lossless</div><div class="ed-desc">Layers preserved</div></div><span class="ed-tag" style="background:rgba(180,100,0,.14);color:#cc8030">TIF</span></div>
+        <div class="ed-opt" onclick="doExport('eps')"><div class="ed-ico" style="background:rgba(153,53,86,.12)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div><div><div class="ed-name">EPS — press ready</div><div class="ed-desc">Vector · offset print shops</div></div><span class="ed-tag" style="background:rgba(153,53,86,.12);color:#cc6688">EPS</span></div>
+      </div>
+      <div class="ed-sect">
+        <div class="ed-sl">Vector &amp; cut</div>
+        <div class="ed-opt" onclick="doExport('svg')"><div class="ed-ico" style="background:rgba(40,183,157,.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M8 12h8M12 8v8"/></svg></div><div><div class="ed-name">SVG</div><div class="ed-desc">Vinyl cutting · laser cutter</div></div><span class="ed-tag" style="background:rgba(40,183,157,.1);color:#28B79D">SVG</span></div>
+        <div class="ed-opt" onclick="doExport('dxf')"><div class="ed-ico" style="background:#e8f0fe"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div><div><div class="ed-name">DXF</div><div class="ed-desc">CNC · router · AutoCAD</div></div><span class="ed-tag" style="background:rgba(24,95,165,.1);color:#5899e8">DXF</span></div>
+        <div class="ed-opt" onclick="doExport('ai')"><div class="ed-ico" style="background:rgba(150,80,0,.14)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div><div><div class="ed-name">AI — Illustrator</div><div class="ed-desc">Screen printing</div></div><span class="ed-tag" style="background:rgba(150,80,0,.14);color:#c07830">AI</span></div>
+        <div class="ed-opt" onclick="doExport('plt')"><div class="ed-ico" style="background:rgba(100,100,120,.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="ed-name">PLT</div><div class="ed-desc">HPGL plotter · vinyl cutter</div></div><span class="ed-tag" style="background:rgba(100,100,120,.1);color:var(--dim)">PLT</span></div>
+      </div>
+      <div class="ed-sect">
+        <div class="ed-sl">3D printing</div>
+        <div class="ed-opt" onclick="doExport('stl')"><div class="ed-ico" style="background:rgba(40,183,157,.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><div><div class="ed-name">STL</div><div class="ed-desc">FDM · resin</div></div><span class="ed-tag" style="background:rgba(40,183,157,.1);color:#28B79D">STL</span></div>
+        <div class="ed-opt" onclick="doExport('obj')"><div class="ed-ico" style="background:rgba(24,95,165,.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div><div class="ed-name">OBJ</div><div class="ed-desc">Multi-material print</div></div><span class="ed-tag" style="background:rgba(24,95,165,.1);color:#5899e8">OBJ</span></div>
+        <div class="ed-opt" onclick="doExport('3mf')"><div class="ed-ico" style="background:rgba(40,183,157,.08)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div><div class="ed-name">3MF</div><div class="ed-desc">Full colour 3D print</div></div><span class="ed-tag" style="background:rgba(40,183,157,.08);color:#28B79D">3MF</span></div>
+      </div>
+      <div class="ed-sect">
+        <div class="ed-sl">Embroidery &amp; stitching</div>
+        <div class="ed-opt" onclick="doExport('dst')"><div class="ed-ico" style="background:rgba(153,53,86,.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg></div><div><div class="ed-name">DST — Tajima</div><div class="ed-desc">Industrial embroidery</div></div><span class="ed-tag" style="background:rgba(153,53,86,.1);color:#cc6688">DST</span></div>
+        <div class="ed-opt" onclick="doExport('pes')"><div class="ed-ico" style="background:rgba(153,53,86,.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg></div><div><div class="ed-name">PES — Brother</div><div class="ed-desc">Brother embroidery machines</div></div><span class="ed-tag" style="background:rgba(153,53,86,.1);color:#cc6688">PES</span></div>
+        <div class="ed-opt" onclick="doExport('jef')"><div class="ed-ico" style="background:rgba(153,53,86,.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg></div><div><div class="ed-name">JEF / VP3</div><div class="ed-desc">Janome · Husqvarna Viking</div></div><span class="ed-tag" style="background:rgba(153,53,86,.1);color:#cc6688">JEF</span></div>
+      </div>
+      <div class="ed-sect">
+        <div class="ed-sl">Print dialog</div>
+        <div class="ed-opt" onclick="doExport('print')"><div class="ed-ico" style="background:rgba(40,183,157,.1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div><div><div class="ed-name">Browser print / PDF</div><div class="ed-desc">Print dialog · save as PDF</div></div><span class="ed-tag" style="background:rgba(40,183,157,.1);color:#28B79D">Print</span></div>
+      </div>
+    </div>
+  </div>
 </div>
-</nav>
-<div class="grad-bar"></div>
 
-<!-- ═══ WORKSPACE ═══ -->
-<div class="workspace">
+<div class="tab-bar">
+  <div class="tab on" id="tabDesigner" onclick="switchTab('designer',this)">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+    Label Designer
+  </div>
+  <div class="tab" id="tabPrinter" onclick="switchTab('printer',this)">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Printer Portal
+  </div>
+</div>
 
-  <!-- LEFT: Import + Settings -->
-  <div class="panel">
-    <div class="panel-head"><div class="panel-title">Import & Settings</div></div>
-    <div class="panel-body">
-
-      <!-- CSV import -->
-      <div class="field">
-        <label>Batch CSV</label>
-        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('csvFile').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
-          <input type="file" id="csvFile" accept=".csv" onchange="loadCSV(this.files[0])">
-          <div id="uzDefault">
-            <div class="uz-icon">📋</div>
-            <div class="uz-text">Drop CSV or click to browse</div>
-            <div class="uz-sub">From Batch Generation · digital_link_url + gtin14 columns</div>
-          </div>
-          <div id="uzLoaded" style="display:none;padding:14px">
-            <div style="font-size:11px;font-weight:900;color:var(--green);margin-bottom:4px">✓ CSV Loaded</div>
-            <div id="uzInfo" style="font-size:10px;color:var(--dim)"></div>
-          </div>
+<!-- DESIGNER -->
+<div class="screen active" id="s-designer">
+  <div class="designer" style="flex:1;overflow:hidden">
+    <div class="tools">
+      <div>
+        <div class="tl-sect">Artwork</div>
+        <div class="upload-zone" id="artZone" onclick="document.getElementById('artFile').click()">
+          <input type="file" id="artFile" accept="image/*" onchange="loadArtwork(this.files[0])">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 5px;color:var(--muted)"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <div style="font-size:10px;font-weight:700;color:var(--dim)">Upload label artwork</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">PNG, SVG, AI · any size</div>
         </div>
       </div>
-
-      <!-- Label size -->
-      <div class="sect">
-        <div class="sect-label">🏷️ Label Size</div>
-        <div class="size-chips">
-          <button class="size-chip" onclick="setSize(50,25,this)">50×25mm</button>
-          <button class="size-chip active" onclick="setSize(100,50,this)">100×50mm</button>
-          <button class="size-chip" onclick="setSize(100,100,this)">100×100mm</button>
-          <button class="size-chip" onclick="setSize(70,30,this)">70×30mm</button>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Width (mm)</label><input type="number" id="labelW" value="100" min="20" max="300" oninput="updateLayout()"></div>
-          <div class="field"><label>Height (mm)</label><input type="number" id="labelH" value="50" min="10" max="300" oninput="updateLayout()"></div>
-        </div>
-        <div class="field"><label>Preview Scale</label>
-          <select id="previewScale" onchange="updateLayout()">
-            <option value="2">2× (small)</option>
-            <option value="3" selected>3× (medium)</option>
-            <option value="4">4× (large)</option>
-          </select>
-        </div>
-        <div class="field"><label>Labels per row</label>
-          <select id="perRow">
-            <option value="1">1</option>
-            <option value="2" selected>2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-          </select>
+      <div>
+        <div class="tl-sect">Elements</div>
+        <button class="elem-btn placed" id="btnSmartQR">
+          <div class="eb-icon" style="background:rgba(40,183,157,.12)">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#28B79D"><rect x="1" y="1" width="4" height="4" rx=".5"/><rect x="9" y="1" width="4" height="4" rx=".5"/><rect x="1" y="9" width="4" height="4" rx=".5"/><rect x="9" y="9" width="2" height="2"/><rect x="9" y="7" width="2" height="1"/><rect x="12" y="9" width="2" height="2"/><rect x="12" y="7" width="2" height="1"/></svg>
+          </div>
+          <div>
+            <div class="eb-label">SmartQR</div>
+            <div class="eb-sub" style="color:#28B79D">✓ Placed · drag to position</div>
+          </div>
+        </button>
+        <button class="elem-btn" id="btnBarcode" onclick="toggleBarcode()" style="margin-top:5px">
+          <div class="eb-icon" style="background:rgba(180,100,0,.14)">
+            <svg width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="2" width="1.5" height="10" fill="#a05a00"/><rect x="3.5" y="2" width="2" height="10" fill="#a05a00"/><rect x="6.5" y="2" width="1" height="10" fill="#a05a00"/><rect x="8.5" y="2" width="2" height="10" fill="#a05a00"/><rect x="11.5" y="2" width="1.5" height="10" fill="#a05a00"/></svg>
+          </div>
+          <div>
+            <div class="eb-label">GS1-128 Barcode</div>
+            <div class="eb-sub" id="bcSub">Click to add</div>
+          </div>
+        </button>
+        <!-- Height presets — visible only when barcode is placed -->
+        <div class="bc-presets" id="bcPresets">
+          <button class="pill on"  id="bcPillStd"    onclick="setBcHeight(32,this)">Standard</button>
+          <button class="pill"     id="bcPillTall"   onclick="setBcHeight(54,this)">Tall</button>
+          <button class="pill"     id="bcPillRetail" onclick="setBcHeight(88,this)">Retail</button>
         </div>
       </div>
+      <div>
+        <div class="tl-sect">Label size</div>
+        <div class="prop-row"><span class="prop-k">Width</span><input class="prop-input" value="100" id="labelW" type="number" oninput="updateStage()"> mm</div>
+        <div class="prop-row"><span class="prop-k">Height</span><input class="prop-input" value="50" id="labelH" type="number" oninput="updateStage()"> mm</div>
+        <div class="prop-row"><span class="prop-k">Bleed</span><input class="prop-input" value="3" id="bleedMM" type="number"> mm</div>
+        <div class="prop-row"><span class="prop-k">Safe zone</span><span class="prop-v">2mm inside</span></div>
+      </div>
+    </div>
 
-      <!-- QR style -->
-      <div class="sect">
-        <div class="sect-label">◈ QR Code Style</div>
-        <div class="field">
-          <label>Dot Style</label>
-          <div class="dot-chips">
-            <button class="dot-chip active" onclick="setDotStyle('square',this)">Square</button>
-            <button class="dot-chip" onclick="setDotStyle('rounded',this)">Rounded</button>
-            <button class="dot-chip" onclick="setDotStyle('dots',this)">Circle</button>
-            <button class="dot-chip" onclick="setDotStyle('classy-rounded',this)">Diamond</button>
+    <div class="design-canvas" id="designCanvas">
+      <div style="position:relative">
+        <div id="bleedRing" style="position:absolute;inset:-9px;border:1px dashed rgba(220,50,50,.4);border-radius:2px;pointer-events:none;z-index:0"></div>
+        <div class="label-stage" id="labelStage" style="width:400px;height:200px">
+          <div id="artworkBg" style="position:absolute;inset:0;background:#f5f5f8;z-index:0;display:flex;align-items:center;justify-content:center">
+            <span style="font-size:11px;color:#ccc;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Upload artwork above</span>
           </div>
-        </div>
-        <div class="field">
-          <label>Foreground</label>
-          <div class="color-row">
-            <div class="color-swatch" id="fgSwatch" style="background:#000000" onclick="document.getElementById('fgPick').click()"></div>
-            <input type="color" id="fgPick" value="#000000" style="display:none" oninput="document.getElementById('fgHex').value=this.value;document.getElementById('fgSwatch').style.background=this.value">
-            <input type="text" id="fgHex" value="#000000" maxlength="7" oninput="syncColor('fg',this.value)">
+          <img id="artworkImg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;display:none">
+          <div style="position:absolute;left:8px;top:8px;right:8px;bottom:8px;border:1px dashed rgba(40,183,157,.2);z-index:2;pointer-events:none"></div>
+          <!-- SmartQR — always present, draggable -->
+          <div class="drag-elem selected" id="sqrElem" style="left:150px;top:30px;width:78px;height:78px;z-index:20" onmousedown="startDrag(event,'sqrElem')">
+            <div class="el">SmartQR</div>
+            <canvas id="sqrCanvas" width="74" height="74" style="display:block;border-radius:2px;width:74px;height:74px"></canvas>
+            <div class="rh" onmousedown="startResize(event,'sqrElem')"></div>
           </div>
-        </div>
-        <div class="field">
-          <label>Eye Colour</label>
-          <div class="color-row">
-            <div class="color-swatch" id="eyeSwatch" style="background:#000000" onclick="document.getElementById('eyePick').click()"></div>
-            <input type="color" id="eyePick" value="#000000" style="display:none" oninput="document.getElementById('eyeHex').value=this.value;document.getElementById('eyeSwatch').style.background=this.value">
-            <input type="text" id="eyeHex" value="#000000" maxlength="7" oninput="syncColor('eye',this.value)">
-          </div>
-        </div>
-        <div class="field">
-          <label>QR Size (% of label width)</label>
-          <input type="range" id="qrPct" min="30" max="90" value="60" oninput="document.getElementById('qrPctVal').textContent=this.value+'%';updateLayout()" style="width:100%;accent-color:var(--green)">
-          <div style="font-size:10px;color:var(--green);font-weight:800;margin-top:3px" id="qrPctVal">60%</div>
+          <!-- #bcElem injected here by toggleBarcode() -->
         </div>
       </div>
+    </div>
 
-      <!-- Barcode -->
-      <div class="sect">
-        <div class="sect-label">▐ GS1-128 Barcode</div>
-        <div class="toggle-row" style="border:none;padding:8px 0">
-          <div class="toggle-left">
-            <div class="tl-label">Show 1D Barcode</div>
-            <div class="tl-desc">Renders GS1-128 below the QR using gtin14 column</div>
-          </div>
-          <div class="toggle-sw" id="barcodeToggle" onclick="this.classList.toggle('on');updateLayout()"></div>
-        </div>
-      </div>
-
-      <!-- Show limit -->
-      <div class="sect">
-        <div class="sect-label">⚡ Performance</div>
-        <div class="field">
-          <label>Render limit (labels shown)</label>
-          <select id="renderLimit" onchange="renderLabels()">
-            <option value="25">25 labels</option>
-            <option value="50" selected>50 labels</option>
-            <option value="100">100 labels</option>
-            <option value="250">250 labels</option>
-            <option value="999999">All</option>
-          </select>
-          <div class="hint">QR generation is CPU-intensive. Limit preview for large batches.</div>
-        </div>
-      </div>
-
+    <div class="props-panel">
+      <div class="prop-title">SmartQR position</div>
+      <div class="prop-row"><span class="prop-k">X</span><span class="prop-v" id="propX">38mm</span></div>
+      <div class="prop-row"><span class="prop-k">Y</span><span class="prop-v" id="propY">15mm</span></div>
+      <div class="prop-row"><span class="prop-k">Width</span><span class="prop-v" id="propW">20mm</span></div>
+      <div class="prop-row"><span class="prop-k">Height</span><span class="prop-v" id="propH">20mm</span></div>
+      <div style="height:10px"></div>
+      <div class="prop-title">Label status</div>
+      <div class="status-row"><span class="status-dot" id="dotArtwork" style="background:#e0e0ec"></span>Artwork — not uploaded</div>
+      <div class="status-row"><span class="status-dot" style="background:#28B79D"></span>SmartQR — placed</div>
+      <div class="status-row"><span class="status-dot" id="dotBC" style="background:#e0e0ec"></span>Barcode — not placed</div>
+      <div class="status-row"><span class="status-dot" id="dotCSV" style="background:#e0e0ec"></span>Batch CSV — not loaded</div>
+      <div style="height:10px"></div>
+      <button class="act-btn btn-green" onclick="switchTab('printer',document.getElementById('tabPrinter'))">Generate batch →</button>
+      <button class="act-btn btn-ghost" onclick="copyShareLink()">Share with printer</button>
     </div>
   </div>
+</div>
 
-  <!-- CENTRE: Label canvas -->
-  <div class="canvas-area">
-    <div class="canvas-toolbar">
-      <button class="ct-btn active" id="viewBtn" onclick="setView('grid',this)">Grid View</button>
-      <button class="ct-btn" id="singleBtn" onclick="setView('single',this)">Single</button>
-      <div class="ct-sep"></div>
-      <button class="ct-btn" onclick="prevPage()" id="prevBtn" disabled>← Prev</button>
-      <span style="font-size:10px;color:var(--dim);font-weight:700" id="pageInfo">—</span>
-      <button class="ct-btn" onclick="nextPage()" id="nextBtn" disabled>Next →</button>
-      <div class="ct-sep"></div>
-      <button class="ct-btn" onclick="window.print()">🖨 Print</button>
-      <span class="ct-info" id="ctInfo">Load a CSV to begin</span>
+<!-- PRINTER PORTAL -->
+<div class="screen" id="s-printer">
+  <div class="printer-layout" style="flex:1;overflow:hidden">
+    <div class="rail">
+      <div class="nc done" id="nc-import" onclick="openNode('import')"><div class="nc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="nc-text"><div class="nc-lbl">Import CSV</div><div class="nc-dsc">Batch file</div><div class="nc-st">✓ Done</div></div></div>
+      <div class="conn done"></div>
+      <div class="nc done" id="nc-size" onclick="openNode('size')"><div class="nc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><div class="nc-text"><div class="nc-lbl">Label Size</div><div class="nc-dsc">Dimensions & bleed</div><div class="nc-st">✓ Done</div></div></div>
+      <div class="conn done"></div>
+      <div class="nc done" id="nc-layout" onclick="openNode('layout')"><div class="nc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="3" y1="9" x2="9" y2="9"/></svg></div><div class="nc-text"><div class="nc-lbl">Layout</div><div class="nc-dsc">Artwork + SmartQR</div><div class="nc-st">✓ Done</div></div></div>
+      <div class="conn done"></div>
+      <div class="nc done" id="nc-style" onclick="openNode('style')"><div class="nc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div><div class="nc-text"><div class="nc-lbl">SmartQR Style</div><div class="nc-dsc">Template selected</div><div class="nc-st">✓ Done</div></div></div>
+      <div class="conn done"></div>
+      <div class="nc active" id="nc-gen" onclick="openNode('gen')"><div class="nc-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="nc-text"><div class="nc-lbl">Generate</div><div class="nc-dsc">Render & export</div><div class="nc-st"><span class="nc-dot"></span> Active</div></div></div>
     </div>
-
-    <div class="canvas-scroll" id="canvasScroll">
-      <div class="empty-state">
-        <div class="es-icon">◈</div>
-        <div class="es-title">No labels yet</div>
-        <div class="es-sub">Import a CSV from Batch Generation.<br>Each row becomes a label with its own QR code.</div>
-      </div>
+    <div class="panel-drawer">
+      <div class="pd-head" id="pdHead">Generate</div>
+      <div class="pd-body" id="pdBody"></div>
     </div>
-
-    <!-- Generation progress overlay -->
-    <div class="gen-overlay" id="genOverlay">
-      <div class="go-title">Generating QR Codes</div>
-      <div class="go-sub" id="goSub">Building labels…</div>
-      <div class="gen-bar-wrap"><div class="gen-bar-fill" id="genBarFill"></div></div>
-      <div class="gen-stats-row">
-        <div class="gen-stat"><div class="gv" id="goCount">0</div><div class="gl">Generated</div></div>
-        <div class="gen-stat"><div class="gv" id="goTotal">—</div><div class="gl">Total</div></div>
-        <div class="gen-stat"><div class="gv" id="goEta">—</div><div class="gl">Remaining</div></div>
+    <div class="cv-wrap">
+      <div class="cv-tb">
+        <button class="cv-btn on" id="bldBtn" onclick="toggleBleed(this)">
+          <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><rect x=".5" y=".5" width="8" height="8" rx="1" stroke="currentColor" stroke-dasharray="2,1.2"/><rect x="2" y="2" width="5" height="5" rx=".5" stroke="currentColor"/></svg>
+          Bleed
+        </button>
+        <span style="font-size:9px;color:var(--muted);margin-left:auto" id="cvInfo">Load a CSV to begin</span>
       </div>
-    </div>
-  </div>
-
-  <!-- RIGHT: Stats + export -->
-  <div class="panel">
-    <div class="panel-head"><div class="panel-title">Print Run</div></div>
-    <div class="panel-body">
-
-      <div class="stat-card"><div class="sv" id="statTotal">0</div><div class="sl">Total Labels</div></div>
-      <div class="stat-card"><div class="sv" id="statRendered">0</div><div class="sl">Rendered</div></div>
-      <div class="stat-card"><div class="sv" id="statBatch">—</div><div class="sl">Batch ID</div></div>
-      <div class="stat-card"><div class="sv" id="statGtin">—</div><div class="sl">GTIN-14</div></div>
-
-      <div class="sect" style="margin-top:16px">
-        <div class="sect-label">Export</div>
-        <button class="btn btn-green" id="btnGenerate" onclick="generateAll()" disabled>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Generate All Labels
-        </button>
-        <button class="btn btn-violet" onclick="window.print()" id="btnPrint" disabled>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          Print Labels
-        </button>
-        <button class="btn btn-ghost" onclick="exportPNG()" id="btnPNG" disabled>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Export First Label PNG
-        </button>
-      </div>
-
-      <div class="sect">
-        <div class="sect-label">Selected Label</div>
-        <div style="font-size:11px;color:var(--muted);font-style:italic" id="selectedInfo">Click a label to inspect</div>
-        <div id="selectedDetail" style="display:none;margin-top:8px">
-          <div style="font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--green);margin-bottom:6px">Digital Link</div>
-          <div id="selLink" style="font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--dim);word-break:break-all;line-height:1.6"></div>
-          <div style="font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:8px 0 4px">GTIN-14</div>
-          <div id="selGtin" style="font-size:12px;font-family:'JetBrains Mono',monospace;color:#e8e8f0;font-weight:700"></div>
-          <div style="font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:8px 0 4px">Token ID</div>
-          <div id="selToken" style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--green);font-weight:700"></div>
+      <div class="cv-scroll" id="cvScroll" style="position:relative">
+        <div class="empty-cv" id="emptyState">
+          <div class="ei"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.25;margin:0 auto 10px;display:block"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="7" y="7" width="3" height="9"/><rect x="15" y="7" width="2" height="5"/><rect x="11" y="7" width="2" height="9"/></svg></div>
+          <div class="et">No labels yet</div>
+          <div class="es">Import a CSV to generate<br>print-ready labels</div>
+        </div>
+        <div class="gen-ov" id="genOv">
+          <div class="spinner"></div>
+          <div class="gen-txt" id="genTxt">Building…</div>
+          <div class="gen-bar"><div class="gen-fill" id="genFill"></div></div>
         </div>
       </div>
-
+    </div>
+    <div class="rpanel">
+      <div class="rph">Print Run</div>
+      <div class="rpb">
+        <div class="pp-banner">
+          <div class="pp-banner-title">Printer Partner — free trial</div>
+          <div class="pp-banner-sub">Explore the full DeStore platform with 10 free units of every product.</div>
+          <div class="pp-free-items">
+            <span class="pp-item">10 DPPs</span><span class="pp-item">10 Digital Links</span><span class="pp-item">10 SmartQRs</span><span class="pp-item">10 Label exports</span><span class="pp-item">10 Result screens</span><span class="pp-item">10 Tracked items</span>
+          </div>
+        </div>
+        <div class="stat-c"><div class="stat-v" id="stTotal">0</div><div class="stat-l">Total labels</div></div>
+        <div class="stat-c"><div class="stat-v" id="stRendered">0</div><div class="stat-l">Rendered</div></div>
+        <div class="stat-c"><div class="stat-v" id="stBatch" style="font-size:12px;margin-top:2px">—</div><div class="stat-l">Batch ID</div></div>
+        <div style="margin:10px 0 5px;font-size:8px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Export</div>
+        <button class="exp-btn" id="expBtnPanel" onclick="toggleExp()" disabled style="width:100%;margin-bottom:6px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export labels
+        </button>
+        <div class="prog-bar" id="zipProg"><div class="prog-fill" id="zipFill"></div></div>
+        <div style="margin:8px 0 5px;font-size:8px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Selected label</div>
+        <div style="font-size:10px;color:var(--muted);font-style:italic" id="selHint">Click a label to inspect</div>
+        <div id="selDetail" style="display:none">
+          <div class="sel-row"><span class="sel-k">Index</span><span class="sel-v" id="selIdx">—</span></div>
+          <div class="sel-row"><span class="sel-k">Token</span><span class="sel-v" id="selTok">—</span></div>
+          <div class="sel-row"><span class="sel-k">GTIN</span><span class="sel-v" id="selGtin">—</span></div>
+          <div class="sel-row"><span class="sel-k">Link</span><span class="sel-v" id="selLink" title="">—</span></div>
+        </div>
+        <div class="ref-card">
+          <div class="ref-ey">Referral programme</div>
+          <div class="ref-t">Refer a brand · earn 30% for 2 years</div>
+          <div class="ref-s">Introduce a brand to DeStore and earn 30% of everything they spend — no cap, no limit on referrals.</div>
+          <div class="ref-n">Coming soon · register your interest now</div>
+          <button class="ref-cta">Notify me when live →</button>
+        </div>
+      </div>
     </div>
   </div>
+</div>
+
+<div class="bbar">
+  <span class="bb">Total: <b id="bbT">0</b></span>
+  <span class="bb">Rendered: <b id="bbR">0</b></span>
+  <span class="bb" id="bbBatch"></span>
 </div>
 
 <script>
 window.addEventListener('message',e=>{if(e.data?.type==='ds-theme'){if(e.data.theme==='light')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme;}});
 (function(){var t=localStorage.getItem('ds_theme');if(t==='light')document.documentElement.dataset.theme='light';})();
 
-// ── State ───────────────────────────────────────────────────────
-let csvRows = [];       // parsed CSV rows
-let labelDivs = [];     // rendered label DOM nodes (one per row)
-let currentPage = 0;
-let viewMode = 'grid';  // 'grid' | 'single'
-let dotStyle = 'square';
-let labelW = 100, labelH = 50; // mm
-let scale = 3;          // px per mm
-let perRow = 2;
-let isGenerating = false;
-let selectedIdx = -1;
+const SAFE=2;
+let rows=[],lbls=[],selIdx=-1,showBl=true,lay='qr-only',dot='sq',fg='#000000',ey='#000000';
+let activeTpl=0,cancelFlag=false,hasBarcode=false,artworkDataUrl=null;
 
-// ── CSV parsing ──────────────────────────────────────────────────
-function parseCSV(text){
-  const lines = text.split('\n').filter(l => l.trim() && !l.startsWith('#'));
-  if(!lines.length) return [];
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
-  const rows = [];
-  for(let i=1;i<lines.length;i++){
-    const cols = splitCSVLine(lines[i]);
-    if(cols.length < 2) continue;
-    const row = {};
-    headers.forEach((h,j) => row[h] = (cols[j]||'').replace(/^"|"$/g,'').trim());
-    if(row.digital_link_url || row.gs1digitallink) rows.push(row);
+// ── Tabs ──
+function switchTab(id,tabEl){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('active');
+  if(tabEl)tabEl.classList.add('on');
+  if(id==='printer') openNode('gen');
+}
+
+// ── Export dropdown ──
+function toggleExp(){document.getElementById('expDrop').classList.toggle('open');}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.tb-right')&&!e.target.closest('#expBtnPanel'))
+    document.getElementById('expDrop').classList.remove('open');
+});
+function doExport(type){
+  document.getElementById('expDrop').classList.remove('open');
+  if(!lbls.length){alert('Generate labels first.');return;}
+  const n=lbls.length;
+  if(type==='zip-png'){exportZIP();return;}
+  if(type==='print'){window.print();return;}
+  const base='destore-network.vercel.app/DS_LabelExporter.html';
+  const msgs={pdf:`PDF — ${n} labels\nOpens in your print shop software.\n\n${base}`,jpeg:`JPEG — ${n} labels @ 600 DPI\n\n${base}`,tiff:`TIFF — ${n} labels @ 600 DPI (lossless)\n\n${base}`,eps:`EPS — ${n} labels (press-ready vector)\n\n${base}`,svg:`SVG — ${n} labels (scalable vector)\n\n${base}`,dxf:`DXF — ${n} labels for CNC/laser\n\n${base}`,ai:`AI — ${n} labels (Adobe Illustrator)\n\n${base}`,plt:`PLT — ${n} labels (HPGL plotter)\n\n${base}`,stl:`STL — ${n} labels for 3D printing\n\n${base}`,obj:`OBJ — ${n} labels (3D multi-material)\n\n${base}`,'3mf':`3MF — ${n} labels (full colour 3D)\n\n${base}`,dst:`DST — ${n} labels (Tajima embroidery)\n\n${base}`,pes:`PES — ${n} labels (Brother embroidery)\n\n${base}`,jef:`JEF/VP3 — ${n} labels (Janome/Husqvarna)\n\n${base}`};
+  alert(msgs[type]||'Export: '+type);
+}
+
+// ── SmartQR renderer ──
+function drawQR(canvas,url,size,fgc,eyc,ds){
+  const ctx=canvas.getContext('2d');const N=21;const c=size/N;
+  let h=0;for(let i=0;i<url.length;i++){h=((h<<5)-h)+url.charCodeAt(i);h|=0;}
+  const rng=s=>{let x=Math.sin(s+h)*10000;return x-Math.floor(x);};
+  ctx.clearRect(0,0,size,size);ctx.fillStyle='#fff';ctx.fillRect(0,0,size,size);
+  for(let r=0;r<N;r++)for(let cc=0;cc<N;cc++){
+    if((r<7&&cc<7)||(r<7&&cc>=N-7)||(r>=N-7&&cc<7)||r===6||cc===6)continue;
+    if(rng(r*N+cc)>.5){
+      ctx.fillStyle=fgc;const x=cc*c,y=r*c;
+      if(ds==='ci'){ctx.beginPath();ctx.arc(x+c/2,y+c/2,c/2*.82,0,Math.PI*2);ctx.fill();}
+      else if(ds==='ro'){ctx.beginPath();ctx.roundRect(x+.5,y+.5,c-1,c-1,c*.22);ctx.fill();}
+      else ctx.fillRect(x+.5,y+.5,c-1,c-1);
+    }
   }
-  return rows;
-}
-
-function splitCSVLine(line){
-  const result=[], re=/("(?:[^"]|"")*"|[^,]*)/g;
-  let m;
-  while((m=re.exec(line))!==null){
-    if(m.index===re.lastIndex){re.lastIndex++;continue;}
-    result.push(m[1]);
-  }
-  return result;
-}
-
-function handleDrop(e){
-  e.preventDefault();
-  document.getElementById('uploadZone').classList.remove('drag');
-  const file = e.dataTransfer.files[0];
-  if(file && file.name.endsWith('.csv')) loadCSV(file);
-}
-
-function loadCSV(file){
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const text = e.target.result;
-    csvRows = parseCSV(text);
-    if(!csvRows.length){ alert('No valid rows found. Make sure the CSV has a digital_link_url column.'); return; }
-    onCSVLoaded(file.name);
+  ctx.fillStyle=fgc;
+  for(let i=8;i<N-8;i++)if(i%2===0){ctx.fillRect(6*c+.5,i*c+.5,c-1,c-1);ctx.fillRect(i*c+.5,6*c+.5,c-1,c-1);}
+  const df=(ox,oy)=>{
+    ctx.fillStyle=eyc;
+    for(let r=0;r<7;r++)for(let cc=0;cc<7;cc++)if(r===0||r===6||cc===0||cc===6)ctx.fillRect((ox+cc)*c,(oy+r)*c,c,c);
+    ctx.fillStyle='#fff';for(let r=1;r<6;r++)for(let cc=1;cc<6;cc++)if(!(r>=2&&r<5&&cc>=2&&cc<5))ctx.fillRect((ox+cc)*c,(oy+r)*c,c,c);
+    ctx.fillStyle=eyc;for(let r=2;r<5;r++)for(let cc=2;cc<5;cc++)ctx.fillRect((ox+cc)*c,(oy+r)*c,c,c);
   };
-  reader.readAsText(file);
+  df(0,0);df(N-7,0);df(0,N-7);
 }
 
-function onCSVLoaded(filename){
-  // Update UI
-  document.getElementById('uploadZone').classList.add('loaded');
-  document.getElementById('uzDefault').style.display='none';
-  document.getElementById('uzLoaded').style.display='block';
-  const batch = csvRows[0]?.batch_id || '—';
-  const gtin  = csvRows[0]?.gtin14   || csvRows[0]?.gtin  || '—';
-  document.getElementById('uzInfo').textContent = `${csvRows.length.toLocaleString()} labels · ${filename}`;
-  document.getElementById('navBadge').textContent = csvRows.length.toLocaleString()+' labels';
-  document.getElementById('statTotal').textContent = csvRows.length.toLocaleString();
-  document.getElementById('statBatch').textContent = batch.slice(0,14)+(batch.length>14?'…':'');
-  document.getElementById('statGtin').textContent  = gtin;
-  document.getElementById('btnGenerate').disabled = false;
-  document.getElementById('btnPrint').disabled = false;
-  document.getElementById('btnPNG').disabled = false;
-  renderLabels();
+// ── GS1-128 barcode renderer ──
+// Bars stretch to fill the full height h passed in — no fixed bar height.
+function makeBC(gtin14,svgEl,w,h){
+  const P=['11011001100','11001101100','11001100110','10010011000','10010001100','10001001100','10011001000','10011000100','10001100100','11001001000','11001000100','11000100100','10110011100','10011011100','10011001110','10111001100','10011101100','10011100110','11001110010','11001011100','11001001110','11011100100','11001110100','11101101110','11101001100','11100101100','11100100110','11101100100','11100110100','11100110010','11011011000','11011000110','11000110110','10100011000','10001011000','10001000110','10110001000','10001101000','10001100010','11010001000','11000101000','11000100010','10110111000','10110001110','10001101110','10111011000','10111000110','10001110110','11101110110','11010001110','11000101110','11011101000','11011100010','11011101110','11101011000','11101000110','11100010110','11101101000','11101100010','11100011010','11101111010','11001000010','11110001010','10100110000','10100001100','10010110000','10010000110','10000101100','10000100110','10110010000','10110000100','10011010000','10011000010','10000110100','10000110010','11000010010','11001010000','11110111010','11000010100','10001111010','10100111100','10010111100','10010011110','10111100100','10011110100','10011110010','11110100100','11110010100','11110010010','11011011110','11011110110','11110110110','10101111000','10100011110','10001011110','10111101000','10111100010','11110101000','11110100010','10111011110','10111101110','11101011110','11110101110','11010000100','11010010000','11010011100','1100011101011'];
+  const D={'0':16,'1':17,'2':18,'3':19,'4':20,'5':21,'6':22,'7':23,'8':24,'9':25};
+  const data='01'+gtin14;let cs=[104],ck=104;
+  for(let i=0;i<data.length;i++){const v=D[data[i]];if(v!==undefined){cs.push(v);ck+=v*(i+1);}}
+  cs.push(ck%103);cs.push(106);
+  const bars=cs.map(c=>P[c]||'').join('');
+  svgEl.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  svgEl.setAttribute('width',w);
+  svgEl.setAttribute('height',h);
+  const bw=w/bars.length;let r='';
+  for(let i=0;i<bars.length;i++)if(bars[i]==='1')r+=`<rect x="${(i*bw).toFixed(1)}" y="0" width="${(bw+.3).toFixed(1)}" height="${h}" fill="#000"/>`;
+  svgEl.innerHTML=r;
 }
 
-// ── Label rendering ───────────────────────────────────────────────
-const CHUNK = 10; // render N labels per animation frame
+// ── Artwork ──
+function loadArtwork(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    artworkDataUrl=e.target.result;
+    const img=document.getElementById('artworkImg');
+    img.src=artworkDataUrl;img.style.display='block';
+    document.getElementById('artworkBg').style.display='none';
+    document.getElementById('artZone').classList.add('has-file');
+    document.getElementById('artZone').querySelector('div:first-of-type+div').textContent=file.name;
+    document.getElementById('dotArtwork').style.background='#28B79D';
+  };
+  reader.readAsDataURL(file);
+}
 
-async function renderLabels(){
-  if(!csvRows.length) return;
-  const limit = parseInt(document.getElementById('renderLimit').value);
-  const rows  = csvRows.slice(0, limit);
-  scale   = parseInt(document.getElementById('previewScale').value);
-  perRow  = parseInt(document.getElementById('perRow').value);
-  labelW  = parseInt(document.getElementById('labelW').value)||100;
-  labelH  = parseInt(document.getElementById('labelH').value)||50;
+// ── Drag & resize ──
+let dragging=null,dragOff={x:0,y:0};
 
-  const pxW = labelW * scale;
-  const pxH = labelH * scale;
-  const qrPct = parseInt(document.getElementById('qrPct').value)/100;
-  const qrPx  = Math.round(pxW * qrPct);
-  const fgColor  = document.getElementById('fgHex').value||'#000000';
-  const eyeColor = document.getElementById('eyeHex').value||'#000000';
-  const showBarcode = document.getElementById('barcodeToggle').classList.contains('on');
+function startDrag(e,id){
+  e.preventDefault();e.stopPropagation();
+  const el=document.getElementById(id);
+  const rect=el.getBoundingClientRect();
+  dragging=el;
+  dragOff={x:e.clientX-rect.left,y:e.clientY-rect.top};
+  el.classList.add('selected');
+}
 
-  // Show overlay
-  const overlay = document.getElementById('genOverlay');
-  overlay.classList.add('show');
-  document.getElementById('goTotal').textContent = rows.length;
-  document.getElementById('ctInfo').textContent = 'Generating…';
-
-  // Build grid container
-  const grid = document.createElement('div');
-  grid.className = 'label-grid';
-  grid.style.gridTemplateColumns = `repeat(${perRow}, ${pxW}px)`;
-  labelDivs = [];
-
-  for(let i=0; i<rows.length; i++){
-    const row = rows[i];
-    const url = row.digital_link_url || row.gs1digitallink || row.link || '';
-    const gtin14 = row.gtin14 || row.gtin || '';
-    const tokenId = row.token_id || row.tokenid || (i+1);
-
-    // Label card
-    const card = document.createElement('div');
-    card.className = 'label-card';
-    card.style.width  = pxW+'px';
-    card.style.height = pxH+'px';
-    card.dataset.idx  = i;
-    card.onclick = () => selectLabel(i, url, gtin14, tokenId);
-
-    const inner = document.createElement('div');
-    inner.className = 'label-inner';
-
-    // QR slot
-    const qrSlot = document.createElement('div');
-    qrSlot.className = 'label-qr-slot';
-    qrSlot.style.width  = qrPx+'px';
-    qrSlot.style.height = qrPx+'px';
-    inner.appendChild(qrSlot);
-
-    // Barcode slot (always create, show/hide based on toggle)
-    if(showBarcode && gtin14){
-      const bcSlot = document.createElement('div');
-      bcSlot.className = 'label-barcode-slot';
-      const maxBcW = Math.round(pxW * 0.88);
-      const bcH    = Math.max(14, Math.round(pxH * 0.22));
-      const svg    = document.createElementNS('http://www.w3.org/2000/svg','svg');
-      svg.style.width  = maxBcW+'px';
-      svg.style.height = bcH+'px';
-      try{
-        JsBarcode(svg, '01'+gtin14, {
-          format:'CODE128', lineColor:'#000000', background:'#ffffff',
-          width:1.2, height:bcH*0.8, displayValue:false, margin:2
-        });
-      }catch(e){ svg.style.display='none'; }
-      const lbl = document.createElement('div');
-      lbl.className = 'label-barcode-num';
-      lbl.textContent = '(01)'+gtin14;
-      bcSlot.appendChild(svg);
-      bcSlot.appendChild(lbl);
-      inner.appendChild(bcSlot);
+// startResize handles both sqrElem (canvas) and bcElem (SVG).
+// For bcElem the SVG bars are redrawn at the new pixel dimensions so they
+// stretch to fill the element — same behaviour as drag-resize in Illustrator.
+function startResize(e,id){
+  e.preventDefault();e.stopPropagation();
+  const el=document.getElementById(id);
+  const startW=el.offsetWidth,startH=el.offsetHeight,sx=e.clientX,sy=e.clientY;
+  function onMove(ev){
+    const nw=Math.max(30,startW+(ev.clientX-sx));
+    const nh=Math.max(12,startH+(ev.clientY-sy));
+    el.style.width=nw+'px';
+    el.style.height=nh+'px';
+    if(id==='sqrElem'){
+      const cv=el.querySelector('canvas');
+      if(cv){cv.style.width=(nw-4)+'px';cv.style.height=(nh-4)+'px';cv.width=nw-4;cv.height=nh-4;refreshDesignerQR();}
     }
+    if(id==='bcElem') refreshDesignerBC();
+    updateProps();
+  }
+  function onUp(){document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onUp);
+}
 
-    // Token / index labels
-    const idxEl = document.createElement('div');
-    idxEl.className = 'label-index';
-    idxEl.textContent = '#'+(i+1);
-    inner.appendChild(idxEl);
+document.addEventListener('mousemove',e=>{
+  if(!dragging)return;
+  const stage=document.getElementById('labelStage');
+  const sr=stage.getBoundingClientRect();
+  let x=Math.max(0,Math.min(stage.offsetWidth-dragging.offsetWidth,e.clientX-sr.left-dragOff.x));
+  let y=Math.max(0,Math.min(stage.offsetHeight-dragging.offsetHeight,e.clientY-sr.top-dragOff.y));
+  dragging.style.left=x+'px';
+  dragging.style.top=y+'px';
+  updateProps();
+});
+document.addEventListener('mouseup',()=>{dragging=null;});
 
-    if(tokenId){
-      const tokEl = document.createElement('div');
-      tokEl.className = 'label-token';
-      tokEl.textContent = 'TK'+String(tokenId).padStart(4,'0');
-      inner.appendChild(tokEl);
-    }
+function updateProps(){
+  const el=document.getElementById('sqrElem');
+  const stage=document.getElementById('labelStage');
+  const W=parseFloat(document.getElementById('labelW').value)||100;
+  const H=parseFloat(document.getElementById('labelH').value)||50;
+  const px=document.getElementById('propX'),py=document.getElementById('propY');
+  const pw=document.getElementById('propW'),ph=document.getElementById('propH');
+  if(px)px.textContent=Math.round(parseInt(el.style.left)/stage.offsetWidth*W)+'mm';
+  if(py)py.textContent=Math.round(parseInt(el.style.top)/stage.offsetHeight*H)+'mm';
+  if(pw)pw.textContent=Math.round(el.offsetWidth/stage.offsetWidth*W)+'mm';
+  if(ph)ph.textContent=Math.round(el.offsetHeight/stage.offsetHeight*H)+'mm';
+}
 
-    card.appendChild(inner);
-    grid.appendChild(card);
-    labelDivs.push({ card, qrSlot, url, gtin14, tokenId });
+// ── SmartQR designer preview ──
+function refreshDesignerQR(){
+  const cv=document.getElementById('sqrCanvas');
+  if(cv) drawQR(cv,'https://dpp.brand.destore.network/01/09506000130001',cv.width,fg,ey,dot);
+}
 
-    // Update progress every chunk
-    if(i % CHUNK === CHUNK-1 || i === rows.length-1){
-      const pct = Math.round(((i+1)/rows.length)*100);
-      document.getElementById('genBarFill').style.width = (pct/2)+'%'; // first half: DOM build
-      document.getElementById('goCount').textContent = i+1;
-      document.getElementById('goEta').textContent = i < rows.length-1 ? Math.ceil((rows.length-i-1)/CHUNK*0.016)+'s' : '✓';
-      document.getElementById('goSub').textContent = 'Building label templates…';
-      await new Promise(r=>setTimeout(r,0));
-    }
+// ── Barcode designer preview ──
+// Redraws barcode SVG to exactly fill the current pixel size of #bcElem.
+// Called after resize handle drag, and after setBcHeight().
+function refreshDesignerBC(){
+  const el=document.getElementById('bcElem');
+  const svg=document.getElementById('bcSvg');
+  if(!el||!svg)return;
+  const w=el.offsetWidth-4;
+  const h=el.offsetHeight-2;
+  svg.setAttribute('width',w);
+  svg.setAttribute('height',h);
+  svg.style.width=w+'px';
+  svg.style.height=h+'px';
+  makeBC('09506000130001',svg,w,h);
+}
+
+// ── Barcode toggle ──
+function toggleBarcode(){
+  if(hasBarcode){
+    hasBarcode=false;
+    lay='qr-only';
+    document.getElementById('btnBarcode').classList.remove('placed');
+    document.getElementById('bcSub').textContent='Click to add';
+    document.getElementById('bcSub').style.color='';
+    document.getElementById('dotBC').style.background='#e0e0ec';
+    document.getElementById('bcPresets').classList.remove('visible');
+    const ex=document.getElementById('bcElem');
+    if(ex)ex.remove();
+    return;
   }
 
-  // Swap into DOM
-  const scroll = document.getElementById('canvasScroll');
-  scroll.innerHTML = '';
-  scroll.appendChild(grid);
+  hasBarcode=true;
+  lay='qr-barcode';
+  document.getElementById('btnBarcode').classList.add('placed');
+  document.getElementById('bcSub').textContent='✓ Placed · drag or resize';
+  document.getElementById('bcSub').style.color='#28B79D';
+  document.getElementById('dotBC').style.background='#28B79D';
 
-  // Now generate QR codes in chunks
-  document.getElementById('goSub').textContent = 'Rendering QR codes…';
-  for(let i=0; i<labelDivs.length; i++){
-    const { qrSlot, url } = labelDivs[i];
-    if(!url){ i++; continue; }
-    qrSlot.innerHTML='';
-    try{
-      new QRCodeStyling({
-        width: qrPx, height: qrPx,
-        data: url,
-        margin: Math.max(4, Math.round(qrPx*0.06)),
-        dotsOptions:         { color: fgColor,  type: dotStyle },
-        backgroundOptions:   { color: '#ffffff' },
-        cornersSquareOptions:{ color: eyeColor, type: 'square' },
-        qrOptions:           { errorCorrectionLevel: 'H' }
-      }).append(qrSlot);
-    }catch(e){ qrSlot.innerHTML='<div style="font-size:8px;color:#999;text-align:center;padding:4px">QR error</div>'; }
+  const stage=document.getElementById('labelStage');
+  const sqr=document.getElementById('sqrElem');
+  const defaultH=32;
+  const bcX=8;
+  const bcY=Math.min((parseInt(sqr?.style.top)||30)+(sqr?.offsetHeight||78)+6,stage.offsetHeight-defaultH-4);
+  const bcW=stage.offsetWidth-16;
 
-    if(i % CHUNK === CHUNK-1 || i === labelDivs.length-1){
-      const pct = 50 + Math.round(((i+1)/labelDivs.length)*50);
-      document.getElementById('genBarFill').style.width = pct+'%';
-      document.getElementById('goCount').textContent = i+1;
-      document.getElementById('goSub').textContent = `QR codes: ${i+1} / ${labelDivs.length}`;
-      await new Promise(r=>setTimeout(r,0));
-    }
-  }
+  const bcElem=document.createElement('div');
+  bcElem.id='bcElem';
+  bcElem.className='drag-elem';
+  bcElem.style.cssText=`left:${bcX}px;top:${bcY}px;width:${bcW}px;height:${defaultH}px;z-index:20`;
+  bcElem.onmousedown=e=>startDrag(e,'bcElem');
 
-  // Done
-  overlay.classList.remove('show');
-  document.getElementById('statRendered').textContent = labelDivs.length.toLocaleString();
-  document.getElementById('ctInfo').textContent = `${labelDivs.length.toLocaleString()} labels rendered`;
-  document.getElementById('pageInfo').textContent = `${labelDivs.length} labels`;
+  const lbl=document.createElement('div');
+  lbl.className='el';
+  lbl.textContent='GS1-128';
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.id='bcSvg';
+  svg.style.cssText=`display:block;pointer-events:none`;
+  makeBC('09506000130001',svg,bcW-4,defaultH-2);
+
+  const rh=document.createElement('div');
+  rh.className='rh';
+  rh.onmousedown=e=>startResize(e,'bcElem');
+
+  bcElem.appendChild(lbl);
+  bcElem.appendChild(svg);
+  bcElem.appendChild(rh);
+  stage.appendChild(bcElem);
+
+  document.getElementById('bcPresets').classList.add('visible');
+  document.getElementById('bcPillStd').classList.add('on');
+  document.getElementById('bcPillTall').classList.remove('on');
+  document.getElementById('bcPillRetail').classList.remove('on');
 }
 
-async function generateAll(){
-  if(!csvRows.length) return;
-  // Remove limit for full generation
-  document.getElementById('renderLimit').value = '999999';
-  await renderLabels();
+// ── Barcode height presets ──
+// Standard=32px (compact), Tall=54px, Retail=88px (Woolworths-style stretched bars).
+// All three just set element height and call refreshDesignerBC — identical to
+// dragging the resize handle to that height.
+function setBcHeight(hPx,activeBtn){
+  const el=document.getElementById('bcElem');
+  if(!el)return;
+  el.style.height=hPx+'px';
+  refreshDesignerBC();
+  document.querySelectorAll('#bcPresets .pill').forEach(b=>b.classList.remove('on'));
+  if(activeBtn)activeBtn.classList.add('on');
 }
 
-// ── View modes ────────────────────────────────────────────────────
-function setView(mode, el){
-  viewMode = mode;
-  document.querySelectorAll('.ct-btn').forEach(b=>{
-    if(b.id==='viewBtn'||b.id==='singleBtn') b.classList.remove('active');
+function updateStage(){}
+
+function copyShareLink(){
+  const url=window.location.href.split('?')[0]+'?printer=1&batch=SL-DEMO-001&W=100&H=50&bl=3&lay='+lay+'&dot='+dot+'&fg='+encodeURIComponent(fg)+'&ey='+encodeURIComponent(ey);
+  navigator.clipboard.writeText(url).then(()=>alert('Printer link copied!\nThe printer will sign in and be auto-assigned the Printer Partner role.'));
+}
+
+// ── Node panels ──
+const NODES=[{id:'import',label:'Import CSV'},{id:'size',label:'Label Size'},{id:'layout',label:'Layout'},{id:'style',label:'SmartQR Style'},{id:'gen',label:'Generate'}];
+
+function openNode(id){
+  document.getElementById('pdHead').textContent=NODES.find(n=>n.id===id).label;
+  const body=document.getElementById('pdBody');body.innerHTML='';
+  ({import:buildImport,size:buildSize,layout:buildLayout,style:buildStyle,gen:buildGen}[id]||buildGen)(body);
+  // Update rail active state
+  const ORDER=['import','size','layout','style','gen'];
+  const activeIdx=ORDER.indexOf(id);
+  ORDER.forEach((nid,i)=>{
+    const card=document.getElementById('nc-'+nid);
+    const conn=card?.nextElementSibling;
+    if(!card)return;
+    card.classList.remove('active','done');
+    if(i<activeIdx){card.classList.add('done');card.querySelector('.nc-st').innerHTML='✓ Done';}
+    else if(i===activeIdx){card.classList.add('active');card.querySelector('.nc-st').innerHTML='<span class="nc-dot"></span> Active';}
+    else{card.querySelector('.nc-st').innerHTML='○ Pending';}
+    if(conn&&conn.classList.contains('conn')){conn.classList.toggle('done',i<activeIdx);}
   });
-  el.classList.add('active');
-  if(labelDivs.length) renderLabels();
 }
 
-function prevPage(){} // pagination placeholder
-function nextPage(){}
-
-function selectLabel(i, url, gtin14, tokenId){
-  // Deselect previous
-  if(selectedIdx>=0 && labelDivs[selectedIdx]) labelDivs[selectedIdx].card.classList.remove('selected');
-  selectedIdx = i;
-  if(labelDivs[i]) labelDivs[i].card.classList.add('selected');
-
-  document.getElementById('selectedInfo').style.display='none';
-  document.getElementById('selectedDetail').style.display='block';
-  document.getElementById('selLink').textContent = url;
-  document.getElementById('selGtin').textContent = gtin14 || '—';
-  document.getElementById('selToken').textContent = tokenId || '—';
+function buildImport(el){
+  el.innerHTML=`
+  <div style="border:1.5px dashed #ccc;border-radius:8px;padding:14px 10px;text-align:center;cursor:pointer;margin-bottom:8px" onclick="document.getElementById('csvFile2').click()" ondragover="event.preventDefault()" ondrop="drop2(event)">
+    <input type="file" id="csvFile2" accept=".csv" style="display:none" onchange="loadCSV(this.files[0])">
+    <div style="font-size:11px;font-weight:700;color:var(--dim)">Drop CSV or click</div>
+    <div style="font-size:9px;color:#bbb;margin-top:2px">digital_link_url + gtin14</div>
+  </div>
+  <div style="background:#f5f0ff;border-radius:7px;padding:8px 10px;border:1px solid #e8d8ff;margin-bottom:8px">
+    <div style="font-size:9px;font-weight:800;color:#6A14DB;margin-bottom:3px">Required columns</div>
+    <div style="font-size:9px;color:#666;line-height:1.7;font-family:'JetBrains Mono',monospace">digital_link_url<br>gtin14<br>token_id, batch_id</div>
+  </div>
+  <button style="width:100%;padding:6px;border:1px dashed var(--bdr);border-radius:6px;background:var(--d3);font-size:10px;color:var(--muted);cursor:pointer;font-family:inherit" onclick="loadDemo()">Load demo data →</button>
+  <button class="cont-btn" onclick="advance('import')">Continue <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>`;
 }
 
-// ── Settings changes ──────────────────────────────────────────────
-function updateLayout(){
-  if(csvRows.length) renderLabels();
+function buildSize(el){
+  el.innerHTML=`
+  <div class="d-sect">
+    <div class="d-sl">Presets</div>
+    <div class="pills" id="szp">
+      <div class="pill" onclick="apSz(50,25,this)">50×25</div>
+      <div class="pill on" onclick="apSz(100,50,this)">100×50</div>
+      <div class="pill" onclick="apSz(70,70,this)">70×70</div>
+      <div class="pill" onclick="apSz(100,100,this)">100×100</div>
+    </div>
+    <div class="d-row">
+      <div class="d-field"><label>Width mm</label><input type="number" id="pLW" value="100" min="20" max="300" oninput="rerender()"></div>
+      <div class="d-field"><label>Height mm</label><input type="number" id="pLH" value="50" min="10" max="300" oninput="rerender()"></div>
+    </div>
+    <div class="d-field"><label>Bleed mm</label><input type="number" id="pBL" value="3" min="0" max="10" step="0.5" oninput="rerender()"></div>
+    <div class="d-field"><label>Scale</label><select id="pSC" onchange="rerender()"><option value="2">2× compact</option><option value="3" selected>3× standard</option><option value="4">4× large</option></select></div>
+  </div>
+  <button class="cont-btn" onclick="advance('size')">Save size <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>`;
 }
 
-function setSize(w, h, el){
-  document.querySelectorAll('.size-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('labelW').value = w;
-  document.getElementById('labelH').value = h;
-  labelW=w; labelH=h;
-  updateLayout();
+function buildLayout(el){
+  el.innerHTML=`
+  <div class="d-sect">
+    <div class="d-sl">Label content</div>
+    <div class="lay-grid">
+      <div class="lay-opt ${lay==='qr-only'?'on':''}" id="layQR" onclick="setLay('qr-only')">
+        <svg width="28" height="28" viewBox="0 0 28 28"><rect x="3" y="3" width="9" height="9" rx="1.5" fill="none" stroke="${lay==='qr-only'?'#0f6e56':'#bbb'}" stroke-width="1.5"/><rect x="16" y="3" width="9" height="9" rx="1.5" fill="none" stroke="${lay==='qr-only'?'#0f6e56':'#bbb'}" stroke-width="1.5"/><rect x="3" y="16" width="9" height="9" rx="1.5" fill="none" stroke="${lay==='qr-only'?'#0f6e56':'#bbb'}" stroke-width="1.5"/><rect x="18" y="19" width="3" height="3" rx=".5" fill="${lay==='qr-only'?'#0f6e56':'#bbb'}"/></svg>
+        <div class="lay-lbl">SmartQR only</div>
+      </div>
+      <div class="lay-opt ${lay==='qr-barcode'?'on':''}" id="layBC" onclick="setLay('qr-barcode')">
+        <svg width="28" height="28" viewBox="0 0 28 28"><rect x="4" y="3" width="7" height="7" rx="1" fill="none" stroke="${lay==='qr-barcode'?'#0f6e56':'#bbb'}" stroke-width="1.5"/><rect x="17" y="3" width="7" height="7" rx="1" fill="none" stroke="${lay==='qr-barcode'?'#0f6e56':'#bbb'}" stroke-width="1.5"/><rect x="4" y="14" width="7" height="7" rx="1" fill="none" stroke="${lay==='qr-barcode'?'#0f6e56':'#bbb'}" stroke-width="1.5"/><rect x="17" y="13" width="1.5" height="8" rx=".5" fill="${lay==='qr-barcode'?'#0f6e56':'#bbb'}"/><rect x="20" y="13" width="2" height="8" rx=".5" fill="${lay==='qr-barcode'?'#0f6e56':'#bbb'}"/><rect x="24" y="13" width="1.5" height="8" rx=".5" fill="${lay==='qr-barcode'?'#0f6e56':'#bbb'}"/></svg>
+        <div class="lay-lbl">SmartQR + Barcode</div>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--muted);line-height:1.5;margin-top:2px">SmartQR and barcode positions are set in the Label Designer — drag to reposition, resize handles to stretch.</div>
+  </div>
+  <div class="d-sect">
+    <div class="d-sl">Preview limit</div>
+    <div class="d-field"><select id="rl" onchange="rerender()"><option value="10">10</option><option value="20">20</option><option value="50" selected>50</option><option value="200">200</option><option value="999999">All</option></select></div>
+  </div>
+  <button class="cont-btn" onclick="advance('layout')">Save layout <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>`;
 }
 
-function setDotStyle(style, el){
-  document.querySelectorAll('.dot-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  dotStyle = style;
-  updateLayout();
+function buildStyle(el){
+  const tpls=getTpls();const cur=tpls[activeTpl]||tpls[0];
+  fg=cur.fg;ey=cur.ey;dot=cur.dot;
+  el.innerHTML=`
+  <div class="d-sect">
+    <div class="d-sl">SmartQR Template</div>
+    <div class="tpl-wrap"><select class="tpl-sel" id="tplSel" onchange="applyTpl(parseInt(this.value))">${tpls.map((t,i)=>`<option value="${i}"${i===activeTpl?' selected':''}>${t.name}</option>`).join('')}</select><span class="tpl-chev">▾</span></div>
+    <button class="add-tpl" onclick="addTpl()">+ Save current as new template</button>
+    <div class="tpl-prev"><canvas id="tplC" width="72" height="72"></canvas></div>
+    <div class="tpl-info"><span id="tDot">Dot: ${dot}</span><span id="tFg">FG: ${fg}</span></div>
+  </div>
+  <div class="d-sect" style="border-top:1px solid #f5f5f8;padding-top:10px">
+    <div class="d-sl">Customise</div>
+    <div class="d-field"><label>Dot shape</label>
+      <div class="dot-row">
+        <div class="dot-o ${dot==='sq'?'on':''}" id="dSq" onclick="setDot('sq',this)"><svg width="11" height="11" viewBox="0 0 11 11"><rect x="1" y="1" width="9" height="9" rx="0" fill="currentColor"/></svg></div>
+        <div class="dot-o ${dot==='ro'?'on':''}" id="dRo" onclick="setDot('ro',this)"><svg width="11" height="11" viewBox="0 0 11 11"><rect x="1" y="1" width="9" height="9" rx="3" fill="currentColor"/></svg></div>
+        <div class="dot-o ${dot==='ci'?'on':''}" id="dCi" onclick="setDot('ci',this)"><svg width="11" height="11" viewBox="0 0 11 11"><circle cx="5.5" cy="5.5" r="4.5" fill="currentColor"/></svg></div>
+      </div>
+    </div>
+    <div class="d-field"><label>Foreground</label>
+      <div class="clr-row">
+        <div class="clr-sw" id="fgSw" style="background:${fg}" onclick="document.getElementById('fgP').click()"></div>
+        <input type="color" id="fgP" value="${fg}" style="display:none" oninput="syncClr('fg',this.value)">
+        <input type="text" id="fgH" value="${fg}" maxlength="7" oninput="syncClr('fg',this.value)" style="flex:1;padding:4px 7px;border:1px solid #e0e0ec;border-radius:5px;font-size:10px;font-family:'JetBrains Mono',monospace">
+      </div>
+    </div>
+    <div class="d-field"><label>Eye colour</label>
+      <div class="clr-row">
+        <div class="clr-sw" id="eySw" style="background:${ey}" onclick="document.getElementById('eyP').click()"></div>
+        <input type="color" id="eyP" value="${ey}" style="display:none" oninput="syncClr('ey',this.value)">
+        <input type="text" id="eyH" value="${ey}" maxlength="7" oninput="syncClr('ey',this.value)" style="flex:1;padding:4px 7px;border:1px solid #e0e0ec;border-radius:5px;font-size:10px;font-family:'JetBrains Mono',monospace">
+      </div>
+    </div>
+  </div>
+  <button class="cont-btn" onclick="advance('style');rerender()">Apply &amp; continue <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+  drawTplPrev();
 }
 
-function syncColor(which, val){
-  if(!/^#[0-9a-fA-F]{6}$/.test(val)) return;
-  if(which==='fg'){
-    document.getElementById('fgPick').value = val;
-    document.getElementById('fgSwatch').style.background = val;
-  } else {
-    document.getElementById('eyePick').value = val;
-    document.getElementById('eyeSwatch').style.background = val;
+function buildGen(el){
+  const tpls=getTpls();
+  const W=document.getElementById('pLW')?.value||document.getElementById('labelW').value||100;
+  const H=document.getElementById('pLH')?.value||document.getElementById('labelH').value||50;
+  const BL=document.getElementById('pBL')?.value||document.getElementById('bleedMM').value||3;
+  el.innerHTML=`
+  <div class="d-sect">
+    <div style="background:#f5f0ff;border-radius:8px;padding:9px 10px;border:1px solid #e8d8ff;margin-bottom:10px">
+      <div style="font-size:10px;font-weight:800;color:#6A14DB;margin-bottom:5px">Batch summary</div>
+      <div style="font-size:10px;color:#555;line-height:1.9">Labels: <b>${rows.length}</b><br>Size: <b>${W}×${H}mm</b><br>Bleed: <b>${BL}mm</b><br>Layout: <b>${lay==='qr-only'?'SmartQR only':'SmartQR + Barcode'}</b><br>Template: <b>${tpls[activeTpl]?.name||'—'}</b></div>
+    </div>
+  </div>
+  <div class="d-sect">
+    <div class="d-sl">Steps</div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:8px;border:1px solid var(--border-2);background:var(--d3);margin-bottom:6px;cursor:pointer" onmouseover="this.style.borderColor='#28B79D'" onmouseout="this.style.borderColor='';" onclick="if(document.getElementById('rl'))document.getElementById('rl').value='999999';rerender()">
+      <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid #28B79D;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#28B79D;flex-shrink:0">1</div>
+      <div><div style="font-size:11px;font-weight:700">Generate all labels</div><div style="font-size:9px;color:#bbb;margin-top:1px">Renders full batch to canvas</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:8px;border:1px solid var(--border-2);background:var(--d3);cursor:pointer" onmouseover="this.style.borderColor='#28B79D'" onmouseout="this.style.borderColor='';" onclick="toggleExp()">
+      <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid #28B79D;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#28B79D;flex-shrink:0">2</div>
+      <div><div style="font-size:11px;font-weight:700">Export</div><div style="font-size:9px;color:#bbb;margin-top:1px">PDF, ZIP, PNG, vector, 3D, embroidery</div></div>
+    </div>
+  </div>
+  <button class="cont-btn" ${!rows.length?'disabled style="opacity:.4"':''} onclick="if(document.getElementById('rl'))document.getElementById('rl').value='999999';rerender()">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Generate all ${rows.length} labels
+  </button>`;
+}
+
+function advance(fromId){
+  const idx=NODES.findIndex(n=>n.id===fromId);
+  if(idx<NODES.length-1) setTimeout(()=>openNode(NODES[idx+1].id),250);
+}
+
+// ── Templates ──
+const DEFAULT_TPLS=[
+  {name:'Classic Black',fg:'#000000',ey:'#000000',dot:'sq'},
+  {name:'DeStore Violet',fg:'#321B68',ey:'#B354F1',dot:'sq'},
+  {name:'DeStore Green',fg:'#0f6e56',ey:'#28B79D',dot:'ro'},
+  {name:'Rounded Dark',fg:'#1a1a22',ey:'#444444',dot:'ro'},
+  {name:'Circle Minimal',fg:'#333333',ey:'#000000',dot:'ci'},
+];
+function getTpls(){try{return JSON.parse(localStorage.getItem('ds-lbl-tpl')||'null')||DEFAULT_TPLS;}catch(e){return DEFAULT_TPLS;}}
+function saveTpls(t){try{localStorage.setItem('ds-lbl-tpl',JSON.stringify(t));}catch(e){}}
+
+function applyTpl(i){
+  const tpls=getTpls();activeTpl=i;const t=tpls[i];
+  fg=t.fg;ey=t.ey;dot=t.dot;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
+  const bg=(id,v)=>{const e=document.getElementById(id);if(e)e.style.background=v;};
+  set('fgH',fg);set('fgP',fg);bg('fgSw',fg);
+  set('eyH',ey);set('eyP',ey);bg('eySw',ey);
+  ['dSq','dRo','dCi'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('on',{dSq:'sq',dRo:'ro',dCi:'ci'}[id]===dot);});
+  const td=document.getElementById('tDot'),tf=document.getElementById('tFg');
+  if(td)td.textContent='Dot: '+dot;if(tf)tf.textContent='FG: '+fg;
+  drawTplPrev();refreshDesignerQR();
+}
+function drawTplPrev(){const c=document.getElementById('tplC');if(!c)return;drawQR(c,'https://dpp.brand.destore.network/01/09506000130001',72,fg,ey,dot);}
+function addTpl(){
+  const name=prompt('Template name:','My Template');if(!name)return;
+  const tpls=getTpls();tpls.push({name,fg,ey,dot});saveTpls(tpls);
+  buildStyle(document.getElementById('pdBody'));
+  activeTpl=tpls.length-1;const sel=document.getElementById('tplSel');if(sel)sel.value=String(activeTpl);
+}
+function setDot(s,el){
+  dot=s;['dSq','dRo','dCi'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.remove('on');});
+  if(el)el.classList.add('on');
+  const td=document.getElementById('tDot');if(td)td.textContent='Dot: '+s;
+  drawTplPrev();refreshDesignerQR();if(rows.length)rerender();
+}
+function syncClr(w,v){
+  if(!/^#[0-9a-fA-F]{6}$/.test(v))return;
+  if(w==='fg'){fg=v;const p=document.getElementById('fgP'),s=document.getElementById('fgSw'),h=document.getElementById('fgH');if(p)p.value=v;if(s)s.style.background=v;if(h)h.value=v;}
+  else{ey=v;const p=document.getElementById('eyP'),s=document.getElementById('eySw'),h=document.getElementById('eyH');if(p)p.value=v;if(s)s.style.background=v;if(h)h.value=v;}
+  const tf=document.getElementById('tFg');if(tf)tf.textContent='FG: '+fg;
+  drawTplPrev();refreshDesignerQR();if(rows.length)rerender();
+}
+
+// ── G() — all geometry from the designer stage ──
+// Positions stored as fractions of stage width/height so they map
+// correctly to any label mm size at any scale factor.
+function G(){
+  const sc=+(document.getElementById('pSC')?.value||3);
+  const W=+(document.getElementById('pLW')?.value||document.getElementById('labelW').value||100);
+  const H=+(document.getElementById('pLH')?.value||document.getElementById('labelH').value||50);
+  const BL=+(document.getElementById('pBL')?.value||document.getElementById('bleedMM').value||3);
+  const stage=document.getElementById('labelStage');
+  const sw=stage.offsetWidth,sh=stage.offsetHeight;
+  const sqrEl=document.getElementById('sqrElem');
+  const sqrXpct=sqrEl?parseInt(sqrEl.style.left)/sw:0.375;
+  const sqrYpct=sqrEl?parseInt(sqrEl.style.top)/sh:0.15;
+  const sqrWpct=sqrEl?sqrEl.offsetWidth/sw:0.2;
+  const bcEl=document.getElementById('bcElem');
+  const bcXpct=bcEl?parseInt(bcEl.style.left)/sw:0.04;
+  const bcYpct=bcEl?parseInt(bcEl.style.top)/sh:0.72;
+  const bcWpct=bcEl?bcEl.offsetWidth/sw:0.92;
+  const bcHpct=bcEl?bcEl.offsetHeight/sh:0.18;   // ← barcode height fraction
+  const p=v=>Math.round(v*sc);
+  const qrMM=Math.max(4,Math.min((W-2*SAFE)*sqrWpct*1.5,H-2*SAFE));
+  return{sc,W,H,BL,pW:p(W),pH:p(H),pBL:p(BL),pS:p(SAFE),pQ:p(qrMM),sqrXpct,sqrYpct,sqrWpct,bcXpct,bcYpct,bcWpct,bcHpct};
+}
+
+// ── Render loop ──
+const CHUNK=5;
+async function renderLabels(){
+  if(!rows.length)return;
+  cancelFlag=false;
+  const g=G();
+  const lim=+(document.getElementById('rl')?.value||50);
+  const data=rows.slice(0,lim);
+  document.getElementById('emptyState').style.display='none';
+  const ov=document.getElementById('genOv');ov.classList.add('show');lbls=[];
+  const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:column;align-items:center;width:100%';
+
+  for(let i=0;i<data.length;i++){
+    if(cancelFlag)break;
+    const row=data[i];
+    const url=row.digital_link_url||row.gs1digitallink||'';
+    const gtin=row.gtin14||row.gtin||'';
+    const tok=row.token_id||row.tokenid||(i+1);
+
+    const pg=document.createElement('div');pg.className='lbl-page';pg.onclick=()=>selLbl(i);
+    const pn=document.createElement('div');pn.className='pg-num';pn.textContent=i+1;
+
+    const bEl=document.createElement('div');
+    bEl.className='lbl-bleed '+(showBl&&g.pBL>0?'bon':'boff');
+    const fW=showBl&&g.pBL>0?g.pW+2*g.pBL:g.pW;
+    const fH=showBl&&g.pBL>0?g.pH+2*g.pBL:g.pH;
+    bEl.style.cssText=`width:${fW}px;height:${fH}px`;
+
+    const tr=document.createElement('div');tr.className='lbl-trim';
+    tr.style.cssText=`width:${g.pW}px;height:${g.pH}px;`+(showBl&&g.pBL>0?`left:${g.pBL}px;top:${g.pBL}px;`:'');
+
+    if(artworkDataUrl){
+      const artEl=document.createElement('img');
+      artEl.src=artworkDataUrl;
+      artEl.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0';
+      tr.appendChild(artEl);
+    }
+
+    const sg=document.createElement('div');sg.className='safe-g';
+    sg.style.cssText=`left:${g.pS}px;top:${g.pS}px;right:${g.pS}px;bottom:${g.pS}px`;
+    tr.appendChild(sg);
+
+    // SmartQR
+    const qrX=Math.round(g.sqrXpct*g.pW);
+    const qrY=Math.round(g.sqrYpct*g.pH);
+    const qrSz=Math.min(g.pQ,g.pW-qrX,g.pH-qrY);
+    const qrC=document.createElement('canvas');
+    qrC.width=qrSz;qrC.height=qrSz;
+    qrC.style.cssText=`position:absolute;left:${qrX}px;top:${qrY}px;z-index:5`;
+    if(url) drawQR(qrC,url,qrSz,fg,ey,dot);
+    tr.appendChild(qrC);
+
+    // Barcode — bars fill bcH exactly (no padding deducted), GTIN number below
+    if(lay==='qr-barcode'&&gtin){
+      const bcX=Math.round(g.bcXpct*g.pW);
+      const bcY=Math.round(g.bcYpct*g.pH);
+      const bcW=Math.round(g.bcWpct*g.pW);
+      const bcH=Math.max(Math.round(g.bcHpct*g.pH),4);
+      const bsvg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      bsvg.style.cssText=`position:absolute;left:${bcX}px;top:${bcY}px;z-index:5`;
+      try{makeBC(gtin,bsvg,bcW,bcH);}catch(err){}
+      tr.appendChild(bsvg);
+      const bnum=document.createElement('div');
+      bnum.style.cssText=`position:absolute;left:${bcX}px;top:${bcY+bcH+1}px;width:${bcW}px;font-family:'JetBrains Mono',monospace;font-size:5px;color:var(--text);text-align:center;z-index:5;line-height:1`;
+      bnum.textContent='(01)'+gtin;
+      tr.appendChild(bnum);
+    }
+
+    bEl.appendChild(tr);
+    const meta=document.createElement('div');meta.className='lbl-meta';meta.style.width=fW+'px';
+    meta.innerHTML=`<span>#${i+1}</span><span style="color:#28B79D">TK${String(tok).padStart(4,'0')}</span>`;
+    pg.appendChild(pn);pg.appendChild(bEl);pg.appendChild(meta);col.appendChild(pg);
+    lbls.push({pg,url,gtin,tok});
+
+    if(i%CHUNK===CHUNK-1||i===data.length-1){
+      document.getElementById('genFill').style.width=((i+1)/data.length*100)+'%';
+      document.getElementById('genTxt').textContent=`${i+1} / ${data.length}`;
+      await new Promise(r=>setTimeout(r,0));
+    }
   }
-  if(csvRows.length) renderLabels();
+
+  const scr=document.getElementById('cvScroll');
+  const old=scr.querySelector('.lbl-col');if(old)scr.removeChild(old);
+  col.classList.add('lbl-col');scr.insertBefore(col,scr.firstChild);
+  ov.classList.remove('show');
+  document.getElementById('bbR').textContent=lbls.length;
+  document.getElementById('stRendered').textContent=lbls.length.toLocaleString();
+  document.getElementById('tbCount').textContent=lbls.length+' label'+(lbls.length!==1?'s':'');
+  document.getElementById('edSub').textContent=lbls.length+' labels ready';
+  document.getElementById('cvInfo').textContent=lbls.length.toLocaleString()+' labels rendered';
+  document.getElementById('expBtnMain').disabled=false;
+  document.getElementById('expBtnPanel').disabled=false;
 }
 
-// ── Export PNG (first label) ──────────────────────────────────────
-async function exportPNG(){
-  if(!labelDivs.length){ alert('Generate labels first.'); return; }
-  const { qrSlot, url, gtin14 } = labelDivs[selectedIdx>=0?selectedIdx:0];
-  const canvas = document.createElement('canvas');
-  const s = parseInt(document.getElementById('previewScale').value);
-  const w = parseInt(document.getElementById('labelW').value)*s;
-  const h = parseInt(document.getElementById('labelH').value)*s;
-  canvas.width=w; canvas.height=h;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+function rerender(){if(rows.length)renderLabels();}
 
-  // Draw QR from slot
-  const qrImg = qrSlot.querySelector('canvas') || qrSlot.querySelector('img');
-  if(qrImg){
-    const qrPx = parseInt(document.getElementById('qrPct').value)/100*w;
-    const ox = (w-qrPx)/2, oy = (h-qrPx)/2;
-    ctx.drawImage(qrImg instanceof HTMLCanvasElement ? qrImg : qrImg, ox, oy, qrPx, qrPx);
+function selLbl(i){
+  if(lbls[selIdx])lbls[selIdx].pg.classList.remove('sel');
+  selIdx=i;if(lbls[i])lbls[i].pg.classList.add('sel');
+  document.getElementById('selHint').style.display='none';
+  document.getElementById('selDetail').style.display='block';
+  const d=lbls[i];
+  document.getElementById('selIdx').textContent='#'+(i+1);
+  document.getElementById('selTok').textContent=String(d.tok);
+  document.getElementById('selGtin').textContent=d.gtin||'—';
+  document.getElementById('selLink').textContent=d.url||'—';
+  document.getElementById('selLink').title=d.url||'';
+}
+
+function toggleBleed(btn){showBl=!showBl;btn.classList.toggle('on',showBl);rerender();}
+function setLay(m){lay=m;document.getElementById('layQR')?.classList.toggle('on',m==='qr-only');document.getElementById('layBC')?.classList.toggle('on',m==='qr-barcode');rerender();}
+function apSz(w,h,el){document.querySelectorAll('#szp .pill').forEach(c=>c.classList.remove('on'));el.classList.add('on');const wE=document.getElementById('pLW'),hE=document.getElementById('pLH');if(wE)wE.value=w;if(hE)hE.value=h;rerender();}
+
+// ── CSV ──
+function drop2(e){e.preventDefault();loadCSV(e.dataTransfer.files[0]);}
+function loadCSV(f){
+  if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const lines=e.target.result.split('\n').filter(l=>l.trim()&&!l.startsWith('#'));
+    if(!lines.length)return;
+    const hdrs=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,'').toLowerCase());
+    rows=lines.slice(1).map(l=>{
+      const cols=l.match(/("(?:[^"]|"")*"|[^,]*)/g)||[];
+      const row={};hdrs.forEach((h,j)=>row[h]=(cols[j]||'').replace(/^"|"$/g,'').trim());
+      return row;
+    }).filter(r=>r.digital_link_url||r.gs1digitallink);
+    if(!rows.length){alert('No valid rows.');return;}
+    document.getElementById('tbFile').textContent=f.name.replace('.csv','');
+    document.getElementById('bbT').textContent=rows.length.toLocaleString();
+    document.getElementById('stTotal').textContent=rows.length.toLocaleString();
+    const b=rows[0]?.batch_id;
+    if(b){document.getElementById('stBatch').textContent=b.slice(0,14)+(b.length>14?'…':'');document.getElementById('bbBatch').innerHTML='Batch: <b>'+b+'</b>';}
+    document.getElementById('dotCSV').style.background='#28B79D';
+    renderLabels();
+  };
+  r.readAsText(f);
+}
+function loadDemo(){
+  const demo='token_id,digital_link_url,gtin14,product_name,brand,batch_id\n'+
+    [1,2,3,4,5].map(i=>`${i},https://dpp.digidiggers.destore.network/01/09506000130001/21/${i}?90=hash${i}abc,09506000130001,Boulder Opal #000${i},DigiDiggers,SL-DEMO-001`).join('\n');
+  loadCSV(new File([new Blob([demo],{type:'text/csv'})],'demo-batch.csv',{type:'text/csv'}));
+}
+
+// ── ZIP export ──
+async function exportZIP(){
+  if(!lbls.length){alert('Generate labels first.');return;}
+  if(typeof JSZip==='undefined'){alert('JSZip not loaded. Try again in a moment.');return;}
+  const btn=document.getElementById('expBtnMain');
+  const prog=document.getElementById('zipProg');
+  const fill=document.getElementById('zipFill');
+  btn.disabled=true;prog.classList.add('show');
+  const zip=new JSZip();const folder=zip.folder('labels');
+  const g=G();
+
+  for(let i=0;i<lbls.length;i++){
+    const d=lbls[i];
+    const c=document.createElement('canvas');
+    c.width=g.pW;c.height=g.pH;
+    const ctx=c.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,g.pW,g.pH);
+
+    if(artworkDataUrl){
+      const img=new Image();img.src=artworkDataUrl;
+      await new Promise(r=>{img.onload=()=>{ctx.drawImage(img,0,0,g.pW,g.pH);r();};img.onerror=r;});
+    }
+
+    // SmartQR
+    const qrX=Math.round(g.sqrXpct*g.pW);
+    const qrY=Math.round(g.sqrYpct*g.pH);
+    const qrSz=Math.min(g.pQ,g.pW-qrX,g.pH-qrY);
+    const qc=document.createElement('canvas');qc.width=qrSz;qc.height=qrSz;
+    if(d.url) drawQR(qc,d.url,qrSz,fg,ey,dot);
+    ctx.drawImage(qc,qrX,qrY);
+
+    // Barcode — bars fill full bcH, GTIN number below
+    if(lay==='qr-barcode'&&d.gtin){
+      const bcX=Math.round(g.bcXpct*g.pW);
+      const bcY=Math.round(g.bcYpct*g.pH);
+      const bcW=Math.round(g.bcWpct*g.pW);
+      const bcH=Math.max(Math.round(g.bcHpct*g.pH),4);
+      const bsvg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      makeBC(d.gtin,bsvg,bcW,bcH);
+      const svgStr=new XMLSerializer().serializeToString(bsvg);
+      const svgBlob=new Blob([svgStr],{type:'image/svg+xml'});
+      const svgUrl=URL.createObjectURL(svgBlob);
+      const bImg=new Image();bImg.src=svgUrl;
+      await new Promise(r=>{bImg.onload=()=>{ctx.drawImage(bImg,bcX,bcY,bcW,bcH);URL.revokeObjectURL(svgUrl);r();};bImg.onerror=r;});
+      ctx.font=`${Math.round(g.sc*2)}px 'Courier New',monospace`;
+      ctx.fillStyle='#1a1a22';ctx.textAlign='center';
+      ctx.fillText('(01)'+d.gtin,bcX+bcW/2,bcY+bcH+Math.round(g.sc*2)+1);
+    }
+
+    const blob=await new Promise(r=>c.toBlob(r,'image/png'));
+    folder.file(String(i+1).padStart(5,'0')+'_'+(d.gtin||'label')+'_TK'+String(d.tok).padStart(4,'0')+'.png',blob);
+    fill.style.width=((i+1)/lbls.length*80)+'%';
+    if(i%3===0)await new Promise(r=>setTimeout(r,0));
   }
 
-  const link=document.createElement('a');
-  link.href=canvas.toDataURL('image/png');
-  link.download=`label-${gtin14||'export'}.png`;
-  link.click();
+  const zipBlob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}},m=>{fill.style.width=(80+m.percent*.2)+'%';});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(zipBlob);
+  a.download=(rows[0]?.batch_id||'labels')+'-'+lbls.length+'labels-600dpi.zip';
+  a.click();
+  prog.classList.remove('show');fill.style.width='0%';
+  btn.disabled=false;
 }
+
+// ── Init ──
+drawQR(document.getElementById('sqrCanvas'),'https://dpp.brand.destore.network/01/09506000130001',74,'#000000','#000000','sq');
+openNode('gen');
+refreshDesignerQR();
+updateProps();
 </script>
 </body>
 </html>
