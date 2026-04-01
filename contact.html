@@ -278,7 +278,6 @@ async function handleSubmit(e) {
   btn.textContent = 'Sending…';
   errEl.style.display = 'none';
   var payload = {
-    access_key: '9f69e7d7-780d-45f2-9595-9191de8a1589',
     name: document.getElementById('f-name').value.trim(),
     brand: document.getElementById('f-brand').value.trim(),
     email: document.getElementById('f-email').value.trim(),
@@ -290,7 +289,7 @@ async function handleSubmit(e) {
     submitted_at: new Date().toISOString()
   };
   try {
-    var res = await fetch('https://api.web3forms.com/submit', {
+    var res = await fetch('/api/submit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(payload)

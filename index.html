@@ -1732,13 +1732,12 @@ function doSubmit() {
   btn.classList.add('loading');
 
   var payload = Object.assign({
-    access_key: '9f69e7d7-780d-45f2-9595-9191de8a1589',
     subject:    'New Migration Assessment — DeStore',
     from_name:  'DeStore Website',
     botcheck:   '',
   }, answers);
 
-  fetch('https://api.web3forms.com/submit', {
+  fetch('/api/submit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -1964,7 +1963,7 @@ async function handleSubmit(e) {
   };
 
   try {
-    const res = await fetch('https://api.web3forms.com/submit', {
+    const res = await fetch('/api/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
