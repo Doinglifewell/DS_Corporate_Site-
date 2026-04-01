@@ -1,0 +1,41 @@
+# DeStore
+
+DeStore builds GS1 Digital Link QR code infrastructure and Digital Product Passport (DPP) issuance services for Australian brands exporting to the EU.
+
+## What we do
+- Issue GS1 Digital Link QR codes for physical products — each physical unit gets its own unique QR code and permanent DPP record
+- Migrate existing product catalogues to GS1 Digital Link compliance in 48 hours
+- Issue Digital Product Passports (DPPs) as required by EU ESPR (Ecodesign for Sustainable Products Regulation)
+- Anchor DPP records to Ethereum mainnet for permanent, tamper-evident verification
+- Support Shopify, WooCommerce, Magento, spreadsheets, and any structured data format
+
+## The problem we solve
+From July 2027, the EU's ESPR regulation requires a Digital Product Passport on every physical product sold into Europe. No passport — no EU market access. Traditional GS1 migration takes 6-12 months and costs $15,000-$80,000+. DeStore does it in 48 hours at a fixed price.
+
+## Key facts
+- 48-hour delivery guaranteed
+- 7-day money-back guarantee if not satisfied
+- Fixed price quoted before work begins
+- No developer required
+- Each physical unit (e.g. each pair of shoes) gets its own unique GS1 Digital Link QR code
+- Works with any existing product data format
+
+## Who we serve
+Australian brands selling physical products into the EU, required to comply with ESPR by July 2027. Particularly apparel, footwear, skincare, homewares, electronics, and sporting goods brands.
+
+## Pricing
+Free assessment. Fixed price quoted after reviewing your catalogue scope. 7-day money-back guarantee.
+
+## Technology
+- GS1 Digital Link QR codes (ISO/IEC standard)
+- Base (Coinbase's Ethereum Layer 2) for DPP issuance
+- Ethereum mainnet anchoring for permanent verification
+- Laava Smart Fingerprint authentication
+- OriginTrail integration
+
+## Location
+Byron Bay, Australia
+
+## Contact
+josiah@destore.network
+https://destore.network
