@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="destore-favicon.svg">
+  <link rel="shortcut icon" href="destore-favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — DeStore Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<meta name="description" content="Get in touch with DeStore Network — DPP compliance, partnerships, press, and general enquiries.">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orchid:#6A14DB;--violet:#B354F1;--orange:#FF9F46;--green:#28B79D;
+  --bg:#0a0a0d;--d1:#0d0d10;--d2:#141418;--d3:#1c1c22;--bdr:#2e2e38;
+  --muted:#6b6b80;--dim:#9999b0;--txt:#ffffff;
+  --nav-bg:rgba(10,10,13,0.95);
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.07)}
+.nav-inner{display:flex;align-items:center;padding:0 20px;height:56px;gap:12px}
+.nav-logo{display:flex;align-items:center;flex-shrink:0;text-decoration:none}
+.nav-links{display:flex;gap:2px;margin-left:auto}
+.nav-link{padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;transition:all .15s}
+.nav-link:hover,.nav-link.active{color:var(--violet)}
+.nav-cta{margin-left:8px;padding:9px 18px;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0}
+.nav-hamburger{display:none;background:none;border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--txt);font-size:16px;line-height:1;margin-left:auto}
+.nav-drawer{display:none;position:fixed;top:56px;left:0;right:0;background:var(--d1);border-bottom:1px solid var(--bdr);padding:16px 20px;flex-direction:column;gap:4px;z-index:199}
+.nav-drawer.open{display:flex}
+.nav-drawer .nav-link{padding:14px 16px;font-size:15px;border-radius:10px}
+.nav-drawer .nav-cta{padding:14px 16px;font-size:15px;border-radius:10px;text-align:center;margin-top:8px}
+
+/* PAGE */
+.page{padding-top:56px}
+
+/* HERO */
+.hero{padding:60px 20px 40px;text-align:center}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--violet);text-transform:uppercase;margin-bottom:20px}
+.hero-tag::before,.hero-tag::after{content:'';width:24px;height:1px;background:var(--violet);opacity:.5}
+.hero h1{font-size:clamp(28px,8vw,52px);font-weight:900;line-height:1.1;letter-spacing:-.02em;margin-bottom:16px}
+.hero-sub{font-size:16px;color:var(--dim);line-height:1.7;max-width:540px;margin:0 auto}
+
+/* CONTACT LAYOUT */
+.contact-wrap{padding:20px 20px 80px;max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:32px}
+
+/* QUICK CONTACT CARDS */
+.quick-cards{display:grid;grid-template-columns:1fr;gap:12px}
+.qcard{background:var(--d2);border:1px solid var(--bdr);border-radius:14px;padding:20px;display:flex;align-items:flex-start;gap:14px;text-decoration:none;transition:border-color .18s}
+.qcard:hover{border-color:rgba(179,84,241,.4)}
+.qcard-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.qcard-label{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.qcard-title{font-size:14px;font-weight:700;color:var(--txt);margin-bottom:3px}
+.qcard-sub{font-size:12px;color:var(--muted)}
+
+/* FORM */
+.form-card{background:var(--d2);border:1px solid var(--bdr);border-radius:18px;padding:28px 24px}
+.form-title{font-size:20px;font-weight:900;margin-bottom:6px}
+.form-sub{font-size:14px;color:var(--dim);margin-bottom:24px;line-height:1.6}
+
+.form-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.form-row{display:grid;grid-template-columns:1fr;gap:14px}
+
+label{display:block;font-size:12px;font-weight:700;color:var(--dim);letter-spacing:.04em;margin-bottom:6px}
+input,select,textarea{
+  width:100%;background:var(--d3);border:1px solid var(--bdr);border-radius:10px;
+  padding:14px 16px;color:var(--txt);font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  font-size:15px;font-weight:500;outline:none;-webkit-appearance:none;appearance:none;
+  transition:border-color .15s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--violet)}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b80' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer}
+select option{background:var(--d3);color:var(--txt)}
+textarea{resize:vertical;min-height:120px;line-height:1.6}
+
+.form-error{display:none;font-size:13px;color:#f56565;margin-top:8px;padding:12px 14px;background:rgba(245,101,101,.1);border:1px solid rgba(245,101,101,.25);border-radius:8px}
+
+.btn-submit{width:100%;padding:16px;background:linear-gradient(135deg,var(--orchid),var(--violet));color:#fff;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:opacity .15s;min-height:52px;margin-top:6px}
+.btn-submit:hover{opacity:.88}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed}
+
+/* SUCCESS */
+.form-success{display:none;text-align:center;padding:40px 20px}
+.form-success.show{display:block}
+.success-icon{font-size:48px;margin-bottom:16px}
+.success-title{font-size:22px;font-weight:900;margin-bottom:10px}
+.success-body{font-size:15px;color:var(--dim);line-height:1.7}
+
+/* FOOTER */
+footer{border-top:1px solid var(--bdr);padding:32px 20px;display:flex;flex-direction:column;gap:20px}
+.footer-left{font-size:12px;color:var(--muted);line-height:1.8}
+.footer-links{display:flex;flex-wrap:wrap;gap:16px}
+.footer-link{font-size:13px;color:var(--muted);text-decoration:none;font-weight:600;min-height:44px;display:flex;align-items:center}
+
+@media(min-width:600px){
+  .form-row{grid-template-columns:1fr 1fr}
+  .quick-cards{grid-template-columns:repeat(2,1fr)}
+}
+@media(min-width:900px){
+  .nav-hamburger{display:none!important}
+  .nav-links{display:flex!important}
+  .nav-cta-desktop{display:flex!important}
+  .nav-inner{padding:0 40px;height:60px}
+  .hero{padding:80px 40px 48px}
+  .contact-wrap{padding:32px 40px 80px;grid-template-columns:280px 1fr;align-items:start}
+  .quick-cards{grid-template-columns:1fr}
+  .form-card{padding:36px 32px}
+  footer{flex-direction:row;align-items:center;padding:40px}
+}
+@media(max-width:899px){
+  .nav-links{display:none}
+  .nav-cta-desktop{display:none!important}
+  .nav-hamburger{display:block}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.fade-up{animation:fadeUp .5s ease forwards}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">
+      <img src="data:image/svg+xml,%3Csvg%20width%3D%22405.4%22%20height%3D%2276.5%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20405.4%2076.5%22%20aria-label%3D%22DeStore%22%3E%0A%20%20%3Cg%20fill%3D%22%23FFFFFF%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M398.1%2C33.4c-3.2%2C0-5.8-2.6-5.8-5.8s2.6-5.8%2C5.8-5.8s5.8%2C2.6%2C5.8%2C5.8S401.3%2C33.4%2C398.1%2C33.4z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M1.4%2C2.8h24.1c21.9%2C0%2C36.2%2C15.4%2C36.2%2C35.4c0%2C20.1-14.3%2C35.3-36.2%2C35.3H1.4V2.8z%20M25.6%2C65.6c17.2%2C0%2C27.1-12.3%2C27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M97.5%2C21.1c15.5%2C0%2C24.6%2C12.1%2C24.6%2C27.4v2H80.6c0.6%2C9.6%2C7.4%2C17.7%2C18.4%2C17.7c5.8%2C0%2C11.8-2.3%2C15.8-6.5l3.8%2C5.2c-5.1%2C5.1-12%2C7.8-20.3%2C7.8c-15.1%2C0-26.1-10.9-26.1-26.9C72.3%2C33%2C82.8%2C21.1%2C97.5%2C21.1z%20M80.6%2C44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4%2C27.6%2C81%2C36.8%2C80.6%2C44.7z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M137.8%2C49.9c5.1%2C5.1%2C12.9%2C9.3%2C22.6%2C9.3c6.2%2C0%2C10.1-2.6%2C10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9%2C10.1-22.1%2C28.2-22.1c11.3%2C0%2C21.2%2C3.4%2C28.7%2C9.8l-10%2C13c-5.9-4.9-13.7-7.3-19.9-7.3c-6%2C0-8.4%2C2.4-8.4%2C5.5c0%2C3.7%2C4.3%2C5%2C12.2%2C6.5c11.6%2C2.4%2C27.7%2C5.8%2C27.7%2C21.8c0%2C14.2-10.5%2C23.6-29.4%2C23.6c-14.3%2C0-24.3-4.4-31.3-11.2L137.8%2C49.9z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M199.9%2C59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0%2C3%2C1.7%2C5.2%2C4.6%2C5.2c1.8%2C0%2C3.6-0.6%2C4.1-1.3l3.2%2C12.3c-2%2C1.9-6%2C3.4-12.1%2C3.4C205.5%2C74.8%2C199.9%2C69.6%2C199.9%2C59.7z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M231.2%2C47.9c0-14.4%2C10.5-26.8%2C27.9-26.8c17.6%2C0%2C28%2C12.4%2C28%2C26.8s-10.4%2C26.9-28%2C26.9C241.7%2C74.8%2C231.2%2C62.3%2C231.2%2C47.9z%20M270.3%2C47.9c0-6.8-4-12.4-11.2-12.4c-7.1%2C0-11%2C5.6-11%2C12.4c0%2C6.9%2C3.9%2C12.5%2C11%2C12.5C266.3%2C60.3%2C270.3%2C54.7%2C270.3%2C47.9z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M295.6%2C22.3h16.3v6.5c3.4-4.1%2C9.8-7.7%2C16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2%2C0-9.8%2C1.8-12%2C4.8v32.4h-16.3V22.3z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M359.1%2C21.1c15.1%2C0%2C26.2%2C11.1%2C26.2%2C28.5V53h-36.4c1%2C4.8%2C5.4%2C9.1%2C13%2C9.1c4.6%2C0%2C9.6-1.8%2C12.5-4.3l6.9%2C10.2c-5.1%2C4.6-13.6%2C6.8-21.4%2C6.8c-15.8%2C0-28-10.3-28-26.9C331.9%2C33%2C343.1%2C21.1%2C359.1%2C21.1z%20M348.6%2C42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352%2C33.7%2C349.3%2C38.7%2C348.6%2C42.5z%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E" alt="DeStore" width="120" height="22" style="display:block;">
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Platform</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="team.html" class="nav-link">Team</a>
+      <a href="faq.html" class="nav-link">FAQ</a>
+    </div>
+    <a href="contact.html" class="nav-cta nav-cta-desktop">Contact →</a>
+    <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">☰</button>
+  </div>
+</nav>
+<div class="nav-drawer" id="navDrawer">
+  <a href="index.html" class="nav-link">Platform</a>
+  <a href="about.html" class="nav-link">About</a>
+  <a href="team.html" class="nav-link">Team</a>
+  <a href="faq.html" class="nav-link">FAQ</a>
+  <a href="contact.html" class="nav-cta">Contact →</a>
+</div>
+
+<div class="page">
+  <div class="hero fade-up">
+    <div class="hero-tag">Get in Touch</div>
+    <h1>Let's talk <span style="color:var(--violet)">DPPs</span></h1>
+    <p class="hero-sub">Whether you're a brand preparing for the EU deadline, a potential partner, or just curious — we'd love to hear from you.</p>
+  </div>
+
+  <div class="contact-wrap">
+
+    <!-- QUICK CONTACT SIDEBAR -->
+    <div class="quick-cards">
+      <a href="mailto:Josiah@destore.network" class="qcard">
+        <div class="qcard-icon" style="background:rgba(179,84,241,.1)">✉</div>
+        <div>
+          <div class="qcard-label" style="color:var(--violet)">Email</div>
+          <div class="qcard-title">Josiah@destore.network</div>
+          <div class="qcard-sub">Direct line to the founder</div>
+        </div>
+      </a>
+      <div class="qcard" style="cursor:default">
+        <div class="qcard-icon" style="background:rgba(40,183,157,.1)">◈</div>
+        <div>
+          <div class="qcard-label" style="color:var(--green)">Platform</div>
+          <div class="qcard-title">DPP & ESPR enquiries</div>
+          <div class="qcard-sub">Use the form — we'll respond within 1 business day</div>
+        </div>
+      </div>
+      <div class="qcard" style="cursor:default">
+        <div class="qcard-icon" style="background:rgba(255,159,70,.1)">⬡</div>
+        <div>
+          <div class="qcard-label" style="color:var(--orange)">Partnerships</div>
+          <div class="qcard-title">GS1 · Laava · Resellers</div>
+          <div class="qcard-sub">Select "Partnership" in the form below</div>
+        </div>
+      </div>
+      <div class="qcard" style="cursor:default">
+        <div class="qcard-icon" style="background:rgba(106,20,219,.1)">◎</div>
+        <div>
+          <div class="qcard-label" style="color:var(--violet)">Based in</div>
+          <div class="qcard-title">Byron Bay, Australia</div>
+          <div class="qcard-sub">AEST · UTC+10 / UTC+11</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT FORM -->
+    <div class="form-card">
+      <div class="form-title">Send us a message</div>
+      <div class="form-sub">Tell us about your brand, your products, and what you need. We'll come back with a clear answer.</div>
+
+      <form id="contactForm" onsubmit="handleSubmit(event)">
+        <div class="form-grid">
+
+          <div class="form-row">
+            <div>
+              <label for="f-name">Your name</label>
+              <input id="f-name" name="name" type="text" placeholder="Jane Smith" required autocomplete="name">
+            </div>
+            <div>
+              <label for="f-email">Email address</label>
+              <input id="f-email" name="email" type="email" placeholder="jane@yourbrand.com" required autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label for="f-brand">Brand / Company</label>
+              <input id="f-brand" name="brand" type="text" placeholder="Acme Co." required autocomplete="organization">
+            </div>
+            <div>
+              <label for="f-type">Enquiry type</label>
+              <select id="f-type" name="enquiry_type" required>
+                <option value="" disabled selected>Select one...</option>
+                <option value="dpp-espr">DPP &amp; ESPR Compliance</option>
+                <option value="pricing">Pricing &amp; Plans</option>
+                <option value="partnership">Partnership / Reseller</option>
+                <option value="gs1">GS1 &amp; QR Codes</option>
+                <option value="press">Press &amp; Media</option>
+                <option value="invest">Investment Enquiry</option>
+                <option value="other">General Enquiry</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="f-message">Message</label>
+            <textarea id="f-message" name="message" placeholder="Tell us about your brand, what you make, where you sell, and what you need from us. The more context the better." required></textarea>
+          </div>
+
+          <div id="formError" class="form-error"></div>
+
+          <button type="submit" class="btn-submit" id="formSubmitBtn">Send message →</button>
+
+        </div>
+      </form>
+
+      <div class="form-success" id="formSuccess">
+        <div class="success-icon">✓</div>
+        <div class="success-title">Message received.</div>
+        <div class="success-body">We'll get back to you within one business day.<br>In the meantime, feel free to email Josiah directly at<br><a href="mailto:Josiah@destore.network" style="color:var(--violet);text-decoration:none;font-weight:700">Josiah@destore.network</a></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-left">
+    © 2026 DeStore Network · Byron Bay, Australia<br>
+    <a href="mailto:Josiah@destore.network" style="color:var(--violet);text-decoration:none">Josiah@destore.network</a>
+  </div>
+  <div class="footer-links">
+    <a href="index.html" class="footer-link">Platform</a>
+    <a href="about.html" class="footer-link">About</a>
+    <a href="team.html" class="footer-link">Team</a>
+    <a href="faq.html" class="footer-link">FAQ</a>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(){document.getElementById('navDrawer').classList.toggle('open')}
+document.addEventListener('click',function(e){if(!e.target.closest('nav')&&!e.target.closest('.nav-drawer'))document.getElementById('navDrawer').classList.remove('open')});
+
+async function handleSubmit(e) {
+  e.preventDefault();
+  var btn = document.getElementById('formSubmitBtn');
+  var errEl = document.getElementById('formError');
+  var form = document.getElementById('contactForm');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  errEl.style.display = 'none';
+  var payload = {
+    access_key: '9f69e7d7-780d-45f2-9595-9191de8a1589',
+    name: document.getElementById('f-name').value.trim(),
+    brand: document.getElementById('f-brand').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    enquiry_type: document.getElementById('f-type').value,
+    message: document.getElementById('f-message').value.trim(),
+    subject: 'New Contact Form Enquiry — DeStore',
+    from_name: 'DeStore Website',
+    botcheck: '',
+    submitted_at: new Date().toISOString()
+  };
+  try {
+    var res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Server error ' + res.status);
+    form.style.display = 'none';
+    document.getElementById('formSuccess').classList.add('show');
+    window.scrollTo({top: document.querySelector('.form-card').offsetTop - 80, behavior: 'smooth'});
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = 'Send message →';
+    errEl.textContent = 'Something went wrong — please email Josiah@destore.network directly.';
+    errEl.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

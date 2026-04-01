@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="destore-favicon.svg">
+  <link rel="shortcut icon" href="destore-favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DeStore — Digital Product Passport Infrastructure</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Cormorant+Garamond:wght@400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <meta name="description" content="DeStore builds Digital Product Passport infrastructure for brands, retailers, and resellers. Circular economy. Currently taking select custom engagements.">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -40,34 +42,7 @@
   --body-font:    'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
-/* ── LIGHT MODE ── */
-html.light {
-  --bg:      #f5f4f0;
-  --d0:      #f5f4f0;
-  --d1:      #eceae4;
-  --d2:      #e2dfd7;
-  --d3:      #d8d4ca;
-  --bdr:     #ccc9be;
-  --muted:   #888070;
-  --dim:     #666056;
-  --txt:     #1a1814;
-  --txt-sub: #666056;
-  --nav-bg:  rgba(245,244,240,0.92);
-  --card-bg: #eceae4;
-  --pillar-bg: #eceae4;
-  --pillar-hover: #e2dfd7;
-  --input-bg: #e2dfd7;
-  --strip-bg: #eceae4;
-  --logo-filter: invert(1) sepia(1) saturate(0) brightness(0.15);
-}
 
-/* ── FUN MODE ── */
-html.fun {
-  --display-font: 'Fredoka One', cursive;
-}
-html.pro {
-  --display-font: 'Cormorant Garamond', Georgia, serif;
-}
 
 /* ── LIGHT + FUN ── */
 html.light.fun {
@@ -701,56 +676,6 @@ footer {
 
 /* ── RESPONSIVE ── */
 /* ── MODE TOGGLES ── */
-.mode-toggles {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
-}
-.toggle-group {
-  display: flex;
-  background: var(--d2);
-  border: 1px solid var(--bdr);
-  border-radius: 100px;
-  padding: 3px;
-  gap: 2px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-  transition: background 0.3s, border-color 0.3s;
-}
-.tgl-btn {
-  padding: 6px 14px;
-  border-radius: 100px;
-  border: none;
-  font-family: var(--body-font);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: transparent;
-  color: var(--muted);
-}
-.tgl-btn.active {
-  background: var(--violet);
-  color: #fff;
-  box-shadow: 0 0 12px rgba(179,84,241,0.4);
-}
-.tgl-label {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-align: center;
-  margin-bottom: 2px;
-  padding-right: 4px;
-  font-family: var(--body-font);
-}
 
 /* ── HERO CANVAS BG ── */
 #heroCanvas {
@@ -845,7 +770,7 @@ footer {
 
 <!-- ── NAV ── -->
 <nav>
-  <a href="/" style="display:flex;align-items:center"><svg width="100" height="18" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 405.4 76.5"> <g> <path fill="#FFFFFF" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/> <path fill="#FFFFFF" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6 c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/> <path fill="#FFFFFF" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2 c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6 c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/> <path fill="#FFFFFF" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22 c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5 c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/> <path fill="#FFFFFF" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3 l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/> <path fill="#FFFFFF" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9 C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5 C266.3,60.3,270.3,54.7,270.3,47.9z"/> <path fill="#FFFFFF" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3 V22.3z"/> <path fill="#FFFFFF" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2 c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1 c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/> </g> </svg></a>
+  <a href="index.html" style="display:flex;align-items:center"><img src="data:image/svg+xml,%3Csvg%20width%3D%22405.4%22%20height%3D%2276.5%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20405.4%2076.5%22%20aria-label%3D%22DeStore%22%3E%0A%20%20%3Cg%20fill%3D%22%23FFFFFF%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M398.1%2C33.4c-3.2%2C0-5.8-2.6-5.8-5.8s2.6-5.8%2C5.8-5.8s5.8%2C2.6%2C5.8%2C5.8S401.3%2C33.4%2C398.1%2C33.4z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M1.4%2C2.8h24.1c21.9%2C0%2C36.2%2C15.4%2C36.2%2C35.4c0%2C20.1-14.3%2C35.3-36.2%2C35.3H1.4V2.8z%20M25.6%2C65.6c17.2%2C0%2C27.1-12.3%2C27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M97.5%2C21.1c15.5%2C0%2C24.6%2C12.1%2C24.6%2C27.4v2H80.6c0.6%2C9.6%2C7.4%2C17.7%2C18.4%2C17.7c5.8%2C0%2C11.8-2.3%2C15.8-6.5l3.8%2C5.2c-5.1%2C5.1-12%2C7.8-20.3%2C7.8c-15.1%2C0-26.1-10.9-26.1-26.9C72.3%2C33%2C82.8%2C21.1%2C97.5%2C21.1z%20M80.6%2C44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4%2C27.6%2C81%2C36.8%2C80.6%2C44.7z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M137.8%2C49.9c5.1%2C5.1%2C12.9%2C9.3%2C22.6%2C9.3c6.2%2C0%2C10.1-2.6%2C10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9%2C10.1-22.1%2C28.2-22.1c11.3%2C0%2C21.2%2C3.4%2C28.7%2C9.8l-10%2C13c-5.9-4.9-13.7-7.3-19.9-7.3c-6%2C0-8.4%2C2.4-8.4%2C5.5c0%2C3.7%2C4.3%2C5%2C12.2%2C6.5c11.6%2C2.4%2C27.7%2C5.8%2C27.7%2C21.8c0%2C14.2-10.5%2C23.6-29.4%2C23.6c-14.3%2C0-24.3-4.4-31.3-11.2L137.8%2C49.9z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M199.9%2C59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0%2C3%2C1.7%2C5.2%2C4.6%2C5.2c1.8%2C0%2C3.6-0.6%2C4.1-1.3l3.2%2C12.3c-2%2C1.9-6%2C3.4-12.1%2C3.4C205.5%2C74.8%2C199.9%2C69.6%2C199.9%2C59.7z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M231.2%2C47.9c0-14.4%2C10.5-26.8%2C27.9-26.8c17.6%2C0%2C28%2C12.4%2C28%2C26.8s-10.4%2C26.9-28%2C26.9C241.7%2C74.8%2C231.2%2C62.3%2C231.2%2C47.9z%20M270.3%2C47.9c0-6.8-4-12.4-11.2-12.4c-7.1%2C0-11%2C5.6-11%2C12.4c0%2C6.9%2C3.9%2C12.5%2C11%2C12.5C266.3%2C60.3%2C270.3%2C54.7%2C270.3%2C47.9z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M295.6%2C22.3h16.3v6.5c3.4-4.1%2C9.8-7.7%2C16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2%2C0-9.8%2C1.8-12%2C4.8v32.4h-16.3V22.3z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M359.1%2C21.1c15.1%2C0%2C26.2%2C11.1%2C26.2%2C28.5V53h-36.4c1%2C4.8%2C5.4%2C9.1%2C13%2C9.1c4.6%2C0%2C9.6-1.8%2C12.5-4.3l6.9%2C10.2c-5.1%2C4.6-13.6%2C6.8-21.4%2C6.8c-15.8%2C0-28-10.3-28-26.9C331.9%2C33%2C343.1%2C21.1%2C359.1%2C21.1z%20M348.6%2C42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352%2C33.7%2C349.3%2C38.7%2C348.6%2C42.5z%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E" alt="DeStore" width="120" height="22" style="display:block;"></a>
   <div class="nav-badge">
     <div class="nav-dot"></div>
     EU ESPR Deadline · July 2027
@@ -1045,7 +970,7 @@ footer {
         <div style="font-size:11px;font-weight:800;color:var(--violet);letter-spacing:0.1em;margin-bottom:16px;">01</div>
         <div class="hiw-icon site-icon" data-pro="tag" data-fun="🏷" style="margin-bottom:12px;"></div>
         <div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:8px;">DPP Issued</div>
-        <div style="font-size:12px;color:var(--dim);line-height:1.7;">Your product gets a unique Digital Product Passport — minted on Base blockchain, anchored to Ethereum. Materials, origin, carbon, ownership. Tamper-evident. Permanent.</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.7;">Your product gets a unique Digital Product Passport — issued on Base, anchored to Ethereum mainnet. Materials, origin, carbon, ownership. Tamper-evident. Permanent.</div>
       </div>
       <div style="background:var(--d0);padding:28px 24px;">
         <div style="font-size:11px;font-weight:800;color:var(--orange);letter-spacing:0.1em;margin-bottom:16px;">02</div>
@@ -1056,7 +981,7 @@ footer {
       <div style="background:var(--d0);padding:28px 24px;">
         <div style="font-size:11px;font-weight:800;color:var(--green);letter-spacing:0.1em;margin-bottom:16px;">03</div>
         <div class="hiw-icon site-icon" data-pro="link" data-fun="🔗" style="margin-bottom:12px;"></div>
-        <div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:8px;">Blockchain Trace</div>
+        <div style="font-size:14px;font-weight:800;color:var(--txt);margin-bottom:8px;">Permanent Record</div>
         <div style="font-size:12px;color:var(--dim);line-height:1.7;">Every scan, every ownership transfer, every lifecycle event is permanently recorded. A complete, tamper-evident chain of custody — visible to regulators, customers, and resellers. Forever.</div>
       </div>
       <div style="background:var(--d0);padding:28px 24px;">
@@ -1074,7 +999,7 @@ footer {
         <span style="font-size:12px;font-weight:800;color:var(--green);letter-spacing:0.06em;">◈ RECORD VERIFIED</span>
       </div>
       <div style="font-size:13px;color:var(--dim);line-height:1.6;flex:1;min-width:240px;">
-        Every DPP is minted on <strong style="color:var(--txt)">Base</strong> (Coinbase's L2) and the record is anchored to <strong style="color:var(--txt)">Ethereum mainnet</strong> — the most battle-tested public ledger on earth. Your product data is not stored in a database someone can delete. It lives on a public record that no company, government, or bad actor can alter or erase.
+        Every DPP is issued on <strong style="color:var(--txt)">Base</strong> (Coinbase's L2), and every batch is cryptographically anchored to <strong style="color:var(--txt)">Ethereum mainnet</strong> — the world's most battle-tested public ledger. Your product record is not stored in a database someone can delete. It lives on a public record that no company, government, or bad actor can alter or erase.
       </div>
     </div>
   </div>
@@ -1086,7 +1011,7 @@ footer {
       <div class="custom-tag">◈ EU ESPR Deadline · July 2027</div>
       <h2 class="custom-title">Australian SMEs are the most exposed — and the least prepared.</h2>
       <p class="custom-body">
-        The big brands have compliance teams and enterprise vendors. Australian SMEs doing under $1M have neither — and the deadline is the same for everyone. DeStore was built specifically for brands at this scale: done-for-you DPP infrastructure that doesn't require a blockchain developer, a six-month integration, or a budget you don't have.
+        The big brands have compliance teams and enterprise vendors. Australian SMEs doing under $1M have neither — and the deadline is the same for everyone. DeStore was built specifically for brands at this scale: done-for-you DPP infrastructure that doesn't require a developer, a six-month integration, or a budget you don't have.
       </p>
       <p class="custom-body" style="margin-top:16px;font-size:13px;color:var(--muted);padding-top:14px;border-top:1px solid var(--bdr);">
         ESPR gave brands a deadline. We were building this infrastructure regardless.
@@ -1505,16 +1430,7 @@ footer {
   <!-- topbar -->
   <div class="topbar">
     <div class="topbar-brand">
-      <svg width="72" height="13" viewBox="0 0 405.4 76.5" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#fff" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/>
-        <path fill="#fff" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/>
-        <path fill="#fff" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/>
-        <path fill="#fff" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/>
-        <path fill="#fff" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/>
-        <path fill="#fff" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5C266.3,60.3,270.3,54.7,270.3,47.9z"/>
-        <path fill="#fff" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3V22.3z"/>
-        <path fill="#fff" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/>
-      </svg>
+      <img src="data:image/svg+xml,%3Csvg%20width%3D%22405.4%22%20height%3D%2276.5%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20405.4%2076.5%22%20aria-label%3D%22DeStore%22%3E%0A%20%20%3Cg%20fill%3D%22%23FFFFFF%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M398.1%2C33.4c-3.2%2C0-5.8-2.6-5.8-5.8s2.6-5.8%2C5.8-5.8s5.8%2C2.6%2C5.8%2C5.8S401.3%2C33.4%2C398.1%2C33.4z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M1.4%2C2.8h24.1c21.9%2C0%2C36.2%2C15.4%2C36.2%2C35.4c0%2C20.1-14.3%2C35.3-36.2%2C35.3H1.4V2.8z%20M25.6%2C65.6c17.2%2C0%2C27.1-12.3%2C27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M97.5%2C21.1c15.5%2C0%2C24.6%2C12.1%2C24.6%2C27.4v2H80.6c0.6%2C9.6%2C7.4%2C17.7%2C18.4%2C17.7c5.8%2C0%2C11.8-2.3%2C15.8-6.5l3.8%2C5.2c-5.1%2C5.1-12%2C7.8-20.3%2C7.8c-15.1%2C0-26.1-10.9-26.1-26.9C72.3%2C33%2C82.8%2C21.1%2C97.5%2C21.1z%20M80.6%2C44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4%2C27.6%2C81%2C36.8%2C80.6%2C44.7z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M137.8%2C49.9c5.1%2C5.1%2C12.9%2C9.3%2C22.6%2C9.3c6.2%2C0%2C10.1-2.6%2C10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9%2C10.1-22.1%2C28.2-22.1c11.3%2C0%2C21.2%2C3.4%2C28.7%2C9.8l-10%2C13c-5.9-4.9-13.7-7.3-19.9-7.3c-6%2C0-8.4%2C2.4-8.4%2C5.5c0%2C3.7%2C4.3%2C5%2C12.2%2C6.5c11.6%2C2.4%2C27.7%2C5.8%2C27.7%2C21.8c0%2C14.2-10.5%2C23.6-29.4%2C23.6c-14.3%2C0-24.3-4.4-31.3-11.2L137.8%2C49.9z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M199.9%2C59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0%2C3%2C1.7%2C5.2%2C4.6%2C5.2c1.8%2C0%2C3.6-0.6%2C4.1-1.3l3.2%2C12.3c-2%2C1.9-6%2C3.4-12.1%2C3.4C205.5%2C74.8%2C199.9%2C69.6%2C199.9%2C59.7z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M231.2%2C47.9c0-14.4%2C10.5-26.8%2C27.9-26.8c17.6%2C0%2C28%2C12.4%2C28%2C26.8s-10.4%2C26.9-28%2C26.9C241.7%2C74.8%2C231.2%2C62.3%2C231.2%2C47.9z%20M270.3%2C47.9c0-6.8-4-12.4-11.2-12.4c-7.1%2C0-11%2C5.6-11%2C12.4c0%2C6.9%2C3.9%2C12.5%2C11%2C12.5C266.3%2C60.3%2C270.3%2C54.7%2C270.3%2C47.9z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M295.6%2C22.3h16.3v6.5c3.4-4.1%2C9.8-7.7%2C16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2%2C0-9.8%2C1.8-12%2C4.8v32.4h-16.3V22.3z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M359.1%2C21.1c15.1%2C0%2C26.2%2C11.1%2C26.2%2C28.5V53h-36.4c1%2C4.8%2C5.4%2C9.1%2C13%2C9.1c4.6%2C0%2C9.6-1.8%2C12.5-4.3l6.9%2C10.2c-5.1%2C4.6-13.6%2C6.8-21.4%2C6.8c-15.8%2C0-28-10.3-28-26.9C331.9%2C33%2C343.1%2C21.1%2C359.1%2C21.1z%20M348.6%2C42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352%2C33.7%2C349.3%2C38.7%2C348.6%2C42.5z%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E" alt="DeStore" width="72" height="13" style="display:block;">
     </div>
     <div class="step-counter" id="step-counter"></div>
   </div>
@@ -1901,7 +1817,7 @@ buildChoices();
 <!-- ── FOOTER ── -->
 <footer>
   <div>
-    <svg width="100" height="18" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 405.4 76.5"> <g> <path fill="#FFFFFF" d="M398.1,33.4c-3.2,0-5.8-2.6-5.8-5.8s2.6-5.8,5.8-5.8s5.8,2.6,5.8,5.8S401.3,33.4,398.1,33.4z"/> <path fill="#FFFFFF" d="M1.4,2.8h24.1c21.9,0,36.2,15.4,36.2,35.4c0,20.1-14.3,35.3-36.2,35.3H1.4V2.8z M25.6,65.6 c17.2,0,27.1-12.3,27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z"/> <path fill="#FFFFFF" d="M97.5,21.1c15.5,0,24.6,12.1,24.6,27.4v2H80.6c0.6,9.6,7.4,17.7,18.4,17.7c5.8,0,11.8-2.3,15.8-6.5l3.8,5.2 c-5.1,5.1-12,7.8-20.3,7.8c-15.1,0-26.1-10.9-26.1-26.9C72.3,33,82.8,21.1,97.5,21.1z M80.6,44.7h33.6 c-0.1-7.6-5.2-17.1-16.8-17.1C86.4,27.6,81,36.8,80.6,44.7z"/> <path fill="#FFFFFF" d="M137.8,49.9c5.1,5.1,12.9,9.3,22.6,9.3c6.2,0,10.1-2.6,10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22 c0-11.9,10.1-22.1,28.2-22.1c11.3,0,21.2,3.4,28.7,9.8l-10,13c-5.9-4.9-13.7-7.3-19.9-7.3c-6,0-8.4,2.4-8.4,5.5 c0,3.7,4.3,5,12.2,6.5c11.6,2.4,27.7,5.8,27.7,21.8c0,14.2-10.5,23.6-29.4,23.6c-14.3,0-24.3-4.4-31.3-11.2L137.8,49.9z"/> <path fill="#FFFFFF" d="M199.9,59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0,3,1.7,5.2,4.6,5.2c1.8,0,3.6-0.6,4.1-1.3 l3.2,12.3c-2,1.9-6,3.4-12.1,3.4C205.5,74.8,199.9,69.6,199.9,59.7z"/> <path fill="#FFFFFF" d="M231.2,47.9c0-14.4,10.5-26.8,27.9-26.8c17.6,0,28,12.4,28,26.8s-10.4,26.9-28,26.9 C241.7,74.8,231.2,62.3,231.2,47.9z M270.3,47.9c0-6.8-4-12.4-11.2-12.4c-7.1,0-11,5.6-11,12.4c0,6.9,3.9,12.5,11,12.5 C266.3,60.3,270.3,54.7,270.3,47.9z"/> <path fill="#FFFFFF" d="M295.6,22.3h16.3v6.5c3.4-4.1,9.8-7.7,16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2,0-9.8,1.8-12,4.8v32.4h-16.3 V22.3z"/> <path fill="#FFFFFF" d="M359.1,21.1c15.1,0,26.2,11.1,26.2,28.5V53h-36.4c1,4.8,5.4,9.1,13,9.1c4.6,0,9.6-1.8,12.5-4.3l6.9,10.2 c-5.1,4.6-13.6,6.8-21.4,6.8c-15.8,0-28-10.3-28-26.9C331.9,33,343.1,21.1,359.1,21.1z M348.6,42.5h21.1 c-0.4-3.6-3.1-8.8-10.6-8.8C352,33.7,349.3,38.7,348.6,42.5z"/> </g> </svg>
+    <img src="data:image/svg+xml,%3Csvg%20width%3D%22405.4%22%20height%3D%2276.5%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20405.4%2076.5%22%20aria-label%3D%22DeStore%22%3E%0A%20%20%3Cg%20fill%3D%22%23FFFFFF%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M398.1%2C33.4c-3.2%2C0-5.8-2.6-5.8-5.8s2.6-5.8%2C5.8-5.8s5.8%2C2.6%2C5.8%2C5.8S401.3%2C33.4%2C398.1%2C33.4z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M1.4%2C2.8h24.1c21.9%2C0%2C36.2%2C15.4%2C36.2%2C35.4c0%2C20.1-14.3%2C35.3-36.2%2C35.3H1.4V2.8z%20M25.6%2C65.6c17.2%2C0%2C27.1-12.3%2C27.1-27.4c0-15.3-9.6-27.5-27.1-27.5H10.2v55H25.6z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M97.5%2C21.1c15.5%2C0%2C24.6%2C12.1%2C24.6%2C27.4v2H80.6c0.6%2C9.6%2C7.4%2C17.7%2C18.4%2C17.7c5.8%2C0%2C11.8-2.3%2C15.8-6.5l3.8%2C5.2c-5.1%2C5.1-12%2C7.8-20.3%2C7.8c-15.1%2C0-26.1-10.9-26.1-26.9C72.3%2C33%2C82.8%2C21.1%2C97.5%2C21.1z%20M80.6%2C44.7h33.6c-0.1-7.6-5.2-17.1-16.8-17.1C86.4%2C27.6%2C81%2C36.8%2C80.6%2C44.7z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M137.8%2C49.9c5.1%2C5.1%2C12.9%2C9.3%2C22.6%2C9.3c6.2%2C0%2C10.1-2.6%2C10.1-6c0-4-4.6-5.6-12.1-7.2c-11.6-2.3-28-5.3-28-22c0-11.9%2C10.1-22.1%2C28.2-22.1c11.3%2C0%2C21.2%2C3.4%2C28.7%2C9.8l-10%2C13c-5.9-4.9-13.7-7.3-19.9-7.3c-6%2C0-8.4%2C2.4-8.4%2C5.5c0%2C3.7%2C4.3%2C5%2C12.2%2C6.5c11.6%2C2.4%2C27.7%2C5.8%2C27.7%2C21.8c0%2C14.2-10.5%2C23.6-29.4%2C23.6c-14.3%2C0-24.3-4.4-31.3-11.2L137.8%2C49.9z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M199.9%2C59.7V36.5h-8.5V22.3h8.5v-14h16.2v14h10.4v14.2h-10.4v18.6c0%2C3%2C1.7%2C5.2%2C4.6%2C5.2c1.8%2C0%2C3.6-0.6%2C4.1-1.3l3.2%2C12.3c-2%2C1.9-6%2C3.4-12.1%2C3.4C205.5%2C74.8%2C199.9%2C69.6%2C199.9%2C59.7z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M231.2%2C47.9c0-14.4%2C10.5-26.8%2C27.9-26.8c17.6%2C0%2C28%2C12.4%2C28%2C26.8s-10.4%2C26.9-28%2C26.9C241.7%2C74.8%2C231.2%2C62.3%2C231.2%2C47.9z%20M270.3%2C47.9c0-6.8-4-12.4-11.2-12.4c-7.1%2C0-11%2C5.6-11%2C12.4c0%2C6.9%2C3.9%2C12.5%2C11%2C12.5C266.3%2C60.3%2C270.3%2C54.7%2C270.3%2C47.9z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M295.6%2C22.3h16.3v6.5c3.4-4.1%2C9.8-7.7%2C16-7.7v15.8c-1-0.3-2.3-0.5-4-0.5c-4.2%2C0-9.8%2C1.8-12%2C4.8v32.4h-16.3V22.3z%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M359.1%2C21.1c15.1%2C0%2C26.2%2C11.1%2C26.2%2C28.5V53h-36.4c1%2C4.8%2C5.4%2C9.1%2C13%2C9.1c4.6%2C0%2C9.6-1.8%2C12.5-4.3l6.9%2C10.2c-5.1%2C4.6-13.6%2C6.8-21.4%2C6.8c-15.8%2C0-28-10.3-28-26.9C331.9%2C33%2C343.1%2C21.1%2C359.1%2C21.1z%20M348.6%2C42.5h21.1c-0.4-3.6-3.1-8.8-10.6-8.8C352%2C33.7%2C349.3%2C38.7%2C348.6%2C42.5z%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E" alt="DeStore" width="100" height="18" style="display:block;opacity:0.85;">
     <div class="footer-left" style="margin-top:10px;">
       © 2026 DeStore Network · Byron Bay, Australia · Digital Product Passport Infrastructure<br>
       <a href="/cdn-cgi/l/email-protection#e2a88d918b838aa2868791968d9087cc8c8796958d9089" style="color:var(--violet);text-decoration:none;font-size:12px;"><span class="__cf_email__" data-cfemail="b6fcd9c5dfd7def6d2d3c5c2d9c4d398d8d3c2c1d9c4dd">[email&#160;protected]</span></a>
@@ -1914,74 +1830,19 @@ buildChoices();
   </div>
 </footer>
 
-<!-- ── MODE TOGGLES ── -->
-<div class="mode-toggles">
-  <div class="tgl-label">Appearance</div>
-  <div class="toggle-group">
-    <button class="tgl-btn active" id="btnDark">◐ Dark</button>
-    <button class="tgl-btn"        id="btnLight">☀ Light</button>
-  </div>
-  <div class="tgl-label" style="margin-top:4px;">Style</div>
-  <div class="toggle-group">
-    <button class="tgl-btn active" id="btnPro">◈ Pro</button>
-    <button class="tgl-btn"        id="btnFun">✦ Fun</button>
-  </div>
-</div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-/* ── Theme & mode toggles ── */
-function setTheme(t) {
-  document.documentElement.classList.toggle('light', t === 'light');
-  document.getElementById('btnDark').classList.toggle('active',  t === 'dark');
-  document.getElementById('btnLight').classList.toggle('active', t === 'light');
-  var logoFill = t === 'light' ? '#1a1814' : '#FFFFFF';
-  document.querySelectorAll('svg path[fill="#FFFFFF"], svg path[fill="#1a1814"]').forEach(function(p) {
-    p.setAttribute('fill', logoFill);
-  });
-}
-
 /* ── Lucide icon system ── */
 function setIcons(mode) {
   document.querySelectorAll('.site-icon').forEach(function(el) {
-    if (mode === 'fun') {
-      el.innerHTML = '<span class="fun-emoji">' + (el.dataset.fun || '') + '</span>';
-    } else {
-      el.innerHTML = '<i data-lucide="' + el.dataset.pro + '"></i>';
-    }
+    el.innerHTML = '<i data-lucide="' + el.dataset.pro + '"></i>';
   });
-  if (mode !== 'fun' && window.lucide) lucide.createIcons();
-}
-
-function setMode(m) {
-  var html = document.documentElement;
-  html.classList.toggle('fun', m === 'fun');
-  html.classList.toggle('pro', m === 'pro');
-  document.getElementById('btnPro').classList.toggle('active', m === 'pro');
-  document.getElementById('btnFun').classList.toggle('active', m === 'fun');
-  setIcons(m === 'fun' ? 'fun' : 'pro');
-  const hl = document.querySelector('.hero-headline');
-  if (m === 'fun') {
-    hl.dataset.pro = hl.dataset.pro || hl.innerHTML;
-    hl.innerHTML = "Your entire Product catalogue.<br>GS1 Digital Link–ready.<br><em>48 hours. ✦</em>";
-  } else {
-    if (hl.dataset.pro) hl.innerHTML = hl.dataset.pro;
-  }
-}
-function wireToggles() {
-  var bd = document.getElementById('btnDark');
-  var bl = document.getElementById('btnLight');
-  var bp = document.getElementById('btnPro');
-  var bf = document.getElementById('btnFun');
-  if (!bd) return;
-  bd.addEventListener('click', function() { setTheme('dark'); });
-  bl.addEventListener('click', function() { setTheme('light'); });
-  bp.addEventListener('click', function() { setMode('pro'); });
-  bf.addEventListener('click', function() { setMode('fun'); });
+  if (window.lucide) lucide.createIcons();
 }
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function(){ wireToggles(); setIcons('pro'); });
+  document.addEventListener('DOMContentLoaded', function(){ setIcons('pro'); });
 } else {
-  wireToggles(); setIcons('pro');
+  setIcons('pro');
 }
 
 /* ── Countdown to 1 July 2027 ── */
@@ -2180,13 +2041,9 @@ async function handleSubmit(e) {
 
   // Click tracking — CTAs, nav, toggles, form submit
   var clickTargets = [
-    { sel: '.nav-cta',       label: 'CTA: Nav — Free ESPR Check' },
-    { sel: '.hero-cta',      label: 'CTA: Hero — Free ESPR Check' },
+    { sel: '.nav-cta',       label: 'CTA: Nav — Contact' },
+    { sel: '.hero-cta',      label: 'CTA: Hero — Assessment' },
     { sel: '#formSubmitBtn', label: 'CTA: Form Submit' },
-    { sel: '#btnDark',       label: 'Toggle: Dark mode' },
-    { sel: '#btnLight',      label: 'Toggle: Light mode' },
-    { sel: '#btnPro'],
-    { sel: '#btnFun',       label: 'Toggle: Fun mode' },
   ];
   clickTargets.forEach(function(t) {
     var el = document.querySelector(t.sel);
