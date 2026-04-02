@@ -1,5 +1,1 @@
-{
-  "rewrites": [
-    { "source": "/deadline", "destination": "/api/deadline" }
-  ]
-}
+{"cleanUrls":true,"rewrites":[{"source":"/deadline","destination":"/api/deadline"}]}
